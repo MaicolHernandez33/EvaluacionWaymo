@@ -1,0 +1,3 @@
+detecciones_crudas:
+  type: pandas.CSVDataset
+  filepath: data/01_raw/detecciones_waymo_like.csv

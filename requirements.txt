@@ -1,0 +1,9 @@
+kedro==1.5.0
+kedro-datasets[pandas]
+pandas<3.0
+pyarrow
+numpy
+matplotlib
+seaborn
+jupyterlab
+ipykernel
