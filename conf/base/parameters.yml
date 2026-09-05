@@ -1,0 +1,20 @@
+preprocesamiento:
+  # altura_maxima_m viene de la celda de la seccion 5 del notebook
+  # 01_exploracion_csv que revisa box_height con
+  # describe(percentiles=[.5,.9,.99,.999]) y el conteo "box_height > 6": el
+  # maximo real observado es 3,598 m, 6 m queda como techo preventivo sin
+  # efecto sobre los datos actuales.
+  altura_maxima_m: 6.0
+
+  # velocidad_maxima_mps viene de la celda de la seccion 5 del notebook
+  # 01_exploracion_csv que ordena la cola de speed_mps por encima de 25 m/s:
+  # el salto vacio entre 32,425 y 182,764 m/s justifica el corte en 50.
+  velocidad_maxima_mps: 50.0
+
+  # columnas_protegidas evita que eliminar_columnas_sin_varianza borre
+  # weather o time_of_day en silencio si, sobre otro corte de datos (por
+  # ejemplo un segmento real 100% sunny), su varianza cae a 0 sin que eso
+  # sea un defecto.
+  columnas_protegidas:
+    - weather
+    - time_of_day

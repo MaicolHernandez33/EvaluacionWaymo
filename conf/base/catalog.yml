@@ -1,3 +1,11 @@
 detecciones_crudas:
   type: pandas.CSVDataset
   filepath: data/01_raw/detecciones_waymo_like.csv
+
+detecciones_limpias:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/detecciones_limpias.parquet
+
+resumen_calidad:
+  type: pandas.CSVDataset
+  filepath: data/08_reporting/resumen_calidad.csv
