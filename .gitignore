@@ -176,3 +176,7 @@ data/02_intermediate/*
 data/03_primary/*
 data/04_feature/*
 !data/**/.gitkeep
+
+
+# Datos Waymo - licencia no comercial, no se suben a GitHub
+data/01_raw/waymo/
