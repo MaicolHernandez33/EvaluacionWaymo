@@ -18,3 +18,29 @@ preprocesamiento:
   columnas_protegidas:
     - weather
     - time_of_day
+
+ingesta_waymo:
+  # metadata_segmentos documenta weather, time_of_day y location de cada
+  # segmento real de Waymo. No viene en los parquet de lidar_box ni de
+  # camera_to_lidar_box_association (esos archivos no traen esas 3
+  # columnas): se documento a partir de la exploracion en Colab. Los 4
+  # segmentos se eligieron a proposito para maximizar contraste de clima,
+  # momento del dia y ubicacion (ver notebooks/02_exploracion_waymo.ipynb,
+  # seccion 1).
+  metadata_segmentos:
+    "10023947602400723454_1120_000_1140_000":
+      weather: sunny
+      time_of_day: Day
+      location: location_sf
+    "10206293520369375008_2796_800_2816_800":
+      weather: sunny
+      time_of_day: Night
+      location: location_phx
+    "11017034898130016754_697_830_717_830":
+      weather: sunny
+      time_of_day: Dawn/Dusk
+      location: location_other
+    "6791933003490312185_2607_000_2627_000":
+      weather: rain
+      time_of_day: Dawn/Dusk
+      location: location_phx

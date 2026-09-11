@@ -9,3 +9,17 @@ detecciones_limpias:
 resumen_calidad:
   type: pandas.CSVDataset
   filepath: data/08_reporting/resumen_calidad.csv
+
+waymo_lidar_box_raw:
+  type: partitions.PartitionedDataset
+  path: data/01_raw/waymo/lidar_box
+  dataset: pandas.ParquetDataset
+  filename_suffix: ".parquet"
+
+waymo_con_target:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/waymo_con_target.parquet
+
+resumen_ingesta_waymo:
+  type: pandas.CSVDataset
+  filepath: data/08_reporting/resumen_ingesta_waymo.csv
