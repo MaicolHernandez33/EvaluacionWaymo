@@ -4,6 +4,17 @@
 
 Proyecto de clasificación binaria sobre datos de percepción de vehículos autónomos, construido con Kedro 1.5.0 sobre un CSV sintético (esquema Waymo v2) y una muestra real descargada del Waymo Open Dataset v2.
 
+## Estructura de notebooks
+
+| Notebook | Qué cubre |
+|---|---|
+| [`01_exploracion_csv.ipynb`](notebooks/01_exploracion_csv.ipynb) | EDA completo del CSV sintético: calidad de datos, distribuciones, relaciones a conservar, tabla de decisiones con 12 defectos y limpieza en funciones puras. |
+| [`02_exploracion_waymo.ipynb`](notebooks/02_exploracion_waymo.ipynb) | EDA de los 4 segmentos reales de Waymo: estructura de `lidar_box`, construcción del target `tiene_camara` cruzando con `camera_to_lidar_box_association`, comparación contra el CSV sintético. |
+| [`03_fuentes_y_colaboracion.ipynb`](notebooks/03_fuentes_y_colaboracion.ipynb) | Clasificación de las fuentes de datos del proyecto (estructurada/semiestructurada, formato, licencia), checklist de privacidad por fuente, y el acuerdo de trabajo colaborativo del equipo. |
+| [`04_estructuras_y_almacenamiento.ipynb`](notebooks/04_estructuras_y_almacenamiento.ipynb) | Por qué el pipeline guarda los datos intermedios en Parquet y no en CSV, con memoria y velocidad medidas sobre los datos reales del proyecto (lista vs NumPy, tipos de columna, CSV vs Parquet). |
+| [`05_etica_sesgos_privacidad.ipynb`](notebooks/05_etica_sesgos_privacidad.ipynb) | Desarrollo en detalle de la sección 7: sesgo de muestreo, de procesamiento y de clase en el target, riesgo de reidentificación, y la ficha de dataset (datasheet) completa. |
+| `06_presentacion.ipynb` | Resumen visual de cierre del proyecto (pendiente, todavía no creado). |
+
 ## 1. Descripción del problema de negocio
 
 En un sistema de conducción autónoma, el sensor LiDAR detecta objetos en 3D a partir de nubes de puntos, pero esa detección puede incluir falsos positivos (ruido, reflejos, objetos fantasma). La cámara actúa como un validador independiente: si una detección LiDAR también aparece asociada a una detección de cámara, hay mayor certeza de que el objeto es real.
@@ -155,5 +166,8 @@ Este proyecto usa una muestra pequeña y deliberadamente sesgada del Waymo Open 
    kedro jupyter notebook
    ```
 
-   - `notebooks/01_exploracion_csv.ipynb` (no requiere los datos de Waymo del paso 3, solo el CSV sintético).
-   - `notebooks/02_exploracion_waymo.ipynb` (requiere los 4 segmentos del paso 3; también corre con un Jupyter estándar, sin Kedro, gracias a que usa rutas relativas en vez del catálogo). 
+   - `notebooks/01_exploracion_csv.ipynb`
+   - `notebooks/02_exploracion_waymo.ipynb`
+   - `notebooks/03_fuentes_y_colaboracion.ipynb`
+   - `notebooks/04_estructuras_y_almacenamiento.ipynb`
+   - `notebooks/05_etica_sesgos_privacidad.ipynb`
