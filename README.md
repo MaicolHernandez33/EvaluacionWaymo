@@ -4,6 +4,16 @@
 
 Proyecto de clasificación binaria sobre datos de percepción de vehículos autónomos, construido con Kedro 1.5.0 sobre un CSV sintético (esquema Waymo v2) y una muestra real descargada del Waymo Open Dataset v2.
 
+## Notebooks del proyecto
+
+| Actividad | Indicador | Notebook |
+|-----------|-----------|---------|
+| 1.1 Fuentes de datos y trabajo colaborativo | IE1 · 10% | [`03_fuentes_y_colaboracion.ipynb`](notebooks/03_fuentes_y_colaboracion.ipynb) |
+| 1.2 Estructuras de datos y almacenamiento | IE2 · 30% | [`04_estructuras_y_almacenamiento.ipynb`](notebooks/04_estructuras_y_almacenamiento.ipynb) |
+| 1.3 Análisis exploratorio de datos (EDA) | IE3 · 40% | [`01_exploracion_csv.ipynb`](notebooks/01_exploracion_csv.ipynb) · [`02_exploracion_waymo.ipynb`](notebooks/02_exploracion_waymo.ipynb) |
+| 1.4 Impacto ético, sesgos y privacidad | IE4 · 20% | [`05_etica_sesgos_privacidad.ipynb`](notebooks/05_etica_sesgos_privacidad.ipynb) |
+| Exploración bucket Waymo | Complementario | [`00_exploracion_bucket_waymo.ipynb`](notebooks/00_exploracion_bucket_waymo.ipynb) ⚠️ Solo ejecutar en Google Colab |
+
 ## Estructura de notebooks
 
 | Notebook | Qué cubre |
@@ -13,7 +23,6 @@ Proyecto de clasificación binaria sobre datos de percepción de vehículos aut�
 | [`03_fuentes_y_colaboracion.ipynb`](notebooks/03_fuentes_y_colaboracion.ipynb) | Clasificación de las fuentes de datos del proyecto (estructurada/semiestructurada, formato, licencia), checklist de privacidad por fuente, y el acuerdo de trabajo colaborativo del equipo. |
 | [`04_estructuras_y_almacenamiento.ipynb`](notebooks/04_estructuras_y_almacenamiento.ipynb) | Por qué el pipeline guarda los datos intermedios en Parquet y no en CSV, con memoria y velocidad medidas sobre los datos reales del proyecto (lista vs NumPy, tipos de columna, CSV vs Parquet). |
 | [`05_etica_sesgos_privacidad.ipynb`](notebooks/05_etica_sesgos_privacidad.ipynb) | Desarrollo en detalle de la sección 7: sesgo de muestreo, de procesamiento y de clase en el target, riesgo de reidentificación, y la ficha de dataset (datasheet) completa. |
-| `06_presentacion.ipynb` | Resumen visual de cierre del proyecto (pendiente, todavía no creado). |
 
 ## 1. Descripción del problema de negocio
 
@@ -166,6 +175,7 @@ Este proyecto usa una muestra pequeña y deliberadamente sesgada del Waymo Open 
    kedro jupyter notebook
    ```
 
+   - `notebooks/00_exploracion_bucket_waymo.ipynb` (opcional — solo en Google Colab, documenta la selección de segmentos)
    - `notebooks/01_exploracion_csv.ipynb`
    - `notebooks/02_exploracion_waymo.ipynb`
    - `notebooks/03_fuentes_y_colaboracion.ipynb`
