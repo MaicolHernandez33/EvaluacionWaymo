@@ -1,0 +1,10 @@
+Python 3.10.11
+pandas 2.3.3
+numpy 2.2.6
+scikit-learn 1.7.2
+scipy 1.15.3
+joblib 1.5.3
+plataforma Windows-10-10.0.26300-SP0
+semilla 42
+
+Tiempos de este notebook (s): {"busqueda_LR_s": 17, "busqueda_HGB_s": 123, "busqueda_RF_s": 109, "bootstrap_comparacion_s": 45, "diagnostico_bootstrap_s": 27, "bootstrap_lr_s": 8, "permutacion_s": 4, "sensibilidad_s": 8}
