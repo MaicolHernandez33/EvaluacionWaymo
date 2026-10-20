@@ -103,7 +103,7 @@ def test_resumen_coincide_con_los_csv(readme):
     pct = lambda x: (f"{x * 100:.1f}".replace(".", ",") + " %")
     n3 = lambda x: f"{x:.3f}".replace(".", ",")
     punto = lambda t: float(str(t).split()[0])
-    resumen = readme.split("## 1. Resumen en 30 segundos")[1].split("## 2.")[0]
+    resumen = readme.split("## 1. Resumen")[1].split("## 2.")[0]
     rep = pd.read_csv(R / "data/08_reporting/09_comparacion_modelos.csv").set_index("modelo")
     assert n3(punto(rep.loc[BASE, "AUC"])) in resumen and pct(punto(rep.loc[BASE, "Fraccion para 80%"])) in resumen
     t10 = pd.read_csv(R / "data/08_reporting/10_resultado_principal.csv").set_index("metodo")
@@ -210,9 +210,12 @@ def test_tildes_en_etiquetas_de_tablas(readme):
 def test_cabecera_ruta_de_lectura_y_vocabulario(readme):
     cabecera = "\n".join(readme.splitlines()[:16])
     assert "MLY1101" in cabecera and "Fecha:" in cabecera and "Waymo Open Dataset v2" in cabecera
-    ruta = [l for l in cabecera.splitlines() if l.startswith("**Ruta de lectura de 10 minutos:**")][0]
+    ruta = [l for l in cabecera.splitlines() if l.startswith("**Lectura rápida:**")][0]
     assert re.findall(r"\[(\d+)\]\(#", ruta) == ["1", "5", "8", "10", "11", "12"]
     assert "recalibrar el corte" in readme and "reponer el corte" not in readme
+    assert "secciones [1](#1-resumen)," in ruta and "[Resumen](#1-resumen)" in readme and "\n## 1. Resumen\n" in readme       # el ancla sigue al título «1. Resumen»
+    for viejo in ("30 segundos", "Ruta de lectura", "10 minutos de lectura", "1-resumen-en-30-segundos"):
+        assert viejo not in readme, f"quedó una referencia a duración de lectura o al ancla antigua: {viejo}"
 
 
 def test_aclaraciones_de_cifras_y_etiquetas(readme):

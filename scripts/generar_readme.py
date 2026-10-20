@@ -129,7 +129,7 @@ TR, TE, SN = fila_resumen()
 
 def encabezados():
     return [
-        ("1. Resumen en 30 segundos", "resumen"), ("2. Contexto, valor de negocio, objetivos y KPIs", "contexto"), ("3. Qué hicimos en EP1", "ep1"), ("4. Datos", "datos"),
+        ("1. Resumen", "resumen"), ("2. Contexto, valor de negocio, objetivos y KPIs", "contexto"), ("3. Qué hicimos en EP1", "ep1"), ("4. Datos", "datos"),
         ("5. EDA y calidad de datos", "eda"), ("6. Preparación y transformación", "preparacion"), ("7. Metodología (CRISP-DM)", "metodologia"), ("8. Modelos supervisados", "supervisados"),
         ("9. Aprendizaje no supervisado", "no_supervisado"), ("10. Evaluación final en el test", "test"), ("11. Hallazgo post hoc: el segmento anómalo y la auditoría por cámara", "posthoc"),
         ("12. Interpretación y recomendaciones", "recomendaciones"), ("13. Ética, sesgos y privacidad", "etica"), ("14. Estructura del repositorio, reproducción y pruebas", "repo"),
@@ -137,7 +137,7 @@ def encabezados():
 
 
 TIT = dict((k, t) for t, k in encabezados())
-RUTA_10_MIN = ["resumen", "eda", "supervisados", "test", "posthoc", "recomendaciones"]       # secciones 1, 5, 8, 10, 11 y 12
+RUTA_RAPIDA = ["resumen", "eda", "supervisados", "test", "posthoc", "recomendaciones"]       # secciones 1, 5, 8, 10, 11 y 12
 
 
 def h(k):
@@ -147,7 +147,8 @@ def h(k):
 # --------------------------------------------------------------------------------------------- 0 y 1
 def cabecera():
     indice = " · ".join(f"[{t.split('. ', 1)[1].split(',')[0].split(':')[0]}](#{slug(t)})" for t, _ in encabezados())
-    ruta = ", ".join(f"[{TIT[k].split('.')[0]}](#{slug(TIT[k])})" for k in RUTA_10_MIN)
+    ruta = ", ".join(f"[{TIT[k].split('.')[0]}](#{slug(TIT[k])})" for k in RUTA_RAPIDA)
+    ruta = ", ".join(ruta.split(", ")[:-1]) + " y " + ruta.split(", ")[-1]
     return f"""# Auditoría de cajas 3D sin par 2D de cámara en Waymo Open Dataset v2
 
 *Una lista priorizada para que una persona revise primero las cajas 3D etiquetadas de peatones y ciclistas que probablemente no tienen su par 2D de cámara.*
@@ -158,7 +159,7 @@ def cabecera():
 
 **Índice:** {indice}
 
-**Ruta de lectura de 10 minutos:** secciones {ruta}.
+**Lectura rápida:** secciones {ruta}.
 
 *Generado por `scripts/generar_readme.py` el {datetime.now().strftime('%Y-%m-%d %H:%M')}. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*"""
 

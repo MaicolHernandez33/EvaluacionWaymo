@@ -6,13 +6,13 @@
 
 [Informe técnico](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_evaluacion_test.md) · [Log de trabajo](docs/log_trabajo_ep2.md) · [README de EP1](docs/README_EP1.md)
 
-**Índice:** [Resumen en 30 segundos](#1-resumen-en-30-segundos) · [Contexto](#2-contexto-valor-de-negocio-objetivos-y-kpis) · [Qué hicimos en EP1](#3-qué-hicimos-en-ep1) · [Datos](#4-datos) · [EDA y calidad de datos](#5-eda-y-calidad-de-datos) · [Preparación y transformación](#6-preparación-y-transformación) · [Metodología (CRISP-DM)](#7-metodología-crisp-dm) · [Modelos supervisados](#8-modelos-supervisados) · [Aprendizaje no supervisado](#9-aprendizaje-no-supervisado) · [Evaluación final en el test](#10-evaluación-final-en-el-test) · [Hallazgo post hoc](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) · [Interpretación y recomendaciones](#12-interpretación-y-recomendaciones) · [Ética](#13-ética-sesgos-y-privacidad) · [Estructura del repositorio](#14-estructura-del-repositorio-reproducción-y-pruebas) · [Mapa de la pauta](#15-mapa-de-la-pauta-referencias-equipo-y-limitaciones)
+**Índice:** [Resumen](#1-resumen) · [Contexto](#2-contexto-valor-de-negocio-objetivos-y-kpis) · [Qué hicimos en EP1](#3-qué-hicimos-en-ep1) · [Datos](#4-datos) · [EDA y calidad de datos](#5-eda-y-calidad-de-datos) · [Preparación y transformación](#6-preparación-y-transformación) · [Metodología (CRISP-DM)](#7-metodología-crisp-dm) · [Modelos supervisados](#8-modelos-supervisados) · [Aprendizaje no supervisado](#9-aprendizaje-no-supervisado) · [Evaluación final en el test](#10-evaluación-final-en-el-test) · [Hallazgo post hoc](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) · [Interpretación y recomendaciones](#12-interpretación-y-recomendaciones) · [Ética](#13-ética-sesgos-y-privacidad) · [Estructura del repositorio](#14-estructura-del-repositorio-reproducción-y-pruebas) · [Mapa de la pauta](#15-mapa-de-la-pauta-referencias-equipo-y-limitaciones)
 
-**Ruta de lectura de 10 minutos:** secciones [1](#1-resumen-en-30-segundos), [5](#5-eda-y-calidad-de-datos), [8](#8-modelos-supervisados), [10](#10-evaluación-final-en-el-test), [11](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara), [12](#12-interpretación-y-recomendaciones).
+**Lectura rápida:** secciones [1](#1-resumen), [5](#5-eda-y-calidad-de-datos), [8](#8-modelos-supervisados), [10](#10-evaluación-final-en-el-test), [11](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) y [12](#12-interpretación-y-recomendaciones).
 
-*Generado por `scripts/generar_readme.py` el 2026-10-20 11:20. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
+*Generado por `scripts/generar_readme.py` el 2026-10-20 11:44. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
 
-## 1. Resumen en 30 segundos
+## 1. Resumen
 
 > En la comparación principal, la regla de una línea «menos puntos del LiDAR superior (puntos top) primero» ordena bien las cajas sin par en train; en el test oficial ese resultado no se sostiene y ningún modelo supera a la regla.
 
