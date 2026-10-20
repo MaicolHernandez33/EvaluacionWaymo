@@ -180,3 +180,6 @@ data/04_feature/*
 
 # Datos Waymo - licencia no comercial, no se suben a GitHub
 data/01_raw/waymo/
+
+# Paquete de entrega generado por scripts/empaquetar_entrega.py
+entrega_EP2.zip
