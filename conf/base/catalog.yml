@@ -16,9 +16,27 @@ waymo_lidar_box_raw:
   dataset: pandas.ParquetDataset
   filename_suffix: ".parquet"
 
+waymo_asociacion_raw:
+  type: partitions.PartitionedDataset
+  path: data/01_raw/waymo/camera_to_lidar_box_association
+  dataset: pandas.ParquetDataset
+  filename_suffix: ".parquet"
+
+waymo_inventario_segmentos:
+  type: pandas.CSVDataset
+  filepath: docs/seleccion_segmentos/inventario_segmentos.csv
+
 waymo_con_target:
   type: pandas.ParquetDataset
   filepath: data/02_intermediate/waymo_con_target.parquet
+
+waymo_supervisado:
+  type: pandas.ParquetDataset
+  filepath: data/02_intermediate/waymo_supervisado.parquet
+
+reporte_filtro_frames:
+  type: pandas.CSVDataset
+  filepath: data/08_reporting/reporte_filtro_frames.csv
 
 resumen_ingesta_waymo:
   type: pandas.CSVDataset

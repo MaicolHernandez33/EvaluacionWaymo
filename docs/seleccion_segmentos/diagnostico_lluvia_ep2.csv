@@ -1,0 +1,6 @@
+segment_id,asoc_existe,asoc_filas,lidar_existe,lidar_filas,positivos,pct_positivos,problema,frames_etiquetados,pos_por_frame_etiq,tasa_frames_etiq,time_of_day,location,n_frames,n_detecciones_stats,uso,motivo
+13830510593707564159_5575_000_5595_000,True,0,True,1263,0,,asociacion vacia,0,,,Dawn/Dusk,location_phx,199,1263,solo_clustering,asociacion vacia
+16511546224219511043_6226_000_6246_000,True,0,True,986,0,,asociacion vacia,0,,,Dawn/Dusk,location_phx,199,986,solo_clustering,asociacion vacia
+2974991090366925955_4924_000_4944_000,True,0,True,805,0,,asociacion vacia,0,,,Dawn/Dusk,location_phx,199,805,solo_clustering,asociacion vacia
+3132521568089292927_2220_000_2240_000,True,0,True,1305,0,,asociacion vacia,0,,,Day,location_sf,199,1305,solo_clustering,asociacion vacia
+6791933003490312185_2607_000_2627_000,True,117,True,6837,86,1.257861635220126,,81,1.0617283950617284,2.186070157600407,Night,location_phx,198,6837,solo_clustering,etiquetado ralo (2.2% < 5.5% en frames etiquetados)
