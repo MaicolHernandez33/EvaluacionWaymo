@@ -21,7 +21,7 @@
 - **Resultado oficial (pre-declarado).** Regresión logística frente a la regla: AUC 0,698 contra 0,684. La diferencia (modelo menos regla) es +0,014 y su IC 95 % por bootstrap de segmentos, -0,014 a +0,029, incluye 0: el modelo no se distingue de la regla. El punto A (recall objetivo 0,80) dio un recall de 0,590 (IC 0,383 a 0,924) y no se sostiene.
 - **Hallazgo (post hoc, no pre-declarado).** El segmento `257766998801` aporta el 54,8 % de los positivos del test; sin él, el AUC de la regla es 0,931 (IC 0,897 a 0,982) y el recall del punto A 0,879. En ese segmento la cámara 3 (frontal der.) no tiene pares.
 
-**Recomendación (en una frase).** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre con una persona que revisa y decide.
+**Recomendación.** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre con una persona que revisa y decide.
 
 - **Paso 1: buscar cámaras con hueco.** En cada segmento (video), ver cuáles de las 5 cámaras casi no tienen pares aunque hay objetos en su campo de visión. Esas cámaras se atienden aparte, de una sola vez (completar sus etiquetas o reportar el dato que falta), no caja por caja.
 - **Paso 2: ordenar las cajas de las cámaras sanas.** En las cámaras que sí tienen pares con normalidad, ordenar las cajas poniendo primero las que tienen menos puntos LiDAR, y revisar desde arriba.
