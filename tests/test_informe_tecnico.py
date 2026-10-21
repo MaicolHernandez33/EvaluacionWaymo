@@ -103,7 +103,7 @@ def test_ronda_2_formato_constante_y_secciones(informe):
 
 def test_cierre_del_informe(informe):
     s10, s7, s13 = _seccion(informe, 10), _seccion(informe, 7), informe.split('## 14. Anexos')[1]
-    punto1 = s10[s10.index("1. **Auditoría por segmento y cámara.**"): s10.index("2. **Priorización")]
+    punto1 = s10[s10.index("1. **Nivel 1 (paso 1): auditar por segmento y cámara.**"): s10.index("2. **Nivel 2 (paso 2)")]
     assert "reúnen solo el" in punto1 and "reúnen solo el" not in s10.split("**Riesgos de equidad medidos.**")[1].split("**Monitoreo")[0]
     assert "los segmentos de lluvia usan todos sus frames y train usa solo los etiquetados" in s7
     assert "primeras filas del diagnóstico" not in informe

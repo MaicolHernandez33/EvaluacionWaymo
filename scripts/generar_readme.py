@@ -183,7 +183,8 @@ def sec_resumen():
 - **Qué hicimos.** Predecimos `sin_camara` ({pc(PREV.get('PR-AUC', float('nan')))} de las cajas de la población principal de train), con validación por segmento, tres modelos contra reglas simples y un test de {len(inf.SPLIT_TEST)} segmentos sellado con un plan congelado (sha256).
 - **Resultado oficial (pre-declarado).** Regresión logística frente a la regla: AUC {n3(B['punto'][MOD_N]['AUC'])} contra {n3(B['punto'][BASE_N]['AUC'])}. La diferencia (modelo menos regla) es {n3(B['dA'][0], True)} y su IC 95 % por bootstrap de segmentos, {n3(B['dA'][1], True)} a {n3(B['dA'][2], True)}, incluye 0: el modelo no se distingue de la regla. El punto A (recall objetivo 0,80) dio un recall de {ci_txt(TE['recall'])} y no se sostiene.
 - **Hallazgo (post hoc, no pre-declarado).** El segmento `{FOCO}` aporta el {pc(foco_pos)} de los positivos del test; sin él, el AUC de la regla es {ci_txt(SN['AUC'])} y el recall del punto A {n3(sm)}. En ese segmento la cámara {par_test.get('camara', '?')} no tiene pares.
-- **Recomendación.** Dos niveles con una persona en el circuito: auditar cada segmento por cámara y, después, priorizar las cajas con la {REGLA}. No reemplaza la revisión.
+
+{inf.recomendacion_en_dos_pasos()}
 
 {tabla(tabla_res)}
 
@@ -212,6 +213,8 @@ def sec_contexto():
 **Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
 
 **Costo de no usarlo.** Sin una lista priorizada, la única opción es revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar el {pc(PREV.get('Fraccion para 80%', float('nan')), 0)} de todas las cajas. Con la regla de puntos top, en train bastaba revisar el {pc(punto(TR['F80']))}. Es como buscar un expediente incompleto abriendo carpetas sin orden.
+
+{inf.parrafo_escala()}
 
 {obj}
 
@@ -765,10 +768,12 @@ def sec_reco():
     recall_b = f"{n3(rb[0])} (IC {n3(rb[1])} a {n3(rb[2])})"
     return f"""{h('recomendaciones')}
 
-> Usar la {REGLA} para priorizar la revisión humana, precedida de una auditoría por segmento y cámara, y no como reemplazo de la revisión.
+> Primero revisar cámara por cámara y después ordenar las cajas de las cámaras sanas con la {REGLA}, siempre con una persona que revisa y decide.
 
-1. **Nivel 1: auditar por segmento y cámara.** Para cada segmento nuevo, calcular la tasa de pares de cada cámara dentro de su rango de azimut y marcar las que caen muy por debajo de su mediana. Detecta lo que la regla no ve (hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration`).
-2. **Nivel 2: priorizar cajas con la {REGLA}** en los segmentos sin hueco, con una persona en el circuito.
+1. **Nivel 1 (paso 1): auditar por segmento y cámara.** Produce la lista de pares (segmento, cámara) con hueco: para cada segmento nuevo, calcular la tasa de pares de cada cámara dentro de su rango de azimut y marcar las que caen muy por debajo de su mediana. Esas cámaras se atienden aparte, de una sola vez (hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration`).
+2. **Nivel 2 (paso 2): priorizar cajas con la regla por puntos top.** Produce la lista de cajas a revisar, ordenadas por menos puntos LiDAR, solo en las cámaras sin hueco (sanas), con una persona en el circuito.
+
+Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 
 **Balance de objetivos** (metas de la [sección 2](#{slug(TIT['contexto'])}); «sí» si pasan todos los chequeos, «no» si no pasa ninguno y «parcial» si pasan algunos; las metas de AUC y PR-AUC son las de train y se aplican también al test como referencia):
 

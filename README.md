@@ -10,7 +10,7 @@
 
 **Lectura rápida:** secciones [1](#1-resumen), [5](#5-eda-y-calidad-de-datos), [8](#8-modelos-supervisados), [10](#10-evaluación-final-en-el-test), [11](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) y [12](#12-interpretación-y-recomendaciones).
 
-*Generado por `scripts/generar_readme.py` el 2026-10-21 10:18. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
+*Generado por `scripts/generar_readme.py` el 2026-10-21 11:28. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
 
 ## 1. Resumen
 
@@ -20,7 +20,13 @@
 - **Qué hicimos.** Predecimos `sin_camara` (20,7 % de las cajas de la población principal de train), con validación por segmento, tres modelos contra reglas simples y un test de 8 segmentos sellado con un plan congelado (sha256).
 - **Resultado oficial (pre-declarado).** Regresión logística frente a la regla: AUC 0,698 contra 0,684. La diferencia (modelo menos regla) es +0,014 y su IC 95 % por bootstrap de segmentos, -0,014 a +0,029, incluye 0: el modelo no se distingue de la regla. El punto A (recall objetivo 0,80) dio un recall de 0,590 (IC 0,383 a 0,924) y no se sostiene.
 - **Hallazgo (post hoc, no pre-declarado).** El segmento `257766998801` aporta el 54,8 % de los positivos del test; sin él, el AUC de la regla es 0,931 (IC 0,897 a 0,982) y el recall del punto A 0,879. En ese segmento la cámara 3 (frontal der.) no tiene pares.
-- **Recomendación.** Dos niveles con una persona en el circuito: auditar cada segmento por cámara y, después, priorizar las cajas con la regla por puntos top. No reemplaza la revisión.
+
+**Recomendación (en una frase).** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre con una persona que revisa y decide.
+
+- **Paso 1: buscar cámaras con hueco.** En cada segmento (video), ver cuáles de las 5 cámaras casi no tienen pares aunque hay objetos en su campo de visión. Esas cámaras se atienden aparte, de una sola vez (completar sus etiquetas o reportar el dato que falta), no caja por caja.
+- **Paso 2: ordenar las cajas de las cámaras sanas.** En las cámaras que sí tienen pares con normalidad, ordenar las cajas poniendo primero las que tienen menos puntos LiDAR, y revisar desde arriba.
+- **Por qué en ese orden.** En una cámara con hueco todas las cajas salen sin par aunque estén bien vistas, y la regla se equivoca (pasó en el segmento 257766998801, donde el AUC de la regla es 0,443). Separándolas, la regla vuelve a funcionar (AUC 0,931 sin ese segmento; post hoc, no pre-declarado).
+- **Alcance.** El paso 1 es una propuesta que nace de un hallazgo post hoc (no pre-declarada) y falta validarla con segmentos nuevos. La lista ordena la revisión; no la reemplaza.
 
 | Métrica de la regla por puntos top | Train (fuera de fold) | Test oficial | Test sin el segmento 257766998801 (post hoc, no pre-declarado) |
 |---|---|---|---|
@@ -38,6 +44,8 @@
 **Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
 
 **Costo de no usarlo.** Sin una lista priorizada, la única opción es revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar el 80 % de todas las cajas. Con la regla de puntos top, en train bastaba revisar el 37,8 %. Es como buscar un expediente incompleto abriendo carpetas sin orden.
+
+**Por qué importa a escala.** Un segmento dura 20 segundos (cerca de 200 frames) y el inventario del conjunto de entrenamiento de Waymo que revisamos tiene 798 segmentos, es decir, unas 4,4 horas de video (798 × 20 s). La revisión a mano crece en línea recta con los datos: el doble de segmentos, el doble de horas. Como ilustración de train, con el supuesto de 20 s por revisión (no medido): revisar todas las cajas de un segmento de nuestra muestra (64.509 cajas ÷ 33 segmentos) tomaría unas 10,9 h, y ordenar con la regla de puntos top en lugar de revisar al azar ahorraría unas 4,6 h por segmento. Esa ganancia no se sostuvo en el test oficial. El paso 1 (auditoría por cámara) es el que mejor escala: basta contar pares por segmento y cámara, y detecta problemas que afectan a muchas cajas a la vez (el hueco del segmento 257766998801 reúne el 35,8 % de los positivos del test).
 
 **Objetivo general.** Construir y evaluar, con validación por segmento y un test sellado, una lista priorizada de las cajas 3D etiquetadas de peatones y ciclistas, para encontrar las que no tienen par 2D de cámara revisando menos que al azar, y decir con intervalos de confianza si un modelo aporta algo frente a una regla simple.
 
@@ -176,7 +184,7 @@ La población principal tiene 64.509 de 68.555 filas de train. `train.parquet` y
 | 3. Preparación de los datos | Ingesta con Kedro, filtro de frames etiquetados, población principal, variables derivadas, split por segmento con 5 folds | Secciones del informe: 3 y 6; ingesta (Kedro) y notebooks 06 y 08 |
 | 4. Modelado | Baselines simples, regresión logística, HGB y Random Forest con búsqueda anidada por segmento; aprendizaje no supervisado | Secciones del informe: 7 y 8; notebooks 08 y 09 |
 | 5. Evaluación | Criterios fijados antes, plan de evaluación congelado con sha256, test sellado, influencia, equidad y sensibilidad | Secciones del informe: 4 y 9; notebooks 09b y 10 |
-| 6. Despliegue | Recomendación de uso en dos niveles con una persona en el circuito, monitoreo y reproducibilidad (scripts, pruebas, paquete de entrega) | Secciones del informe: 10 a 13 |
+| 6. Despliegue | Recomendación de uso: cámara por cámara primero, luego cajas por puntos top, con una persona en el circuito; monitoreo y reproducibilidad (scripts, pruebas, paquete de entrega) | Secciones del informe: 10 a 13 |
 
 ```
  Waymo v2 (41 segmentos)           split por segmento (33 train / 8 test sellado)
@@ -372,10 +380,12 @@ Diferencia de Regresión logística menos la regla por puntos top: AUC +0,014 (I
 
 ## 12. Interpretación y recomendaciones
 
-> Usar la regla por puntos top para priorizar la revisión humana, precedida de una auditoría por segmento y cámara, y no como reemplazo de la revisión.
+> Primero revisar cámara por cámara y después ordenar las cajas de las cámaras sanas con la regla por puntos top, siempre con una persona que revisa y decide.
 
-1. **Nivel 1: auditar por segmento y cámara.** Para cada segmento nuevo, calcular la tasa de pares de cada cámara dentro de su rango de azimut y marcar las que caen muy por debajo de su mediana. Detecta lo que la regla no ve (hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration`).
-2. **Nivel 2: priorizar cajas con la regla por puntos top** en los segmentos sin hueco, con una persona en el circuito.
+1. **Nivel 1 (paso 1): auditar por segmento y cámara.** Produce la lista de pares (segmento, cámara) con hueco: para cada segmento nuevo, calcular la tasa de pares de cada cámara dentro de su rango de azimut y marcar las que caen muy por debajo de su mediana. Esas cámaras se atienden aparte, de una sola vez (hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration`).
+2. **Nivel 2 (paso 2): priorizar cajas con la regla por puntos top.** Produce la lista de cajas a revisar, ordenadas por menos puntos LiDAR, solo en las cámaras sin hueco (sanas), con una persona en el circuito.
+
+Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 
 **Balance de objetivos** (metas de la [sección 2](#2-contexto-valor-de-negocio-objetivos-y-kpis); «sí» si pasan todos los chequeos, «no» si no pasa ninguno y «parcial» si pasan algunos; las metas de AUC y PR-AUC son las de train y se aplican también al test como referencia):
 
@@ -455,7 +465,7 @@ python3 -m venv .venv
 
 **Desde datos crudos:** descargar los segmentos de Waymo (licencia no comercial) y ejecutar `kedro run`, como se explica en el [README de EP1](docs/README_EP1.md).
 
-**Pruebas y cobertura** (`scripts/medir_pruebas.py`): 79 pasadas, 0 falladas, 0 omitidas; cobertura total 92,7 %. Se ejecutan con `.venv/Scripts/python.exe -m pytest -q` (Linux y Mac: `.venv/bin/python -m pytest -q`); las del informe y del README se omiten si faltan los archivos de `data/`. Cubren los nodos de ingesta y preprocesamiento, el informe y este README. **Ignorado por git:** `data/**`, `data/01_raw/waymo_real/`, `data/02_intermediate/*`, `data/03_primary/*`, `data/04_feature/*`, `data/01_raw/waymo/`, `entrega_EP2.zip`.
+**Pruebas y cobertura** (`scripts/medir_pruebas.py`): 81 pasadas, 0 falladas, 0 omitidas; cobertura total 92,7 %. Se ejecutan con `.venv/Scripts/python.exe -m pytest -q` (Linux y Mac: `.venv/bin/python -m pytest -q`); las del informe y del README se omiten si faltan los archivos de `data/`. Cubren los nodos de ingesta y preprocesamiento, el informe y este README. **Ignorado por git:** `data/**`, `data/01_raw/waymo_real/`, `data/02_intermediate/*`, `data/03_primary/*`, `data/04_feature/*`, `data/01_raw/waymo/`, `entrega_EP2.zip`.
 
 ## 15. Mapa de la pauta, referencias, equipo y limitaciones
 
