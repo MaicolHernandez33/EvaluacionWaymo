@@ -1,6 +1,6 @@
 # Informe técnico EP2: auditoría de cajas 3D etiquetadas sin par 2D de cámara (Waymo Open Dataset v2)
 
-*Generado automáticamente por `scripts/generar_informe_tecnico.py` el 2026-10-21 10:18. Cada cifra sale de los archivos de salida del proyecto; los resultados post hoc llevan siempre la etiqueta "post hoc, no pre-declarado" y el resultado oficial del test es el pre-declarado.*
+*Generado automáticamente por `scripts/generar_informe_tecnico.py` el 2026-10-21 11:28. Cada cifra sale de los archivos de salida del proyecto; los resultados post hoc llevan siempre la etiqueta "post hoc, no pre-declarado" y el resultado oficial del test es el pre-declarado.*
 
 **Contenido:** 1 Resumen ejecutivo · 2 Problema, contexto, objetivos y KPIs · 3 Datos, preparación y calidad · 4 Metodología (CRISP-DM) · 5 Elección del target · 6 Análisis de datos · 7 Aprendizaje no supervisado · 8 Modelos supervisados · 9 Evaluación final en test · 10 Interpretación y recomendaciones · 11 Ética, sesgos y privacidad · 12 Limitaciones y desviaciones · 13 Reproducibilidad · 14 Anexos
 
@@ -16,7 +16,14 @@
 
 **Hallazgo del apéndice M (post hoc, no pre-declarado), con su advertencia.** En ese segmento la cámara 3 (frontal der.) tiene una tasa de pares de 0,000 dentro de su rango; la auditoría por cámara en 41 segmentos halló 2 pares (segmento, cámara) con hueco, uno en train (cámara 5 (lateral der.)) y uno en test. Advertencia: los criterios se escribieron después de ver el segmento anómalo, los dos casos son de San Francisco de día, no hay base para estimar su frecuencia en datos nuevos y el hueco puede ser de etiquetado o de los datos de esa cámara (no se distingue con los archivos disponibles).
 
-**Recomendación en dos niveles (interpretación).** (1) Auditar cada segmento por cámara (tasa de pares de cada cámara dentro de su rango de azimut) para detectar huecos que la regla de puntos no ve. (2) Priorizar las cajas con la `Regla: menos puntos top` para la revisión humana, con una persona en el circuito y sin reemplazarla, y monitorear el recall por segmento. Con 8 segmentos y pocos ciclistas, no afirmamos que `sin_camara` mida visibilidad física ni que el resultado generalice.
+**Recomendación (en una frase).** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre con una persona que revisa y decide.
+
+- **Paso 1: buscar cámaras con hueco.** En cada segmento (video), ver cuáles de las 5 cámaras casi no tienen pares aunque hay objetos en su campo de visión. Esas cámaras se atienden aparte, de una sola vez (completar sus etiquetas o reportar el dato que falta), no caja por caja.
+- **Paso 2: ordenar las cajas de las cámaras sanas.** En las cámaras que sí tienen pares con normalidad, ordenar las cajas poniendo primero las que tienen menos puntos LiDAR, y revisar desde arriba.
+- **Por qué en ese orden.** En una cámara con hueco todas las cajas salen sin par aunque estén bien vistas, y la regla se equivoca (pasó en el segmento 257766998801, donde el AUC de la regla es 0,443). Separándolas, la regla vuelve a funcionar (AUC 0,931 sin ese segmento; post hoc, no pre-declarado).
+- **Alcance.** El paso 1 es una propuesta que nace de un hallazgo post hoc (no pre-declarada) y falta validarla con segmentos nuevos. La lista ordena la revisión; no la reemplaza.
+
+Además, monitorear el recall por segmento. Con 8 segmentos y pocos ciclistas, no afirmamos que `sin_camara` mida visibilidad física ni que el resultado generalice.
 
 ### Mapa de la rúbrica
 
@@ -33,7 +40,9 @@
 
 **Por qué importa.** Las etiquetas 2D de cámara y las 3D de LiDAR se usan juntas para entrenar y evaluar modelos de percepción. Si una parte de las cajas no tiene par, conviene saber dónde están antes de entrenar o de comparar métricas por cámara. El contexto externo que citamos en el notebook 07 es de seguridad vial de peatones (ver referencias, sección 14); es contexto y no una cifra del proyecto.
 
-**Cómo se usaría.** Como una lista priorizada para revisión humana, en dos niveles (sección 10): una auditoría por segmento y cámara, y después una regla de priorización de cajas. No reemplaza la revisión.
+**Por qué importa a escala.** Un segmento dura 20 segundos (cerca de 200 frames) y el inventario del conjunto de entrenamiento de Waymo que revisamos tiene 798 segmentos, es decir, unas 4,4 horas de video (798 × 20 s). La revisión a mano crece en línea recta con los datos: el doble de segmentos, el doble de horas. Como ilustración de train, con el supuesto de 20 s por revisión (no medido): revisar todas las cajas de un segmento de nuestra muestra (64.509 cajas ÷ 33 segmentos) tomaría unas 10,9 h, y ordenar con la regla de puntos top en lugar de revisar al azar ahorraría unas 4,6 h por segmento. Esa ganancia no se sostuvo en el test oficial. El paso 1 (auditoría por cámara) es el que mejor escala: basta contar pares por segmento y cámara, y detecta problemas que afectan a muchas cajas a la vez (el hueco del segmento 257766998801 reúne el 35,8 % de los positivos del test).
+
+**Cómo se usaría.** Como una lista priorizada para revisión humana, en dos pasos (sección 10): primero revisar cámara por cámara (auditoría por segmento y cámara) y después ordenar las cajas de las cámaras sanas con la regla de puntos top. No reemplaza la revisión.
 
 **Declaración del problema (con las cifras vigentes de la población principal).** **Problema.** El 20,7 % de las cajas 3D etiquetadas de peatones y ciclistas con |azimut| <= 100° (train) no tiene su par 2D de cámara, y hoy no se sabe cuáles son sin revisarlas. **Objetivo.** Estimar, con solo atributos de la caja 3D etiquetada, la probabilidad de que no tenga su par 2D y entregar una lista priorizada para revisión humana. **Métrica de éxito.** AUC y PR-AUC fuera de fold (regla `Regla: menos puntos top`: 0,862 y 0,704; Regresión logística: 0,825 y 0,657) y la fracción de cajas que hay que revisar para cubrir el 80 % de las cajas sin par (37,8 % con la regla, 43,7 % con la regresión logística y 80,2 % al azar). **Alcance.** 33 segmentos de train de Waymo Open Dataset v2, frames con etiquetas de cámara. **Limitación principal.** El puntaje depende sobre todo de los puntos LiDAR de la caja (num_top_lidar_points domina la importancia por permutación del HGB, con una caída de AUC de 0,309 en el notebook 09, población principal; el 08 reporta otra cifra con la población de 120°, ver sección 6): captura cobertura de etiquetado y calidad de observación, no visibilidad física de la cámara.
 
@@ -167,7 +176,7 @@ Seguimos las seis fases de CRISP-DM. Cada fila dice qué se hizo, dónde está y
 | 3. Preparación de los datos | Ingesta con Kedro, filtro de frames etiquetados, población principal, variables derivadas, split por segmento con 5 folds | Secciones 3 y 6; ingesta (Kedro) y notebooks 06 y 08 | `data/05_model_input/split_segmentos.csv`; `data/05_model_input/features_B.parquet`; `data/05_model_input/config_features_B.json` |
 | 4. Modelado | Baselines simples, regresión logística, HGB y Random Forest con búsqueda anidada por segmento; aprendizaje no supervisado | Secciones 7 y 8; notebooks 08 y 09 | `data/08_reporting/09_comparacion_modelos.csv`; `data/06_models/hiperparametros_B.json`; `data/08_reporting/08_clusters_seleccion_k.csv` |
 | 5. Evaluación | Criterios fijados antes, plan de evaluación congelado con sha256, test sellado, influencia, equidad y sensibilidad | Secciones 4 y 9; notebooks 09b y 10 | `data/06_models/plan_evaluacion_test.json`; `data/08_reporting/10_resultado_principal.csv`; `data/08_reporting/10_hashes_ejecucion1.json` |
-| 6. Despliegue | Recomendación de uso en dos niveles con una persona en el circuito, monitoreo y reproducibilidad (scripts, pruebas, paquete de entrega) | Secciones 10 a 13 | `docs/evaluacion_final_B.md`; `scripts/generar_informe_tecnico.py`; `docs/informe_tecnico_EP2.md` |
+| 6. Despliegue | Recomendación de uso: cámara por cámara primero, luego cajas por puntos top, con una persona en el circuito; monitoreo y reproducibilidad (scripts, pruebas, paquete de entrega) | Secciones 10 a 13 | `docs/evaluacion_final_B.md`; `scripts/generar_informe_tecnico.py`; `docs/informe_tecnico_EP2.md` |
 
 **Criterios fijados antes de mirar resultados.** Cada notebook fija sus criterios en una celda antes de calcular y no los cambia al ver los números. Los de la evaluación final, tomados del plan congelado:
 
@@ -984,10 +993,12 @@ Conclusión del apéndice M (generada por el notebook, rotulada como hipótesis;
 
 *Esta sección es interpretación de las cifras de las secciones anteriores. Lo único oficial del test es lo pre-declarado (9.1 a 9.7).*
 
-**Uso en dos niveles.** La analogía es la de un control de calidad en una fábrica: primero se revisa la máquina (si una de las cámaras dejó de producir pares en un segmento), y después se revisan las piezas dudosas (qué cajas auditar primero).
+**Uso en dos pasos.** La analogía es la de un control de calidad en una fábrica: primero se revisa la máquina (si una de las cámaras dejó de producir pares en un segmento), y después se revisan las piezas dudosas (qué cajas auditar primero).
 
-1. **Auditoría por segmento y cámara.** Calcular, para cada segmento nuevo, la tasa de pares de cada cámara dentro de su rango de azimut y marcar las cámaras con hueco. En los 41 segmentos auditados encontramos 2 pares con hueco, y las celdas con hueco reúnen el 1,7 % de los positivos de train y el 35,8 % de los de test. Esa auditoría detecta lo que la regla por puntos no detecta: los huecos afectan a objetos bien observados. En train las celdas con hueco reúnen solo el 32,9 % de los positivos con 100 puntos o más (192 de 583); la auditoría por cámara no explica todas las cajas bien observadas sin par. Es una hipótesis post hoc; hay que validarla con `camera_calibration` y con más segmentos.
-2. **Priorización de cajas con la regla por puntos top** (humano en el circuito). En los segmentos sin hueco, ordenar las cajas por puntos LiDAR de la parte alta (menos puntos primero) y revisar hasta el corte elegido. Es una regla de una línea, se explica sola y en train no fue peor que ningún modelo.
+1. **Nivel 1 (paso 1): auditar por segmento y cámara.** Produce la lista de pares (segmento, cámara) con hueco: para cada segmento nuevo, calcular la tasa de pares de cada cámara dentro de su rango de azimut y marcar las que caen muy por debajo de su mediana. Esas cámaras se atienden aparte, de una sola vez. En los 41 segmentos auditados encontramos 2 pares con hueco, y las celdas con hueco reúnen el 1,7 % de los positivos de train y el 35,8 % de los de test. Esa auditoría detecta lo que la regla por puntos no detecta: los huecos afectan a objetos bien observados. En train las celdas con hueco reúnen solo el 32,9 % de los positivos con 100 puntos o más (192 de 583); la auditoría por cámara no explica todas las cajas bien observadas sin par. Es una hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration` y con más segmentos.
+2. **Nivel 2 (paso 2): priorizar cajas con la regla por puntos top.** Produce la lista de cajas a revisar, ordenadas por menos puntos LiDAR, solo en las cámaras sin hueco (sanas), con una persona en el circuito. Es una regla de una línea, se explica sola y en train no fue peor que ningún modelo.
+
+Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 
 **Qué fracción de revisión y qué recall esperar.** Con el corte A (fijado con train para un recall de 0,80): en train (fuera de fold) la Regla: menos puntos top dio recall 0,806 (IC 95 % 0,760 a 0,869) revisando 37,9 % (IC 95 % 34,0 % a 42,2 %) de las cajas; en test dio recall 0,590 (IC 95 % 0,383 a 0,924) revisando 33,1 % de las cajas (IC 23,8 % a 39,7 %). Con el corte B (20 % de revisión): recall 0,469 (IC 95 % 0,331 a 0,783) en test. **Matices (no cambian la recomendación formal).** El punto A de Regla: menos puntos top no se sostiene en test: recall 0,590 (IC 0,383 a 0,924) frente a la meta de 0,80 y la tolerancia de 0,75. El recall depende fuertemente de un segmento: en el segmento con más positivos (257766998801, 55 % de los positivos) el recall es 0,351 y sin él pasa de 0,590 a 0,879; entre los 4 segmentos con al menos 50 positivos, 3 alcanzan la tolerancia (recall de 0,351 a 0,945). Por eso se sugiere usarlo para priorizar la revisión humana, junto con un monitoreo del recall por segmento, y no como reemplazo de la revisión. (Detalle y diagnóstico post hoc en la sección L.)
 
@@ -1136,7 +1147,7 @@ Tiempos de este notebook (s): {"busqueda_LR_s": 17, "busqueda_HGB_s": 123, "busq
 .venv/Scripts/python.exe -m pytest
 ```
 
-Última medición (`scripts/medir_pruebas.py`): 79 pasadas, 0 falladas, 0 omitidas; cobertura total 92,7 %.
+Última medición (`scripts/medir_pruebas.py`): 81 pasadas, 0 falladas, 0 omitidas; cobertura total 92,7 %.
 
 **Ingesta con Kedro.** Los pipelines registrados son `ingesta_waymo` y `preprocesamiento` (comprobado con `kedro registry list`). La ingesta se ejecuta con:
 

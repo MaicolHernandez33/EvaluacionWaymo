@@ -180,3 +180,56 @@ def test_readme_e_informe_dicen_el_numero_actual_de_pruebas_y_la_cobertura(docs)
     frase = f"{pj['pasadas']} pasadas, {pj['falladas']} falladas, {pj['omitidas']} omitidas; cobertura total {cob} %"
     assert frase in readme and frase in informe, "README e informe deben decir lo mismo que pytest_resumen.json (orden: medir_pruebas, informe, README)"
     assert pj["pasadas"] + pj["falladas"] + pj["omitidas"] == n
+
+
+def test_recomendacion_en_dos_pasos_igual_en_readme_e_informe(docs):
+    readme, informe = docs
+    L = json.loads((R / "data/08_reporting/10_resumen_cifras.json").read_text(encoding="utf-8"))["L"]
+    sp = pd.read_csv(R / "data/08_reporting/10_L_sin_segmento_principal.csv")
+    auc_sin = _punto(sp[(sp["metodo"] == TOP) & sp["resultado"].str.startswith("sin")].iloc[0]["AUC"])
+    bloque = readme.split("**Recomendación (en una frase).**")[1].split("| Métrica")[0]
+    assert "revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre con una persona que revisa y decide." in bloque
+    for paso in ("- **Paso 1: buscar cámaras con hueco.**", "- **Paso 2: ordenar las cajas de las cámaras sanas.**", "- **Por qué en ese orden.**", "- **Alcance.**"):
+        assert paso in bloque
+    assert f"donde el AUC de la regla es {_n3(L['auc_foco']['top'])}" in bloque and f"(AUC {_n3(auc_sin)} sin ese segmento; post hoc, no pre-declarado)" in bloque
+    assert bloque.strip() in informe                                                                  # mismo texto en el informe
+    s12 = _sec(readme, 12)
+    assert "1. **Nivel 1 (paso 1): auditar por segmento y cámara.**" in s12 and "2. **Nivel 2 (paso 2): priorizar cajas con la regla por puntos top.**" in s12
+    assert "hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration`" in s12
+    assert "Se hace en ese orden porque en una cámara con hueco la regla se equivoca." in s12 and "Se hace en ese orden porque en una cámara con hueco la regla se equivoca." in informe
+    for texto in (readme, informe):
+        assert "auditar cada segmento por cámara" not in texto and "Dos niveles con una persona" not in texto and "Recomendación en dos niveles" not in texto
+    assert "cámara por cámara primero, luego cajas por puntos top" in readme and "cámara por cámara primero, luego cajas por puntos top" in informe
+
+
+def test_parrafo_por_que_importa_a_escala_coincide_con_los_csv(docs):
+    readme, informe = docs
+    inv = pd.read_csv(R / "docs/seleccion_segmentos/inventario_segmentos.csv", dtype={"segment_id": str})
+    ids = inv["segment_id"].str.extract(r"_(\d+)_(\d+)_(\d+)_(\d+)$").astype(int)           # inicio y fin en segundos y milisegundos
+    duraciones = ((ids[2] * 1000 + ids[3]) - (ids[0] * 1000 + ids[1])) / 1000
+    assert duraciones.nunique() == 1 and len(ids) == len(inv)                                     # los 798 identificadores
+    dur = int(round(duraciones.iloc[0]))
+    assert dur == 20
+    c9 = json.loads((R / "data/08_reporting/09_resumen_cifras.json").read_text(encoding="utf-8"))
+    nb07 = json.loads((R / "notebooks/07_decision_target_ep2.ipynb").read_text(encoding="utf-8"))
+    s = next(int(m.group(1)) for c in nb07["cells"] if c["cell_type"] == "code" for m in [re.search(r"^SEGUNDOS_POR_REVISION\s*=\s*(\d+)", "".join(c["source"]), flags=re.M)] if m)
+    split = pd.read_csv(R / "data/05_model_input/split_segmentos.csv")
+    n_seg = int((split["conjunto"] == "train").sum())
+    po9 = pd.read_csv(R / "data/08_reporting/09_puntos_operacion.csv")
+    a = po9[(po9["metodo"] == TOP) & po9["punto"].str.startswith("A")].iloc[0]
+    recall, pct = _punto(a["recall"]), _punto(a["pct_revisar"])
+    n = c9["filas_principal"]
+    horas_todo = n * s / 3600
+    coma = lambda x: f"{x:.1f}".replace(".", ",")
+    miles = lambda x: f"{x:,}".replace(",", ".")
+    cifras = [f"Un segmento dura {dur} segundos", f"tiene {miles(len(inv))} segmentos", f"unas {coma(len(inv) * dur / 3600)} horas de video ({miles(len(inv))} × {dur} s)",
+              f"({miles(n)} cajas ÷ {n_seg} segmentos) tomaría unas {coma(horas_todo / n_seg)} h", f"ahorraría unas {coma(horas_todo * (recall - pct) / n_seg)} h por segmento"]
+    m = json.loads((R / "data/08_reporting/10_resumen_cifras.json").read_text(encoding="utf-8"))["M"]["pos"]["test"]["% de los positivos"]
+    cifras.append(f"reúne el {_pct(m)} de los positivos del test")
+    for doc in (readme, informe):
+        par = [l for l in doc.splitlines() if l.startswith("**Por qué importa a escala.**")]
+        assert len(par) == 1
+        for c in cifras:
+            assert c in par[0], f"falta o difiere en el párrafo de escala: {c}"
+        assert "no medido" in par[0] and "no se sostuvo en el test oficial" in par[0] and "miles" not in par[0]
+    assert readme.index("**Costo de no usarlo.**") < readme.index("**Por qué importa a escala.**") < readme.index("**Objetivo general.**")

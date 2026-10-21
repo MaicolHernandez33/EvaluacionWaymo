@@ -364,6 +364,50 @@ def frase_pruebas():
     return f"{pj['pasadas']} pasadas, {pj['falladas']} falladas, {pj['omitidas']} omitidas; cobertura total {n1(pj['cobertura_total_pct'])} %"
 
 
+def recomendacion_en_dos_pasos():
+    """Bloque de la recomendación (README sección 1 e informe): primero cámara por cámara, después cajas por puntos LiDAR. Las dos cifras salen de L y de 10_L_sin_segmento_principal.csv."""
+    foco = L.get("foco", "?")
+    auc_foco = L.get("auc_foco", {}).get("top", float("nan"))
+    sp = leer_csv("10_L_sin_segmento_principal.csv")
+    fila = sp[(sp["metodo"] == BASE_N) & sp["resultado"].str.startswith("sin")]
+    auc_sin = float(str(fila["AUC"].iloc[0]).split()[0]) if len(fila) else float("nan")
+    n_cam = len(leer_csv("10_M_rangos_camara.csv"))
+    return (f"**Recomendación (en una frase).** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre con una persona que revisa y decide.\n\n"
+            f"- **Paso 1: buscar cámaras con hueco.** En cada segmento (video), ver cuáles de las {n_cam} cámaras casi no tienen pares aunque hay objetos en su campo de visión. Esas cámaras se atienden aparte, de una sola vez "
+            f"(completar sus etiquetas o reportar el dato que falta), no caja por caja.\n"
+            f"- **Paso 2: ordenar las cajas de las cámaras sanas.** En las cámaras que sí tienen pares con normalidad, ordenar las cajas poniendo primero las que tienen menos puntos LiDAR, y revisar desde arriba.\n"
+            f"- **Por qué en ese orden.** En una cámara con hueco todas las cajas salen sin par aunque estén bien vistas, y la regla se equivoca (pasó en el segmento {foco}, donde el AUC de la regla es {n3(auc_foco)}). "
+            f"Separándolas, la regla vuelve a funcionar (AUC {n3(auc_sin)} sin ese segmento; post hoc, no pre-declarado).\n"
+            f"- **Alcance.** El paso 1 es una propuesta que nace de un hallazgo post hoc (no pre-declarada) y falta validarla con segmentos nuevos. La lista ordena la revisión; no la reemplaza.")
+
+
+def parrafo_escala():
+    """Párrafo «Por qué importa a escala» (README sección 2 e informe): todas las cifras se calculan desde los CSV, el JSON del 10 y el código del 07."""
+    inv = pd.read_csv(DOCS / "seleccion_segmentos" / "inventario_segmentos.csv", dtype={"segment_id": str})
+    ms_ = [re.search(r"_(\d+)_(\d+)_(\d+)_(\d+)$", s_) for s_ in inv["segment_id"]]
+    dur = {round((int(m.group(3)) * 1000 + int(m.group(4)) - int(m.group(1)) * 1000 - int(m.group(2))) / 1000) for m in ms_ if m}
+    if len(dur) != 1 or not all(ms_):
+        fallar("los segmentos del inventario no duran todos lo mismo segun su identificador")
+    dur = dur.pop()
+    frames = int(round(float(inv["n_frames"].median()) / 10) * 10)
+    horas_pub = len(inv) * dur / 3600
+    s_rev = segundos_por_revision()
+    n_cajas, n_seg = C9.get("filas_principal", 0), len(SPLIT_TRAIN)
+    po9 = leer_csv("09_puntos_operacion.csv")
+    a = po9[(po9["metodo"] == BASE_N) & po9["punto"].str.startswith("A")].iloc[0]
+    recall, pct = float(str(a["recall"]).split()[0]), float(str(a["pct_revisar"]).split()[0])
+    horas_todo = n_cajas * s_rev / 3600
+    por_segmento, ahorro = horas_todo / n_seg, horas_todo * (recall - pct) / n_seg          # filas «al azar» (horas × recall) menos «regla, punto A» (horas × % revisado), por segmento
+    pos = M.get("pos", {}).get("test", {})
+    foco = L.get("foco", "?")
+    return (f"**Por qué importa a escala.** Un segmento dura {dur} segundos (cerca de {frames} frames) y el inventario del conjunto de entrenamiento de Waymo que revisamos tiene {miles(len(inv))} segmentos, "
+            f"es decir, unas {n1(horas_pub)} horas de video ({miles(len(inv))} × {dur} s). La revisión a mano crece en línea recta con los datos: el doble de segmentos, el doble de horas. "
+            f"Como ilustración de train, con el supuesto de {s_rev} s por revisión (no medido): revisar todas las cajas de un segmento de nuestra muestra ({miles(n_cajas)} cajas ÷ {n_seg} segmentos) tomaría unas {n1(por_segmento)} h, "
+            f"y ordenar con la regla de puntos top en lugar de revisar al azar ahorraría unas {n1(ahorro)} h por segmento. Esa ganancia no se sostuvo en el test oficial. "
+            f"El paso 1 (auditoría por cámara) es el que mejor escala: basta contar pares por segmento y cámara, y detecta problemas que afectan a muchas cajas a la vez "
+            f"(el hueco del segmento {foco} reúne el {pc(pos.get('% de los positivos', float('nan')))} de los positivos del test).")
+
+
 def frase_hueco_100():
     m = leer_csv("10_M_positivos_en_huecos.csv")
     if not len(m) or "train" not in set(m["grupo"]):
@@ -643,7 +687,9 @@ def sec1():
 
 **Hallazgo del apéndice M (post hoc, no pre-declarado), con su advertencia.** En ese segmento la cámara {par_test.get('camara', '?')} tiene una tasa de pares de {n3(par_test.get('tasa', float('nan')))} dentro de su rango; la auditoría por cámara en {M.get('n_seg', '?')} segmentos halló {M.get('n_pares', '?')} pares (segmento, cámara) con hueco, uno en train (cámara {par_train.get('camara', '?')}) y uno en test. Advertencia: los criterios se escribieron después de ver el segmento anómalo, los dos casos son de San Francisco de día, no hay base para estimar su frecuencia en datos nuevos y el hueco puede ser de etiquetado o de los datos de esa cámara (no se distingue con los archivos disponibles).
 
-**Recomendación en dos niveles (interpretación).** (1) Auditar cada segmento por cámara (tasa de pares de cada cámara dentro de su rango de azimut) para detectar huecos que la regla de puntos no ve. (2) Priorizar las cajas con la `{BASE_N}` para la revisión humana, con una persona en el circuito y sin reemplazarla, y monitorear el recall por segmento. Con 8 segmentos y pocos ciclistas, no afirmamos que `sin_camara` mida visibilidad física ni que el resultado generalice.
+{recomendacion_en_dos_pasos()}
+
+Además, monitorear el recall por segmento. Con 8 segmentos y pocos ciclistas, no afirmamos que `sin_camara` mida visibilidad física ni que el resultado generalice.
 """
     return t
 
@@ -667,7 +713,9 @@ def sec2():
 
 **Por qué importa.** Las etiquetas 2D de cámara y las 3D de LiDAR se usan juntas para entrenar y evaluar modelos de percepción. Si una parte de las cajas no tiene par, conviene saber dónde están antes de entrenar o de comparar métricas por cámara. El contexto externo que citamos en el notebook 07 es de seguridad vial de peatones (ver referencias, sección 14); es contexto y no una cifra del proyecto.
 
-**Cómo se usaría.** Como una lista priorizada para revisión humana, en dos niveles (sección 10): una auditoría por segmento y cámara, y después una regla de priorización de cajas. No reemplaza la revisión.
+{parrafo_escala()}
+
+**Cómo se usaría.** Como una lista priorizada para revisión humana, en dos pasos (sección 10): primero revisar cámara por cámara (auditoría por segmento y cámara) y después ordenar las cajas de las cámaras sanas con la regla de puntos top. No reemplaza la revisión.
 
 **Declaración del problema (con las cifras vigentes de la población principal).** **Problema.** El {pc(pr.get('Prevalencia (trivial)', {}).get('PR-AUC', float('nan')))} de las cajas 3D etiquetadas de peatones y ciclistas con |azimut| <= {C9.get('AZ_MAX', '?')}° (train) no tiene su par 2D de cámara, y hoy no se sabe cuáles son sin revisarlas. **Objetivo.** Estimar, con solo atributos de la caja 3D etiquetada, la probabilidad de que no tenga su par 2D y entregar una lista priorizada para revisión humana. **Métrica de éxito.** AUC y PR-AUC fuera de fold (regla `{BASE_N}`: {n3(top.get('AUC', float('nan')))} y {n3(top.get('PR-AUC', float('nan')))}; {MOD_N}: {n3(lr.get('AUC', float('nan')))} y {n3(lr.get('PR-AUC', float('nan')))}) y la fracción de cajas que hay que revisar para cubrir el 80 % de las cajas sin par ({pc(top.get('Fraccion para 80%', float('nan')))} con la regla, {pc(lr.get('Fraccion para 80%', float('nan')))} con la regresión logística y {pc(pr.get('Prevalencia (trivial)', {}).get('Fraccion para 80%', float('nan')))} al azar). **Alcance.** {len(SPLIT_TRAIN)} segmentos de train de Waymo Open Dataset v2, frames con etiquetas de cámara. **Limitación principal.** El puntaje depende sobre todo de los puntos LiDAR de la caja ({p0['variable'] if p0 is not None else '?'} domina la importancia por permutación del HGB, con una caída de AUC de {n3(p0.iloc[1]) if p0 is not None else '?'} en el notebook 09, población principal; el 08 reporta otra cifra con la población de 120°, ver sección 6): captura cobertura de etiquetado y calidad de observación, no visibilidad física de la cámara.
 
@@ -754,7 +802,7 @@ def tabla_crisp():
         ("3. Preparación de los datos", "Ingesta con Kedro, filtro de frames etiquetados, población principal, variables derivadas, split por segmento con 5 folds", "Secciones 3 y 6; ingesta (Kedro) y notebooks 06 y 08", ["data/05_model_input/split_segmentos.csv", "data/05_model_input/features_B.parquet", "data/05_model_input/config_features_B.json"]),
         ("4. Modelado", "Baselines simples, regresión logística, HGB y Random Forest con búsqueda anidada por segmento; aprendizaje no supervisado", "Secciones 7 y 8; notebooks 08 y 09", ["data/08_reporting/09_comparacion_modelos.csv", "data/06_models/hiperparametros_B.json", "data/08_reporting/08_clusters_seleccion_k.csv"]),
         ("5. Evaluación", "Criterios fijados antes, plan de evaluación congelado con sha256, test sellado, influencia, equidad y sensibilidad", "Secciones 4 y 9; notebooks 09b y 10", ["data/06_models/plan_evaluacion_test.json", "data/08_reporting/10_resultado_principal.csv", "data/08_reporting/10_hashes_ejecucion1.json"]),
-        ("6. Despliegue", "Recomendación de uso en dos niveles con una persona en el circuito, monitoreo y reproducibilidad (scripts, pruebas, paquete de entrega)", "Secciones 10 a 13", ["docs/evaluacion_final_B.md", "scripts/generar_informe_tecnico.py", "docs/informe_tecnico_EP2.md"]),
+        ("6. Despliegue", "Recomendación de uso: cámara por cámara primero, luego cajas por puntos top, con una persona en el circuito; monitoreo y reproducibilidad (scripts, pruebas, paquete de entrega)", "Secciones 10 a 13", ["docs/evaluacion_final_B.md", "scripts/generar_informe_tecnico.py", "docs/informe_tecnico_EP2.md"]),
     ]
     out = []
     for fase, hecho, donde, archivos in filas:
@@ -1344,10 +1392,12 @@ def sec10():
 
 *Esta sección es interpretación de las cifras de las secciones anteriores. Lo único oficial del test es lo pre-declarado (9.1 a 9.7).*
 
-**Uso en dos niveles.** La analogía es la de un control de calidad en una fábrica: primero se revisa la máquina (si una de las cámaras dejó de producir pares en un segmento), y después se revisan las piezas dudosas (qué cajas auditar primero).
+**Uso en dos pasos.** La analogía es la de un control de calidad en una fábrica: primero se revisa la máquina (si una de las cámaras dejó de producir pares en un segmento), y después se revisan las piezas dudosas (qué cajas auditar primero).
 
-1. **Auditoría por segmento y cámara.** Calcular, para cada segmento nuevo, la tasa de pares de cada cámara dentro de su rango de azimut y marcar las cámaras con hueco. En los {M.get('n_seg', '?')} segmentos auditados encontramos {M.get('n_pares', '?')} pares con hueco, y las celdas con hueco reúnen el {pc(M['pos']['train']['% de los positivos'])} de los positivos de train y el {pc(M['pos']['test']['% de los positivos'])} de los de test. Esa auditoría detecta lo que la regla por puntos no detecta: los huecos afectan a objetos bien observados. {frase_hueco_100()} Es una hipótesis post hoc; hay que validarla con `camera_calibration` y con más segmentos.
-2. **Priorización de cajas con la regla por puntos top** (humano en el circuito). En los segmentos sin hueco, ordenar las cajas por puntos LiDAR de la parte alta (menos puntos primero) y revisar hasta el corte elegido. Es una regla de una línea, se explica sola y en train no fue peor que ningún modelo.
+1. **Nivel 1 (paso 1): auditar por segmento y cámara.** Produce la lista de pares (segmento, cámara) con hueco: para cada segmento nuevo, calcular la tasa de pares de cada cámara dentro de su rango de azimut y marcar las que caen muy por debajo de su mediana. Esas cámaras se atienden aparte, de una sola vez. En los {M.get('n_seg', '?')} segmentos auditados encontramos {M.get('n_pares', '?')} pares con hueco, y las celdas con hueco reúnen el {pc(M['pos']['train']['% de los positivos'])} de los positivos de train y el {pc(M['pos']['test']['% de los positivos'])} de los de test. Esa auditoría detecta lo que la regla por puntos no detecta: los huecos afectan a objetos bien observados. {frase_hueco_100()} Es una hipótesis post hoc, no pre-declarada; requiere validación con `camera_calibration` y con más segmentos.
+2. **Nivel 2 (paso 2): priorizar cajas con la regla por puntos top.** Produce la lista de cajas a revisar, ordenadas por menos puntos LiDAR, solo en las cámaras sin hueco (sanas), con una persona en el circuito. Es una regla de una línea, se explica sola y en train no fue peor que ningún modelo.
+
+Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 
 **Qué fracción de revisión y qué recall esperar.** Con el corte A (fijado con train para un recall de 0,80): en train (fuera de fold) la {BASE_N} dio recall {tr_rec} revisando {tr_pct} de las cajas; en test dio recall {ic3(OPA_B.get('recall'))} revisando {pc(OPA_B.get('pct_revisar', [float('nan')])[0])} de las cajas (IC {pc(OPA_B.get('pct_revisar', [float('nan')] * 3)[1])} a {pc(OPA_B.get('pct_revisar', [float('nan')] * 3)[2])}). Con el corte B (20 % de revisión): recall {ic3(OPB_B.get('recall'))} en test. {segj}
 
