@@ -1,6 +1,6 @@
 # Informe técnico EP2: auditoría de cajas 3D etiquetadas sin par 2D de cámara (Waymo Open Dataset v2)
 
-*Generado automáticamente por `scripts/generar_informe_tecnico.py` el 2026-10-21 10:06. Cada cifra sale de los archivos de salida del proyecto; los resultados post hoc llevan siempre la etiqueta "post hoc, no pre-declarado" y el resultado oficial del test es el pre-declarado.*
+*Generado automáticamente por `scripts/generar_informe_tecnico.py` el 2026-10-21 10:18. Cada cifra sale de los archivos de salida del proyecto; los resultados post hoc llevan siempre la etiqueta "post hoc, no pre-declarado" y el resultado oficial del test es el pre-declarado.*
 
 **Contenido:** 1 Resumen ejecutivo · 2 Problema, contexto, objetivos y KPIs · 3 Datos, preparación y calidad · 4 Metodología (CRISP-DM) · 5 Elección del target · 6 Análisis de datos · 7 Aprendizaje no supervisado · 8 Modelos supervisados · 9 Evaluación final en test · 10 Interpretación y recomendaciones · 11 Ética, sesgos y privacidad · 12 Limitaciones y desviaciones · 13 Reproducibilidad · 14 Anexos
 

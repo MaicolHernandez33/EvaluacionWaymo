@@ -10,7 +10,7 @@
 
 **Lectura rápida:** secciones [1](#1-resumen), [5](#5-eda-y-calidad-de-datos), [8](#8-modelos-supervisados), [10](#10-evaluación-final-en-el-test), [11](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) y [12](#12-interpretación-y-recomendaciones).
 
-*Generado por `scripts/generar_readme.py` el 2026-10-21 10:06. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
+*Generado por `scripts/generar_readme.py` el 2026-10-21 10:18. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
 
 ## 1. Resumen
 
@@ -37,7 +37,7 @@
 
 **Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
 
-**Qué cuesta no hacerlo.** Revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar 80 % de las cajas (valor del azar en `09_comparacion_modelos.csv`). Es como buscar un expediente incompleto abriendo carpetas sin orden.
+**Costo de no usarlo.** Sin una lista priorizada, la única opción es revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar el 80 % de todas las cajas. Con la regla de puntos top, en train bastaba revisar el 37,8 %. Es como buscar un expediente incompleto abriendo carpetas sin orden.
 
 **Objetivo general.** Construir y evaluar, con validación por segmento y un test sellado, una lista priorizada de las cajas 3D etiquetadas de peatones y ciclistas, para encontrar las que no tienen par 2D de cámara revisando menos que al azar, y decir con intervalos de confianza si un modelo aporta algo frente a una regla simple.
 
