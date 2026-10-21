@@ -211,7 +211,7 @@ def sec_contexto():
 
 **Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
 
-**Qué cuesta no hacerlo.** Revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar {pc(PREV.get('Fraccion para 80%', float('nan')), 0)} de las cajas (valor del azar en `09_comparacion_modelos.csv`). Es como buscar un expediente incompleto abriendo carpetas sin orden.
+**Costo de no usarlo.** Sin una lista priorizada, la única opción es revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar el {pc(PREV.get('Fraccion para 80%', float('nan')), 0)} de todas las cajas. Con la regla de puntos top, en train bastaba revisar el {pc(punto(TR['F80']))}. Es como buscar un expediente incompleto abriendo carpetas sin orden.
 
 {obj}
 
