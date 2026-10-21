@@ -2,7 +2,7 @@
 
 *Una lista priorizada para que una persona revise primero las cajas 3D etiquetadas de peatones y ciclistas que probablemente no tienen su par 2D de cámara.*
 
-**Curso:** MLY1101 Machine Learning · **Evaluación:** Parcial N°2 (EP2) · **Caso:** Waymo Open Dataset v2, target `sin_camara` · **Fecha:** 2026-10-20
+**Curso:** MLY1101 Machine Learning · **Evaluación:** Parcial N°2 (EP2) · **Caso:** Waymo Open Dataset v2, target `sin_camara` · **Fecha:** 2026-10-21
 
 [Informe técnico](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_evaluacion_test.md) · [Log de trabajo](docs/log_trabajo_ep2.md) · [README de EP1](docs/README_EP1.md)
 
@@ -10,7 +10,7 @@
 
 **Lectura rápida:** secciones [1](#1-resumen), [5](#5-eda-y-calidad-de-datos), [8](#8-modelos-supervisados), [10](#10-evaluación-final-en-el-test), [11](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) y [12](#12-interpretación-y-recomendaciones).
 
-*Generado por `scripts/generar_readme.py` el 2026-10-20 11:44. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
+*Generado por `scripts/generar_readme.py` el 2026-10-21 10:06. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
 
 ## 1. Resumen
 
@@ -33,9 +33,9 @@
 
 ## 2. Contexto, valor de negocio, objetivos y KPIs
 
-> Quien cura etiquetas de percepción gana tiempo si revisa primero las cajas que probablemente no tienen par 2D, pero esa ganancia fue clara en train y no se sostuvo en el test oficial.
+> Quien revisa y valida las etiquetas de percepción gana tiempo si revisa primero las cajas que probablemente no tienen par 2D, pero esa ganancia fue clara en train y no se sostuvo en el test oficial.
 
-**Quién lo usaría.** Un equipo que cura o audita datos de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
+**Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
 
 **Qué cuesta no hacerlo.** Revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar 80 % de las cajas (valor del azar en `09_comparacion_modelos.csv`). Es como buscar un expediente incompleto abriendo carpetas sin orden.
 

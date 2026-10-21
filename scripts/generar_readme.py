@@ -207,9 +207,9 @@ def sec_contexto():
     ])
     return f"""{h('contexto')}
 
-> Quien cura etiquetas de percepción gana tiempo si revisa primero las cajas que probablemente no tienen par 2D, pero esa ganancia fue clara en train y no se sostuvo en el test oficial.
+> Quien revisa y valida las etiquetas de percepción gana tiempo si revisa primero las cajas que probablemente no tienen par 2D, pero esa ganancia fue clara en train y no se sostuvo en el test oficial.
 
-**Quién lo usaría.** Un equipo que cura o audita datos de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
+**Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
 
 **Qué cuesta no hacerlo.** Revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar {pc(PREV.get('Fraccion para 80%', float('nan')), 0)} de las cajas (valor del azar en `09_comparacion_modelos.csv`). Es como buscar un expediente incompleto abriendo carpetas sin orden.
 
