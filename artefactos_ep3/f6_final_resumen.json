@@ -1,0 +1,10 @@
+{
+ "candidato": "Regla top",
+ "AUC_en_los_datos_de_ajuste (NO es desempeno)": 0.8227680446750723,
+ "AUC_fuera_de_fold": 0.8227680446750723,
+ "umbrales": {
+  "A": -32.0,
+  "B": -11.0
+ },
+ "recarga_identica": true
+}

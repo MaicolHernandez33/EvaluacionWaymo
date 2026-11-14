@@ -1,0 +1,97 @@
+{
+ "filas_total_120": 85852,
+ "filas_principal": 80571,
+ "positivos_principal": 17102,
+ "prevalencia_principal": 0.21225999429074976,
+ "segmentos": 41,
+ "segmentos_train": 33,
+ "segmentos_test": 8,
+ "test_principal": [
+  16062,
+  3734
+ ],
+ "test_120": [
+  17297,
+  4378
+ ],
+ "pares_consistentes_con_sin_camara": true,
+ "folds": {
+  "fold_s42": {
+   "filas": {
+    "0": 14968,
+    "1": 14971,
+    "2": 14950,
+    "3": 15659,
+    "4": 20023
+   },
+   "segmentos": {
+    "0": 7,
+    "1": 9,
+    "2": 9,
+    "3": 7,
+    "4": 9
+   },
+   "prevalencia": {
+    "0": 0.276,
+    "1": 0.1359,
+    "2": 0.1982,
+    "3": 0.2794,
+    "4": 0.1797
+   },
+   "segmentos_en_mas_de_un_fold": 0
+  },
+  "fold_s43": {
+   "filas": {
+    "0": 9821,
+    "1": 23223,
+    "2": 20970,
+    "3": 6070,
+    "4": 20487
+   },
+   "segmentos": {
+    "0": 7,
+    "1": 9,
+    "2": 9,
+    "3": 7,
+    "4": 9
+   },
+   "prevalencia": {
+    "0": 0.1753,
+    "1": 0.2186,
+    "2": 0.2177,
+    "3": 0.1779,
+    "4": 0.2274
+   },
+   "segmentos_en_mas_de_un_fold": 0
+  },
+  "fold_s44": {
+   "filas": {
+    "0": 14260,
+    "1": 26805,
+    "2": 11000,
+    "3": 10155,
+    "4": 18351
+   },
+   "segmentos": {
+    "0": 7,
+    "1": 9,
+    "2": 9,
+    "3": 7,
+    "4": 9
+   },
+   "prevalencia": {
+    "0": 0.2555,
+    "1": 0.1845,
+    "2": 0.1727,
+    "3": 0.22,
+    "4": 0.2387
+   },
+   "segmentos_en_mas_de_un_fold": 0
+  }
+ },
+ "reproduccion_pred_test_B": {
+  "filas_comparadas": 17297,
+  "dif_max_abs": 5.551115123125783e-16,
+  "todos_ok": true
+ }
+}

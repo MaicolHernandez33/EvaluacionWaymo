@@ -1,0 +1,19 @@
+{
+ "filas": {
+  "filas_muestra": 15000,
+  "filas_unicas": 15000,
+  "misma_matriz_para_las_tres_tecnicas": true
+ },
+ "ari_kmeans_vs_gmm_full_ninit2_recalculado": {
+  "2": 0.007932166618869644,
+  "4": 0.2647197183437455
+ },
+ "ari_kmeans_vs_gmm_en_f13_resumen": {
+  "2": 0.007932166618869644,
+  "4": 0.2647197183437455
+ },
+ "coincide_con_f13": true,
+ "todos_los_gmm_convergieron": true,
+ "conclusion": "No hay error de filas: las tres tecnicas usan las mismas 15.000 filas y el ARI recalculado coincide con f13_resumen.json. La diferencia con EP2 es una propiedad de los datos y del modelo (hipotesis, post hoc, no pre-declarado).",
+ "nota": "post hoc, no pre-declarado"
+}

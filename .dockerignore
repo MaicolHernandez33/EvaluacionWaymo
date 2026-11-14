@@ -1,0 +1,22 @@
+# Lista blanca: se ignora todo y se deja pasar solo lo necesario. Los datos de Waymo (y todo lo derivado por caja) nunca entran a la imagen.
+*
+
+!app
+!src/waymo_evaluacion/__init__.py
+!src/waymo_evaluacion/ep3
+!requirements_app.txt
+!constraints_ep3.txt
+
+# refuerzo explicito (aunque la lista blanca ya lo excluye)
+data/
+**/data/
+notebooks/
+docs/
+images/
+tests/
+.git/
+.venv/
+*.zip
+*.parquet
+*.joblib
+**/__pycache__/

@@ -1,0 +1,27 @@
+{
+ "elegido": "Regla top",
+ "razon": "ningún candidato cumple O4 (regla de reserva DEV-2); entre los 11 candidatos que cumplen O1 y O3, el mejor AUC OOF es 0,824; los que quedan a menos de 0,010 son Regla top, E2; el más simple es Regla top",
+ "fallback_O4": true,
+ "elegibles": [
+  "Regla top",
+  "LR3",
+  "LR",
+  "RF",
+  "HGB",
+  "XGB",
+  "LGBM",
+  "E1",
+  "E2",
+  "E3",
+  "E4"
+ ],
+ "candidatos_que_cumplen_O4": [],
+ "cerca_del_mejor": [
+  "Regla top",
+  "E2"
+ ],
+ "candidatos_que_cumplen_O2": [],
+ "O2_lo_cumple_alguien": false,
+ "ensamble_principal_declarado_P6": "E1",
+ "prevalencia": 0.21225999429074976
+}

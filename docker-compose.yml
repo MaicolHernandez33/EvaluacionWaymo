@@ -1,0 +1,17 @@
+# Pagina de EP3, solo local (127.0.0.1). Los datos se montan de solo lectura; nada se escribe ni se envia a internet.
+# Requisito previo: generar data/09_app_ep3 (scripts/ep3/f7_preparar_app.py) y data/06_models_ep3 (scripts/ep3/f6_final.py).
+services:
+  app:
+    build: .
+    image: waymo-ep3-app:local
+    ports:
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./data/09_app_ep3:/app/data/09_app_ep3:ro
+      - ./data/06_models_ep3:/app/data/06_models_ep3:ro
+    environment:
+      WAYMO_APP_DATA: /app/data/09_app_ep3
+      WAYMO_APP_MODELOS: /app/data/06_models_ep3
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"

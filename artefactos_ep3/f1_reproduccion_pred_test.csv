@@ -1,0 +1,7 @@
+modelo,dif_max_abs,ok_1e-9
+Regresion logistica,0.0,True
+HGB,0.0,True
+Random Forest,5.551115123125783e-16,True
+Modelo minimo (LR 3 variables),0.0,True
+Regla: menos puntos LiDAR,0.0,True
+Regla: menos puntos top,0.0,True

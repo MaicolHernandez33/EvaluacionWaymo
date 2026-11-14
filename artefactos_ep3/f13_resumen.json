@@ -1,0 +1,110 @@
+{
+ "filas": 80571,
+ "variables": [
+  "distancia_m",
+  "azimut_abs_deg",
+  "log_puntos",
+  "log_densidad",
+  "log_volumen"
+ ],
+ "k_elegido": 2,
+ "ks_analizados": [
+  2,
+  4
+ ],
+ "ari_entre_tecnicas": {
+  "k=2": {
+   "KMeans vs GMM": 0.007932166618869644,
+   "KMeans vs Ward": 0.42592463880155274,
+   "GMM vs Ward": 0.08151376021483828
+  },
+  "k=4": {
+   "KMeans vs GMM": 0.2647197183437455,
+   "KMeans vs Ward": 0.3538921291738065,
+   "GMM vs Ward": 0.07884592400281482
+  }
+ },
+ "estabilidad": [
+  {
+   "k": 2,
+   "remuestreos": 30,
+   "ari_medio": 0.930373295541913,
+   "ari_minimo": 0.814944556242128,
+   "ari_p5": 0.853111979363407,
+   "nota": "KMeans n_init=3 en cada remuestreo (el modelo de referencia usa n_init=10); scaler fijo"
+  },
+  {
+   "k": 4,
+   "remuestreos": 30,
+   "ari_medio": 0.6602000530039376,
+   "ari_minimo": 0.401185967009115,
+   "ari_p5": 0.42327176756039486,
+   "nota": "KMeans n_init=3 en cada remuestreo (el modelo de referencia usa n_init=10); scaler fijo"
+  }
+ ],
+ "isolation_forest": {
+  "cajas_atipicas": 806,
+  "porcentaje": 0.010003599309925407,
+  "segmentos_con_atipicos": 36,
+  "segmentos_total": 41,
+  "tasa_sin_camara_atipicas": 0.6811414392059554,
+  "tasa_sin_camara_resto": 0.20752209615746256,
+  "ic_atipicas": [
+   0.49244696678042194,
+   0.8454419066633192
+  ],
+  "ic_resto": [
+   0.17098293946365317,
+   0.23888973018171955
+  ],
+  "top3_segmentos_aportan": [
+   {
+    "seg": "182443342825",
+    "atipicos": 102,
+    "pct_de_los_atipicos": 0.12655086848635236
+   },
+   {
+    "seg": "198898761683",
+    "atipicos": 93,
+    "pct_de_los_atipicos": 0.11538461538461539
+   },
+   {
+    "seg": "161536078775",
+    "atipicos": 85,
+    "pct_de_los_atipicos": 0.1054590570719603
+   }
+  ]
+ },
+ "aporte_sobre_regla": [
+  {
+   "k": 2,
+   "AUC_regla": 0.7981601481250986,
+   "AUC_regla_mas_cluster": 0.7966676595542306,
+   "dif_AUC": -0.0014924885708680335,
+   "ic_lo": -0.005481247508583279,
+   "ic_hi": 0.0023254380384048912,
+   "Brier_regla": 0.11734820370081243,
+   "Brier_regla_mas_cluster": 0.11697832480185484,
+   "excluye_0": false,
+   "metodo": "regresion logistica sobre logit(prob. de la regla) con y sin indicadoras de cluster; GroupKFold(5) por segmento; IC por segmentos (1000 replicas)"
+  },
+  {
+   "k": 4,
+   "AUC_regla": 0.7981601481250986,
+   "AUC_regla_mas_cluster": 0.7884695933860189,
+   "dif_AUC": -0.00969055473907976,
+   "ic_lo": -0.014957369121385287,
+   "ic_hi": -0.004350177831051261,
+   "Brier_regla": 0.11734820370081243,
+   "Brier_regla_mas_cluster": 0.1170629642650533,
+   "excluye_0": true,
+   "metodo": "regresion logistica sobre logit(prob. de la regla) con y sin indicadoras de cluster; GroupKFold(5) por segmento; IC por segmentos (1000 replicas)"
+  }
+ ],
+ "muestras": {
+  "silhouette": 20000,
+  "gmm_y_ward": 15000
+ },
+ "segundos": 141.0285747051239,
+ "sha256_no_supervisado_v3": "8e6dda1d72d7c338ea780f5360a21760c84bd08da1f30daa9012882846bd129e"
+}

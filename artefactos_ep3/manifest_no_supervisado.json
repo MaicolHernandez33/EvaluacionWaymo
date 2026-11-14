@@ -1,0 +1,21 @@
+{
+ "version": "no_supervisado_v3",
+ "creado": "2026-11-14T13:03:31",
+ "sha256": {
+  "no_supervisado_v3.joblib": "8e6dda1d72d7c338ea780f5360a21760c84bd08da1f30daa9012882846bd129e"
+ },
+ "k_elegido": 2,
+ "semilla": 42,
+ "columnas": [
+  "distancia_m",
+  "azimut_abs_deg",
+  "log_puntos",
+  "log_densidad",
+  "log_volumen"
+ ],
+ "plan_v3_sha256": {
+  "plan_v3.md": "fff0a19898b1b003e2884d01d8c262d7110d99c775b3d4ed8de431184d2e5e66",
+  "plan_v3.json": "cc3bcfb33e94180f0e36e36c4f545229674b3220926c9a668213937e48f77ac4"
+ },
+ "nota": "independiente de manifest_v3.json; descriptivo, post hoc, no pre-declarado"
+}
