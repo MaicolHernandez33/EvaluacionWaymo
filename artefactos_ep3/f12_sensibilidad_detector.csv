@@ -1,0 +1,31 @@
+frac,min_cajas,mediana,celdas_totales,celdas_con_n_suficiente,marcadas,detecta_911012534050_cam5,detecta_257766998801_cam3,detecta_los_2,falsas_alarmas,tasa_falsas_alarmas_sobre_celdas_con_n,marcadas_lista,es_la_configuracion_de_EP2
+0.15,50,con los 41 segmentos,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.15,100,con los 41 segmentos,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.15,200,con los 41 segmentos,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.2,50,con los 41 segmentos,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.2,100,con los 41 segmentos,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.2,200,con los 41 segmentos,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.25,50,con los 41 segmentos,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.25,100,con los 41 segmentos,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,True
+0.25,200,con los 41 segmentos,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.3,50,con los 41 segmentos,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.3,100,con los 41 segmentos,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.3,200,con los 41 segmentos,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.35,50,con los 41 segmentos,205,134,4,True,True,True,2,0.014925373134328358,143581920096|cam5; 247562357599|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.35,100,con los 41 segmentos,205,111,3,True,True,True,1,0.009009009009009009,247562357599|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.35,200,con los 41 segmentos,205,89,3,True,True,True,1,0.011235955056179775,247562357599|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.15,50,sin el segmento candidato,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.15,100,sin el segmento candidato,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.15,200,sin el segmento candidato,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.2,50,sin el segmento candidato,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.2,100,sin el segmento candidato,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.2,200,sin el segmento candidato,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.25,50,sin el segmento candidato,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.25,100,sin el segmento candidato,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.25,200,sin el segmento candidato,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.3,50,sin el segmento candidato,205,134,3,True,True,True,1,0.007462686567164179,143581920096|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.3,100,sin el segmento candidato,205,111,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.3,200,sin el segmento candidato,205,89,2,True,True,True,0,0.0,257766998801|cam3; 911012534050|cam5,False
+0.35,50,sin el segmento candidato,205,134,4,True,True,True,2,0.014925373134328358,143581920096|cam5; 247562357599|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.35,100,sin el segmento candidato,205,111,3,True,True,True,1,0.009009009009009009,247562357599|cam5; 257766998801|cam3; 911012534050|cam5,False
+0.35,200,sin el segmento candidato,205,89,3,True,True,True,1,0.011235955056179775,247562357599|cam5; 257766998801|cam3; 911012534050|cam5,False

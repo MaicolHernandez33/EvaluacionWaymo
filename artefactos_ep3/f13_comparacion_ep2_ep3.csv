@@ -1,0 +1,11 @@
+medida,EP2,EP3,fuente_EP2,fuente_EP3
+k elegido (maximo silhouette),2.0,2.0,08_no_supervisado_resumen.json,f13_seleccion_k.csv
+silhouette con k=2,0.3873707226073005,0.31724695395806685,08_clusters_seleccion_k.csv,f13_seleccion_k.csv
+silhouette con k=4,0.2508742291927316,0.243061066978704,08_clusters_seleccion_k.csv,f13_seleccion_k.csv
+tasa sin_camara del cluster de mayor tasa con k=4 (%),62.70612485276797,54.574630399326566,"08_clusters_vs_franja.csv (cluster 'lejanos, poco densos y ocluidos', 13.584 filas)","f13_clusters_k4.csv (cluster 2: lejanos y poco densos, 19007 cajas)"
+IsolationForest: tasa sin_camara de atipicas (%),80.30000000000001,68.11414392059554,08_no_supervisado_resumen.json,f13_isolation_forest.csv
+IsolationForest: tasa de las no atipicas (%),22.6,20.752209615746256,08_no_supervisado_resumen.json,f13_isolation_forest.csv
+IsolationForest: segmentos que aportan atipicos,28.0,36.0,08_no_supervisado_resumen.json,f13_isolation_forest.csv
+estabilidad: ARI medio al remuestrear segmentos (k elegido),0.953,0.930373295541913,08_no_supervisado_resumen.json,f13_estabilidad.csv
+estabilidad: ARI minimo (k elegido),0.301,0.814944556242128,08_no_supervisado_resumen.json,f13_estabilidad.csv
+ARI KMeans vs GMM (k elegido),0.997,0.007932166618869644,08_no_supervisado_resumen.json,f13_resumen.json

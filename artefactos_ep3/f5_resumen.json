@@ -1,0 +1,9 @@
+{
+ "filas": 80571,
+ "positivos": 17102,
+ "prevalencia": 0.21225999429074976,
+ "filas_auditoria": 1945,
+ "positivos_auditoria": 1565,
+ "bootstrap_replicas": 1000,
+ "repeticiones_cv": 1
+}

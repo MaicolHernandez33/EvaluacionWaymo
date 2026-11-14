@@ -1,0 +1,12 @@
+{
+ "cajas_principal": 80571,
+ "cajas_total_120": 85852,
+ "duplicados_por_llave_principal": 0,
+ "duplicados_por_llave_total_120": 0,
+ "cajas_con_0_puntos_lidar": 4590,
+ "pct_cajas_con_0_puntos_lidar": 0.056968388129724094,
+ "cajas_con_0_puntos_top": 4757,
+ "pct_cajas_con_0_puntos_top": 0.05904109419021732,
+ "tasa_sin_camara_en_cajas_con_0_puntos_top": 0.9051923481185621,
+ "nulos_total": 0
+}

@@ -1,0 +1,65 @@
+{
+ "version": "v3",
+ "creado": "2026-11-14T12:15:26",
+ "sha256": {
+  "modelo_final_v3.joblib": "aa051f64cae93d35110615a0dc3949252e6f6150072e70e350cad7a80a5378be",
+  "umbrales_v3.json": "3a9a893b4eda285c81fecc4bae01aa3bf821630ea1a9b2762806b1eb2e98b7b4",
+  "detector_params_v3.json": "cf6f2980ba0afaffa93ef81c391d91a1a9ec9a6e52a613dbcccb84729b689198"
+ },
+ "candidato": "Regla top",
+ "semilla": 42,
+ "plan_v3_sha256": {
+  "plan_v3.md": "fff0a19898b1b003e2884d01d8c262d7110d99c775b3d4ed8de431184d2e5e66",
+  "plan_v3.json": "cc3bcfb33e94180f0e36e36c4f545229674b3220926c9a668213937e48f77ac4"
+ },
+ "versiones": {
+  "python": "3.10.11",
+  "scikit-learn": "1.7.2",
+  "pandas": "2.3.3",
+  "numpy": "2.2.6",
+  "xgboost": "3.2.0",
+  "lightgbm": "4.7.0"
+ },
+ "descripcion": {
+  "candidato": "Regla top",
+  "configs_bases": {
+   "LR": "defecto",
+   "RF": "defecto",
+   "HGB": "defecto",
+   "XGB": [
+    "V_OBS_TAM",
+    {
+     "colsample_bytree": 1.0,
+     "learning_rate": 0.07461403484816762,
+     "max_depth": 3,
+     "min_child_weight": 100,
+     "n_estimators": 100,
+     "reg_lambda": 69.91947034294083,
+     "subsample": 1.0
+    }
+   ],
+   "LGBM": [
+    "V_OBS",
+    {
+     "colsample_bytree": 0.5,
+     "learning_rate": 0.05373874273881285,
+     "min_child_samples": 10,
+     "n_estimators": 200,
+     "num_leaves": 4,
+     "reg_lambda": 1.0475749897332132,
+     "subsample": 0.7,
+     "subsample_freq": 1
+    }
+   ]
+  },
+  "filas_entrenamiento": 80571,
+  "segmentos": 41,
+  "calibrador": "Platt sobre scores fuera de fold (log_conteo)",
+  "umbrales": "A: recall 0,80 y B: 20 % de revision, sobre scores fuera de fold",
+  "nota_E2": ""
+ },
+ "umbrales": {
+  "A": -32.0,
+  "B": -11.0
+ }
+}

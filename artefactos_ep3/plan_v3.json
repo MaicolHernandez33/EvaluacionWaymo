@@ -1,0 +1,60 @@
+{
+  "version": "v3",
+  "semilla": 42,
+  "P1": {
+    "segmentos": {"train_ep2": 33, "test_ep2": 8, "total": 41, "test_ciego": false},
+    "poblacion": "azimut_abs_deg <= 100",
+    "target": "sin_camara",
+    "cv_externa": {"tipo": "StratifiedGroupKFold", "k": 5, "shuffle": true, "estratificar_por": "sin_camara", "grupos": "segmento", "semillas": [42, 43, 44]},
+    "cv_interna": {"tipo": "GroupKFold", "k": 3, "criterio": "PR-AUC"},
+    "ic": {"tipo": "bootstrap_por_segmentos", "replicas": 1000, "replicas_computo_pesado": 500, "diferencias": "pareadas", "nivel": 0.95}
+  },
+  "P2": {
+    "V16": "las 16 variables de EP2 (config_features_B.json)",
+    "V_OBS": ["num_lidar_points", "num_top_lidar_points", "densidad_puntos", "distancia_m"],
+    "V_OBS_TAM": ["num_lidar_points", "num_top_lidar_points", "densidad_puntos", "distancia_m", "box_length", "box_width", "box_height", "volumen_caja", "es_ciclista", "speed_mps"],
+    "conjunto_es_hiperparametro": true
+  },
+  "P3": {"rango_percentiles": [5, 95], "rango_con": "33 segmentos de train", "mediana_con": "41 segmentos", "frac": 0.25, "min_cajas": 100, "recalcular": false, "salida": "Lista A (segmento, camara, tasa, cajas afectadas)"},
+  "P4": {"brazos": {"A": "un paso, todas las cajas", "B": "solo celdas sanas (sensibilidad)", "C": "dos pasos: Lista A se audita aparte y Lista B ordena celdas sanas"}, "costo_auditoria": "no se inventa; se reporta el punto de equilibrio en cajas"},
+  "P5": {
+    "modelos": ["LR", "RF", "HGB", "XGB", "LGBM"],
+    "variantes": ["defecto", "optimizado"],
+    "busqueda": {"tipo": "aleatoria anidada", "configuraciones": 40, "LR": "rejilla C 1e-5 a 100 x class_weight"},
+    "grillas_mas_regularizadas_que_ep2": true,
+    "borde": "si el optimo cae en el borde, extender la grilla una vez y repetir (registrar)",
+    "mejora": {"metrica": "PR-AUC OOF", "diferencia_min": 0.010, "ic": "pareado por segmentos excluye 0"}
+  },
+  "P6": {
+    "E1": "voting soft LR+RF+HGB",
+    "E2": "promedio de rangos de E1 + regla menos puntos top",
+    "E3": "stacking meta-LR sobre OOF GroupKFold(3) por segmento dentro de cada fold externo (LR, RF, HGB, XGB, LGBM)",
+    "E4": "stacking por vistas (V_OBS; tamano; posicion y azimut) + meta-LR",
+    "aporta": {"metrica": "AUC OOF", "diferencia_min": 0.010, "ic": "pareado por segmentos excluye 0", "intermedio": "indicio no concluyente", "reportar": ["folds ganados", "segmentos ganados"]},
+    "principal_declarado": "el de mayor AUC OOF entre E1 y E4"
+  },
+  "P7": {
+    "metricas": ["AUC", "PR-AUC", "Captura@20", "Fraccion_80", "recall_A", "precision_A", "recall_B", "precision_B", "ECE", "Brier"],
+    "punto_A": {"recall_objetivo": 0.80, "umbral": "fijado con OOF interno"},
+    "punto_B": {"revision": 0.20},
+    "calibracion": "Platt",
+    "estabilidad": {"auc_min_fold": 0.75, "mediana_auc_segmento": 0.80},
+    "adicional": ["leave-one-segment-out del modelo elegido", "curva de aprendizaje por numero de segmentos", "brecha ajuste-validacion"],
+    "accuracy_f1": "solo referencia, no deciden"
+  },
+  "P8": {
+    "candidatos": ["regla_top", "LR3", "LR", "RF", "HGB", "XGB", "LGBM", "E1", "E2", "E3", "E4"],
+    "brazos": ["A", "C"],
+    "objetivos": {
+      "O1": {"auc_min": 0.70, "pr_auc_menos_prevalencia_min": 0.10},
+      "O2": {"fraccion_80_baja_min_puntos": 5, "ic": "pareado excluye 0", "auc_sube_min": 0.03, "frente_a": "regla top"},
+      "O3": {"recall_punto_A_min": 0.75},
+      "O4": {"estabilidad": "P7", "ece_max": 0.05}
+    },
+    "eleccion": "entre los que cumplen O1, O3 y O4, el mas simple con AUC OOF a menos de 0,010 del mejor",
+    "simplicidad": ["regla", "LR3", "LR", "RF", "HGB", "XGB/LGBM", "voting", "stacking"],
+    "sin_O2": "se dice, y se recomienda el mas simple que cumpla lo demas",
+    "capas": ["filtro 1 (detector)", "modelo o regla", "persona que revisa y decide"]
+  },
+  "P9": {"congelar_antes": ["modelos", "umbrales", "parametros del detector", "lista de segmentos"], "sha256": true, "evaluacion": "una sola vez, con candado", "comparaciones": ["solucion elegida vs regla", "C vs A"], "falsas_alarmas_detector": "celdas marcadas / celdas totales", "seleccion_con_nuevos": false}
+}

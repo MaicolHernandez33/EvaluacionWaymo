@@ -1,0 +1,16 @@
+{
+ "comando": "python -m pytest tests/ep3 --collect-only -q --no-cov -p no:cacheprovider",
+ "fecha": "2026-11-14",
+ "recolectadas_ep3": 63,
+ "por_archivo": {
+  "tests/ep3/test_app.py": 13,
+  "tests/ep3/test_candidatos.py": 15,
+  "tests/ep3/test_detector_huecos.py": 9,
+  "tests/ep3/test_inferencia.py": 15,
+  "tests/ep3/test_seguridad_pagina.py": 4,
+  "tests/ep3/test_sellado.py": 7
+ },
+ "pruebas_ep2": 81,
+ "total_ep2_mas_ep3": 144,
+ "nota": "recolectar no ejecuta las pruebas; el resultado de ejecutar (pasadas/omitidas) esta en docs/ep3/verificacion_copia_limpia.md"
+}

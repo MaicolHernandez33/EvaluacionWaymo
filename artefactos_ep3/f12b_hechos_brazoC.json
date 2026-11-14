@@ -1,0 +1,19 @@
+{
+ "segmentos_con_hueco": [
+  "257766998801",
+  "911012534050"
+ ],
+ "segmentos_total": 41,
+ "replicas": 1000,
+ "diseno": "41 segmentos muestreados con reemplazo entre 41 (conteos multinomiales)",
+ "prob_exacta_ninguno_de_los_2": 0.12867991417692748,
+ "formula": "((41-2)/41)^41",
+ "error_estandar_con_1000_replicas": 0.010588739012004501,
+ "proporcion_observada_ninguno_de_los_2": 0.119,
+ "proporcion_observada_solo_uno": 0.5,
+ "proporcion_observada_ambos": 0.381,
+ "proporcion_replicas_donde_C_no_es_mejor_que_A": 0.119,
+ "z_observado_menos_exacto": -0.9141706265451742,
+ "lectura": "La proporcion observada es compatible con la probabilidad exacta del diseno (dentro de ~1 error estandar). En esas replicas C es igual a A, por eso el limite superior del IC es 0.",
+ "nota": "post hoc, no pre-declarado; en muestra"
+}

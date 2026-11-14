@@ -1,0 +1,14 @@
+modelo,etapa,hiperparametro,min_grilla,max_grilla,folds_en_min,folds_en_max,borde
+LR,principal,C,1e-05,100.0,0,0,no
+RF,principal,max_depth,3.0,12.0,0,2,no
+RF,principal,min_samples_leaf,20.0,1600.0,0,0,no
+HGB,principal,max_leaf_nodes,2.0,15.0,0,1,no
+HGB,principal,min_samples_leaf,20.0,3200.0,0,0,no
+HGB,principal,max_iter,30.0,200.0,0,1,no
+HGB,principal,max_depth,2.0,4.0,2,1,no
+XGB,principal,max_depth,1.0,6.0,1,0,no
+XGB,principal,min_child_weight,1.0,300.0,1,0,no
+XGB,principal,n_estimators,30.0,200.0,2,1,no
+LGBM,ext,num_leaves,2.0,31.0,0,0,no
+LGBM,ext,min_child_samples,5.0,800.0,0,1,no
+LGBM,ext,n_estimators,30.0,200.0,0,5,max

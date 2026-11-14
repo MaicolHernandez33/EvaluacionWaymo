@@ -1,0 +1,63 @@
+{
+ "B_AUC_min_fold": {
+  "Regla top": 0.8420580784077877,
+  "LR3": 0.8419483915540069,
+  "XGB": 0.8405290059844053
+ },
+ "B_cumple_AUC_min_fold_0_75": {
+  "Regla top": true,
+  "LR3": true,
+  "XGB": true
+ },
+ "A_AUC_min_fold": {
+  "Regla top": 0.6474784345936252,
+  "LR3": 0.6511972139165589,
+  "XGB": 0.685276523467941
+ },
+ "C_en_fold_1_regla": {
+  "Fraccion80_A": 0.31514260904415203,
+  "Fraccion80_C": 0.1736690935809231,
+  "hueco": "911012534050 camara 5"
+ },
+ "C_en_fold_0_regla": {
+  "Fraccion80_A": 0.805184393372528,
+  "Fraccion80_C": 0.23597006948156066,
+  "hueco": "257766998801 camara 3"
+ },
+ "dif_C_menos_A_global_regla": {
+  "dif_C_menos_A": -0.15041392064142184,
+  "ic_lo": -0.48979814717329795,
+  "ic_hi": 0.0,
+  "excluye_0": false,
+  "prop_replicas_C_mejor": 0.881
+ },
+ "detector_combinaciones": 30,
+ "detector_combinaciones_que_detectan_los_2": 30,
+ "detector_razonables_que_detectan_los_2": [
+  12,
+  12
+ ],
+ "detector_falsas_alarmas_rango": [
+  0,
+  2
+ ],
+ "detector_ep2": {
+  "marcadas": 2,
+  "falsas_alarmas": 0,
+  "celdas_con_n_suficiente": 111
+ },
+ "umbral_A_regla": -32.0,
+ "equidad_filas": 18,
+ "eda": {
+  "cajas_principal": 80571,
+  "cajas_total_120": 85852,
+  "duplicados_por_llave_principal": 0,
+  "duplicados_por_llave_total_120": 0,
+  "cajas_con_0_puntos_lidar": 4590,
+  "pct_cajas_con_0_puntos_lidar": 0.056968388129724094,
+  "cajas_con_0_puntos_top": 4757,
+  "pct_cajas_con_0_puntos_top": 0.05904109419021732,
+  "tasa_sin_camara_en_cajas_con_0_puntos_top": 0.9051923481185621,
+  "nulos_total": 0
+ }
+}

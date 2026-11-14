@@ -1,0 +1,3 @@
+segmento,grupo,ubicacion,momento,camara,tasa,mediana_camara,umbral,cajas_en_rango,cajas_afectadas_poblacion_principal,positivos_afectados
+911012534050,train,location_sf,Day,5 (lateral der.),0.0,0.9135802469135802,0.22839506172839505,300,268,227
+257766998801,test,location_sf,Day,3 (frontal der.),0.0,0.9168704156479217,0.22921760391198043,1677,1677,1338

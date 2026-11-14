@@ -1,0 +1,3 @@
+k,AUC_regla,AUC_regla_mas_cluster,dif_AUC,ic_lo,ic_hi,Brier_regla,Brier_regla_mas_cluster,excluye_0,metodo
+2,0.7981601481250986,0.7966676595542306,-0.0014924885708680335,-0.005481247508583279,0.0023254380384048912,0.11734820370081243,0.11697832480185484,False,regresion logistica sobre logit(prob. de la regla) con y sin indicadoras de cluster; GroupKFold(5) por segmento; IC por segmentos (1000 replicas)
+4,0.7981601481250986,0.7884695933860189,-0.00969055473907976,-0.014957369121385287,-0.004350177831051261,0.11734820370081243,0.1170629642650533,True,regresion logistica sobre logit(prob. de la regla) con y sin indicadoras de cluster; GroupKFold(5) por segmento; IC por segmentos (1000 replicas)

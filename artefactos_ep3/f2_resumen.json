@@ -1,0 +1,15 @@
+{
+ "n_pares_con_hueco": 2,
+ "pares": [
+  "257766998801 | 3 (frontal der.)",
+  "911012534050 | 5 (lateral der.)"
+ ],
+ "pares_iguales_a_ep2": true,
+ "dif_max_tabla_vs_ep2": 1.1102230246251565e-16,
+ "huecos_iguales_a_ep2": true,
+ "dif_max_rangos_medianas_vs_ep2": 1.1102230246251565e-16,
+ "cajas_en_hueco_principal": 1945,
+ "positivos_en_hueco_principal": 1565,
+ "prevalencia_principal": 0.21225999429074976,
+ "filas_principal": 80571
+}
