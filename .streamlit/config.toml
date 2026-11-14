@@ -1,0 +1,11 @@
+# Configuracion de seguridad de la pagina de EP3 (se lee al lanzar `streamlit run` desde la raiz del repositorio).
+# La pagina escucha solo en el propio equipo, sin telemetria y sin el boton Deploy. Una prueba (tests/ep3/test_seguridad_pagina.py) la vigila.
+[server]
+address = "localhost"
+headless = false
+
+[browser]
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal"

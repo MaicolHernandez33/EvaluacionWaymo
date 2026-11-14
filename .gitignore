@@ -183,3 +183,7 @@ data/01_raw/waymo/
 
 # Paquete de entrega generado por scripts/empaquetar_entrega.py
 entrega_EP2.zip
+
+entrega_EP3.zip
+docs/ep3/revision/
+entrega_EP3.sha256

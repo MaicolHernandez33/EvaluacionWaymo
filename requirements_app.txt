@@ -1,0 +1,13 @@
+# Dependencias directas de la pagina de EP3 (versiones exactas del entorno de desarrollo, Python 3.10).
+# Las transitivas se resuelven con: pip install -r requirements_app.txt -c constraints_ep3.txt
+streamlit==1.65.0
+altair==6.2.2
+pandas==2.3.3
+numpy==2.2.6
+scipy==1.15.3
+scikit-learn==1.7.2
+joblib==1.5.3
+pyarrow==25.0.1
+xgboost==3.2.0
+lightgbm==4.7.0
+threadpoolctl==3.6.0

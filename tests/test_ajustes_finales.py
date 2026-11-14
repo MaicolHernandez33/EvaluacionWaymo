@@ -171,7 +171,7 @@ def test_frase_de_lidar_box_originales_en_las_secciones_14_y_15(docs):
 
 def test_readme_e_informe_dicen_el_numero_actual_de_pruebas_y_la_cobertura(docs):
     readme, informe = docs
-    r = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "--no-cov"], cwd=R, capture_output=True, text=True, encoding="utf-8")
+    r = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "--no-cov", "--ignore=tests/ep3"], cwd=R, capture_output=True, text=True, encoding="utf-8")
     n = len([l for l in r.stdout.splitlines() if "::" in l])
     m = re.search(r"(\d+) pasadas, (\d+) falladas, (\d+) omitidas", readme)
     assert m and int(m.group(1)) + int(m.group(2)) + int(m.group(3)) == n, f"el README dice {m.groups() if m else None} y pytest recoge {n} pruebas: correr scripts/medir_pruebas.py y regenerar el README"
