@@ -1,0 +1,16 @@
+corte,grupo,evaluados,seleccionados,descartados,asociacion_vacia,etiquetado_ralo,pocas_asociaciones,rendimiento
+momento_del_dia,Dawn/Dusk,22,11,11,5,6,0,0.5
+momento_del_dia,Day,27,18,9,2,7,0,0.6666666666666666
+momento_del_dia,Night,42,12,30,20,8,2,0.2857142857142857
+ubicacion,location_other,21,7,14,10,3,1,0.3333333333333333
+ubicacion,location_phx,40,18,22,11,10,1,0.45
+ubicacion,location_sf,30,16,14,6,8,0,0.5333333333333333
+momento_x_ubicacion,Dawn/Dusk / location_other,3,2,1,0,1,0,0.6666666666666666
+momento_x_ubicacion,Dawn/Dusk / location_phx,12,5,7,3,4,0,0.4166666666666667
+momento_x_ubicacion,Dawn/Dusk / location_sf,7,4,3,2,1,0,0.5714285714285714
+momento_x_ubicacion,Day / location_other,6,4,2,1,1,0,0.6666666666666666
+momento_x_ubicacion,Day / location_phx,10,7,3,1,2,0,0.7
+momento_x_ubicacion,Day / location_sf,11,7,4,0,4,0,0.6363636363636364
+momento_x_ubicacion,Night / location_other,12,1,11,9,1,1,0.08333333333333333
+momento_x_ubicacion,Night / location_phx,18,6,12,7,4,1,0.3333333333333333
+momento_x_ubicacion,Night / location_sf,12,5,7,4,3,0,0.4166666666666667

@@ -84,7 +84,7 @@ def tomar_candado(ruta: Path, info: dict[str, Any]) -> None:
 
 
 def evaluar_externo(nuevos: pd.DataFrame, art: Artefactos, n_boot: int = 1000, semilla: int = 42) -> dict[str, pd.DataFrame]:
-    """Comparaciones de P9 sobre segmentos nuevos: solución vs regla, brazo C vs A y falsas alarmas del detector.
+    """Comparaciones de P9 sobre segmentos nuevos: solución vs regla, brazo C vs A y tasa de celdas marcadas del detector (sin verdad externa: no es sensibilidad ni especificidad; DEV-3).
 
     Args:
         nuevos: tabla ingerida (``seg``, 16 variables, ``sin_camara``, ``en_zona_principal``, ``az_signed``, ``c1``..``c5``).
@@ -135,7 +135,7 @@ def evaluar_externo(nuevos: pd.DataFrame, art: Artefactos, n_boot: int = 1000, s
     brazos = pd.DataFrame([{"Fraccion_80_A": ma[3], "Fraccion_80_C": mc[1], "Captura@20_A": ma[2], "Captura@20_C": mc[0], "celdas_auditadas": int(celdas),
                             "equilibrio_cajas_por_auditoria": float(len(y) * (ma[3] - mc[1]) / celdas) if celdas > 0 else np.nan,
                             "positivos_en_auditoria": int((aud & (y == 1)).sum())}])
-    # falsas alarmas del detector
+    # tasa de celdas marcadas del detector (no hay verdad externa: no se calculan sensibilidad ni especificidad)
     total = int(huecos.size)
     marcadas = int(huecos.to_numpy().sum())
     resp = []
@@ -145,7 +145,7 @@ def evaluar_externo(nuevos: pd.DataFrame, art: Artefactos, n_boot: int = 1000, s
         resp.append((sw * huecos.sum(axis=1).to_numpy()).sum() / max(sw.sum() * huecos.shape[1], 1e-12))
     falsas = pd.DataFrame([{"celdas_totales": total, "celdas_marcadas": marcadas, "tasa_marcadas": marcadas / max(total, 1),
                             "tasa_lo": ic95(np.array(resp))[0], "tasa_hi": ic95(np.array(resp))[1], "segmentos": int(huecos.shape[0]),
-                            "nota": "sin etiqueta de causa: una celda marcada puede ser un hueco real o una falsa alarma; se reporta la tasa, no la precision"}])
+                            "nota": "sin etiqueta de causa: no hay verdad externa: una celda marcada puede ser un hueco real o no; se reporta la tasa de celdas marcadas, no sensibilidad, especificidad ni precision"}])
     return {"metricas": pd.DataFrame(filas), "diferencias": pd.DataFrame(dif).T.reset_index(names="metrica"), "puntos": pd.DataFrame(ops), "brazos": brazos,
             "detector": falsas, "lista_A": pd.DataFrame([{"segmento": s, "camara": f"c{c}", "tasa": float(tasa.loc[s, f"c{c}"]), "cajas_en_rango": int(nrango.loc[s, f"c{c}"])}
                                                           for s in huecos.index for c in camaras if huecos.loc[s, f"c{c}"]])}

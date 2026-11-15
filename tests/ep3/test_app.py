@@ -111,7 +111,7 @@ def test_matriz_calor_y_percentil(tmp_path: Path) -> None:
     assert len(PERFILES) == 3
 
 
-@pytest.mark.parametrize("seccion", ["Inicio", "Auditoría de cámaras", "Cola de revisión", "Explica una caja", "Evidencia", "Ética y límites", "Puntuar datos nuevos"])
+@pytest.mark.parametrize("seccion", ["Inicio", "Auditoría de cámaras", "Cola de revisión", "Explica una caja", "Evidencia", "Ética y límites", "Puntuar datos nuevos", "Ayuda y glosario"])
 def test_app_humo_cada_seccion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, seccion: str) -> None:
     at_mod = pytest.importorskip("streamlit.testing.v1")
     _datos_sinteticos(tmp_path / "datos")
@@ -124,12 +124,13 @@ def test_app_humo_cada_seccion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, 
     assert not at.exception, at.exception
     at.sidebar.toggle[0].set_value(True).run()                       # modo presentacion
     assert not at.exception, at.exception
-    assert at.title[0].value.startswith("Revisión de etiquetas")
+    assert at.title[0].value == seccion
     if seccion in ("Inicio", "Cola de revisión"):          # aviso "en muestra" visible (no en un tooltip)
         at.sidebar.toggle[0].set_value(False).run()
-        assert any("En muestra" in w.value and "2 celdas cámara x segmento" in w.value for w in at.warning)
+        assert any("En muestra" in w.value for w in at.warning)
+        assert any("2 celdas cámara x segmento" in m.value for m in at.markdown)          # texto completo, visible en el expander «¿Qué significa?»
     if seccion == "Cola de revisión":
-        assert any(sb.label == "Comparar con modelo de referencia" for sb in at.selectbox)
+        assert any(sb.label == "Modelo de referencia" for sb in at.selectbox)
 
 
 def test_app_sin_datos_muestra_error_claro(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

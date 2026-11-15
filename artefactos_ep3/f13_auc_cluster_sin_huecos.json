@@ -1,0 +1,7 @@
+{
+ "nota": "post hoc, no pre-declarado; descriptivo (sin IC); regla con Platt fuera de fold",
+ "AUC_global_todas": 0.808841221204055,
+ "AUC_global_sin_celdas_con_hueco": 0.8709929916278989,
+ "cajas_en_celdas_con_hueco": 1945,
+ "todas_coinciden_con_f13_clusters_csv": true
+}

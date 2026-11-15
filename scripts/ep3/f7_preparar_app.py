@@ -133,7 +133,7 @@ def main() -> None:
               "posthoc__equidad": "f12_equidad.csv", "posthoc__eda_tasas": "f12_eda_tasas.csv", "posthoc__eda_calidad": "f12_eda_calidad.csv"}
     for dest, src in copias.items():
         if (REP / src).exists():
-            pd.read_csv(REP / src).round(4).to_csv(OUT / "evidencia" / f"{dest}.csv", index=False)
+            pd.read_csv(REP / src).round(8).to_csv(OUT / "evidencia" / f"{dest}.csv", index=False)
     print("listo:", sorted(p.name for p in OUT.iterdir()), "| evidencia:", len(list((OUT / 'evidencia').glob('*.csv'))), "tablas")
 
 

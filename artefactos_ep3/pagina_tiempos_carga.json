@@ -1,0 +1,72 @@
+{
+ "meta_s": 3.0,
+ "nota": "AppTest: incluye ejecutar el script de la pagina completo y cambiar de seccion; datos reales; la primera seccion abierta paga la lectura de los datos (cache de Streamlit)",
+ "secciones": {
+  "Inicio": {
+   "primera_s": 0.4,
+   "mejor_s": 0.4,
+   "cumple_meta": true,
+   "frio_s": 2.4,
+   "frio_cumple_meta": true
+  },
+  "Auditoría de cámaras": {
+   "primera_s": 0.44,
+   "mejor_s": 0.44,
+   "cumple_meta": true,
+   "frio_s": 2.45,
+   "frio_cumple_meta": true
+  },
+  "Cola de revisión": {
+   "primera_s": 0.5,
+   "mejor_s": 0.5,
+   "cumple_meta": true,
+   "frio_s": 2.51,
+   "frio_cumple_meta": true
+  },
+  "Explica una caja": {
+   "primera_s": 0.45,
+   "mejor_s": 0.45,
+   "cumple_meta": true,
+   "frio_s": 3.44,
+   "frio_cumple_meta": false
+  },
+  "Evidencia": {
+   "primera_s": 0.6,
+   "mejor_s": 0.59,
+   "cumple_meta": true,
+   "frio_s": 2.58,
+   "frio_cumple_meta": true
+  },
+  "Ética y límites": {
+   "primera_s": 0.42,
+   "mejor_s": 0.42,
+   "cumple_meta": true,
+   "frio_s": 2.4,
+   "frio_cumple_meta": true
+  },
+  "Puntuar datos nuevos": {
+   "primera_s": 0.42,
+   "mejor_s": 0.42,
+   "cumple_meta": true,
+   "frio_s": 3.2,
+   "frio_cumple_meta": false
+  },
+  "Ayuda y glosario": {
+   "primera_s": 0.44,
+   "mejor_s": 0.44,
+   "cumple_meta": true,
+   "frio_s": 2.47,
+   "frio_cumple_meta": true
+  }
+ },
+ "tiempos_antes_s": {
+  "Inicio": 6.12,
+  "Auditoría de cámaras": 2.37,
+  "Cola de revisión 20": 2.9,
+  "Cola de revisión 68": 3.75,
+  "Explica una caja": 6.96,
+  "Evidencia": 2.23,
+  "Ética y límites": 1.91,
+  "Puntuar datos nuevos": 2.04
+ }
+}

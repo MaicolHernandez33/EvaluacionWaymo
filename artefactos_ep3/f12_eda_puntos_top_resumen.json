@@ -1,0 +1,58 @@
+{
+ "nota": "post hoc, no pre-declarado; descriptivo",
+ "tramo_mayor_100": {
+  "cajas": 19530,
+  "positivos": 1468,
+  "tasa": 0.07516641065028162,
+  "cajas_en_celdas_con_hueco": 1234,
+  "tasa_en_celdas_con_hueco": 0.8557536466774717,
+  "positivos_en_celdas_con_hueco": 1056,
+  "cajas_sin_hueco": 18296,
+  "tasa_sin_hueco": 0.022518583296895496
+ },
+ "tramo_51_100": {
+  "tasa": 0.056778425655976676,
+  "tasa_sin_hueco": 0.0401500938086304
+ },
+ "top3_segmentos_positivos_mayor_100": [
+  {
+   "seg": "257766998801",
+   "cajas": 1679,
+   "positivos": 917,
+   "tasa": 0.5461584276354973
+  },
+  {
+   "seg": "911012534050",
+   "cajas": 644,
+   "positivos": 194,
+   "tasa": 0.30124223602484473
+  },
+  {
+   "seg": "247562357599",
+   "cajas": 665,
+   "positivos": 184,
+   "tasa": 0.27669172932330827
+  }
+ ],
+ "top3_segmentos_positivos_mayor_100_sin_hueco": [
+  {
+   "seg": "247562357599",
+   "cajas": 665,
+   "positivos": 184,
+   "tasa": 0.27669172932330827
+  },
+  {
+   "seg": "181366958272",
+   "cajas": 1689,
+   "positivos": 55,
+   "tasa": 0.03256364712847839
+  },
+  {
+   "seg": "257766998801",
+   "cajas": 672,
+   "positivos": 52,
+   "tasa": 0.07738095238095238
+  }
+ ],
+ "pct_positivos_mayor_100_en_celdas_con_hueco": 0.7193460490463215
+}

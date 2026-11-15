@@ -7,6 +7,13 @@ Dos pasos:
   2) evaluar:   python scripts/ep3/evaluar_sellado.py evaluar --lista segmentos_nuevos_ep3.csv
      Verifica todos los hashes, toma el candado (data/08_reporting_ep3/evaluacion_externa.lock) y escribe
      data/08_reporting_ep3/externa_*.csv. Nada de lo que salga se usa para elegir ni reajustar.
+
+Que se mide con segmentos nuevos (no hay verdad externa sobre cuales celdas son huecos reales; DEV-3):
+  (i)   la tasa de celdas marcadas por el detector (externa_detector.csv),
+  (ii)  su estabilidad frente a las 30 combinaciones de parametros del detector (se compara el conjunto marcado, no una «precision»),
+  (iii) OPCIONAL y post hoc, solo si Waymo v2 trae el componente camera_box: en cada celda marcada, ver si esa camara tiene cajas 2D en el rango
+        de azimut sin pares (laguna de asociacion) o no tiene ninguna (laguna de etiquetado o de datos). Ver docs/ep3/GUIA_VALIDACION_EXTERNA.md.
+No se calculan sensibilidad ni especificidad del detector.
 """
 from __future__ import annotations
 

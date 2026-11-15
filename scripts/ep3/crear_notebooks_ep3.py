@@ -194,14 +194,25 @@ display(Markdown(f"**Lectura (generada, post hoc).** La tasa va de {pct(pt.loc['
 """)
     n.md("""
 ## 7. Sensibilidad del detector (post hoc; fase 12.2)
-30 combinaciones de `frac` (0,15 a 0,35), `min_cajas` (50, 100, 200) y mediana (con los 41 segmentos o sin el segmento candidato). Falsa alarma = celda marcada que no es uno de los 2 huecos de EP2.
+30 combinaciones de `frac` (0,15 a 0,35), `min_cajas` (50, 100, 200) y mediana (con los 41 segmentos o sin el segmento candidato). Celdas marcadas además de los 2 de referencia (sin verdad externa): las que no son uno de los 2 huecos de EP2; los 2 de referencia los define el mismo detector con los parámetros de EP2 (DEV-3). «30 de 30» mide la estabilidad del conjunto marcado frente a los parámetros, no sensibilidad ni especificidad.
 """)
     n.code("""
 sens = pd.read_csv(REP / "f12_sensibilidad_detector.csv")
-res = sens.groupby(["mediana", "frac"]).agg(marcadas_min=("marcadas", "min"), marcadas_max=("marcadas", "max"), falsas_min=("falsas_alarmas", "min"), falsas_max=("falsas_alarmas", "max"), detecta_los_2=("detecta_los_2", "all")).reset_index()
+res = sens.groupby(["mediana", "frac"]).agg(marcadas_min=("marcadas", "min"), marcadas_max=("marcadas", "max"), extra_min=("falsas_alarmas", "min"), extra_max=("falsas_alarmas", "max"), detecta_los_2=("detecta_los_2", "all")).reset_index()
 display(res)
-display(Markdown(f"**Lectura (generada, post hoc).** Los 2 huecos se detectan en {int(sens['detecta_los_2'].sum())} de {len(sens)} combinaciones; las falsas alarmas van de {int(sens['falsas_alarmas'].min())} a {int(sens['falsas_alarmas'].max())} celdas. "
-                 "Como los parámetros se ajustaron con los mismos segmentos donde se evalúa, la tasa de falsas alarmas solo se podrá medir bien con segmentos nuevos."))
+display(Markdown(f"**Lectura (generada, post hoc).** Los 2 huecos se detectan en {int(sens['detecta_los_2'].sum())} de {len(sens)} combinaciones; las celdas marcadas además de los 2 de referencia (sin verdad externa) van de {int(sens['falsas_alarmas'].min())} a {int(sens['falsas_alarmas'].max())}. "
+                 "Como los parámetros se ajustaron con los mismos segmentos donde se evalúa, la tasa de celdas marcadas y su estabilidad solo se podrán medir bien con segmentos nuevos."))
+""")
+    n.md("""
+## 8. Puntos del sensor superior > 100: por qué la tasa sube (post hoc, no pre-declarado; F18-A3c)
+La tasa de `sin_camara` baja con los puntos y vuelve a subir con más de 100. Se separó por celdas con hueco (`f12_eda_puntos_top_sin_huecos.csv`).
+""")
+    n.code("""
+pts = pd.read_csv(REP / "f12_eda_puntos_top_sin_huecos.csv")
+res = json.loads((REP / "f12_eda_puntos_top_resumen.json").read_text(encoding="utf-8"))
+display(pts.pivot(index="tramo", columns="variante", values="tasa").reindex(["0-5", "6-10", "11-20", "21-50", "51-100", "101-200", "201-500", ">500"]).round(3))
+m = res["tramo_mayor_100"]
+display(Markdown(f"**Lectura (generada, post hoc).** Con más de 100 puntos hay {miles(m['cajas_en_celdas_con_hueco'])} cajas dentro de las celdas con hueco, con tasa {pct(m['tasa_en_celdas_con_hueco'])}, y concentran {pct(res['pct_positivos_mayor_100_en_celdas_con_hueco'])} de los positivos del tramo. Sin esas celdas la tasa del tramo es {pct(m['tasa_sin_hueco'])}: la serie es decreciente. *Hipótesis (no verificada):* el alza era el hueco, no el sensor."))
 """)
     n.guardar("11_ep3_datos_y_deteccion.ipynb")
 
@@ -510,23 +521,33 @@ print(json.dumps(r.resumen, ensure_ascii=False, indent=1))
 display(r.lista_A.round(3))
 display(r.lista_B.drop(columns=["key.frame_timestamp_micros", "key.laser_object_id"]).head(5).round(3))
 """)
-    n.md("## La página (Streamlit) y su prueba de humo\nSe ejecuta con `streamlit run app/app.py` (solo local). Aquí corremos cada sección con `streamlit.testing.v1.AppTest` sobre los datos reales de `data/09_app_ep3` para comprobar que no hay errores.")
+    n.md("## La página «Auditor de etiquetas 3D» (Streamlit) y su prueba de humo\nSe ejecuta con `streamlit run app/app.py` (solo local). Aquí corremos **todas las secciones con cada perfil** con `streamlit.testing.v1.AppTest` sobre los datos reales de `data/09_app_ep3` para comprobar que no hay errores. El número de secciones y de perfiles se lee del código de la página.")
     n.code("""
 import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 from streamlit.testing.v1 import AppTest
-SECCIONES = ["Inicio", "Auditoría de cámaras", "Cola de revisión", "Explica una caja", "Evidencia", "Ética y límites", "Puntuar datos nuevos"]
+from waymo_evaluacion.ep3.app_logica import PERFILES, SECCIONES
 estado = {}
-for s in SECCIONES:
-    at = AppTest.from_file(str(RAIZ / "app/app.py"), default_timeout=120).run()
-    at.sidebar.radio[0].set_value(s).run()
-    estado[s] = "sin errores" if not at.exception else f"ERROR: {at.exception[0].value[:80]}"
-display(pd.Series(estado, name="estado").to_frame())
+for perfil in PERFILES:
+    for s in SECCIONES:
+        at = AppTest.from_file(str(RAIZ / "app/app.py"), default_timeout=120).run()
+        at.sidebar.selectbox[0].set_value(perfil).run()
+        at.sidebar.radio[0].set_value(s).run()
+        estado.setdefault(s, {})[perfil] = "sin errores" if not at.exception else f"ERROR: {at.exception[0].value[:80]}"
+display(pd.DataFrame(estado).T)
+print(f"{len(SECCIONES)} secciones x {len(PERFILES)} perfiles = {len(SECCIONES) * len(PERFILES)} combinaciones; con error: {sum(v != 'sin errores' for d in estado.values() for v in d.values())}")
+""")
+    n.md("### Cifras de la página: antes y después del rediseño (F18-C)\nEl rediseño cambia el diseño y el lenguaje, no las cifras. La única diferencia deliberada es la **cobertura de la cola**: antes la tarjeta usaba la curva interpolada y el texto el conteo observado (70,2 % contra 70,3 %; 96,5 % contra 96,6 %); ahora hay una sola fuente (el conteo observado). Fuente: `pagina_comparacion_antes_despues.csv` y tiempos en `pagina_tiempos_carga.json` (AppTest, caché caliente, meta menor a 3 s).")
+    n.code("""
+comp = pd.read_csv(REP / "pagina_comparacion_antes_despues.csv")
+display(comp[["seccion", "caso", "cifra", "antes", "despues"]])
+tiempos = json.loads((REP / "pagina_tiempos_carga.json").read_text(encoding="utf-8"))
+display(pd.DataFrame(tiempos["secciones"]).T)
 """)
     n.md("""
 ## Validación externa sellada (P9) y despliegue
 - Los segmentos nuevos **todavía no existen**. `notebooks/00b_seleccion_segmentos_ep3.ipynb` (para Colab) reconstruye la selección de EP2 y toma segmentos nunca evaluados.
-- Antes de abrirlos: `scripts/ep3/evaluar_sellado.py congelar` guarda el sha256 de la lista y de los modelos; después `evaluar` corre **una sola vez** (candado) y compara solución elegida contra regla, dos pasos contra un paso y las falsas alarmas del detector. Nada se selecciona con esos datos.
+- Antes de abrirlos: `scripts/ep3/evaluar_sellado.py congelar` guarda el sha256 de la lista y de los modelos; después `evaluar` corre **una sola vez** (candado) y compara solución elegida contra regla, dos pasos contra un paso; del detector se medirá la tasa de celdas marcadas y su estabilidad (sin verdad externa, DEV-3). Nada se selecciona con esos datos.
 - Despliegue: local (`scripts/ep3/arrancar_app.bat`) y Docker (`docker compose up --build`, datos como volumen de solo lectura). Docker **no se probó** (Docker Desktop apagado). La guía de AWS (EC2 + S3 privado) es solo orientativa y advierte que los datos por caja de Waymo no deben salir del equipo. Ver `docs/ep3/despliegue.md`.
 """)
     n.guardar("14_ep3_dos_pasos_y_app.ipynb")
@@ -598,6 +619,16 @@ display(Markdown("**Lectura (generada).** Los resultados **cambian** respecto de
 r = subprocess.run([sys.executable, "-X", "utf8", str(RAIZ / "scripts/ep3/verificar_no_supervisado.py")], capture_output=True, text=True, cwd=RAIZ)
 print(r.stdout.strip())
 display(Markdown("El scaler y el KMeans se guardan en `data/06_models_ep3/no_supervisado_v3.joblib` con su sha256 en `manifest_no_supervisado.json` (independiente de `manifest_v3.json`). **No se usan para puntuar**: la página solo muestra el «tipo de caso» de cada caja con su tasa histórica, y avisa que es una descripción y no mejora la predicción."))
+""")
+    n.md("""
+## Diagnóstico del ARI y AUC por cluster sin celdas con hueco (post hoc, no pre-declarado; F18-A3 y A5)
+`f13_ari_diagnostico.csv`: el ARI de 0,008 es del GMM de covarianza `full`; con GMM esférico y diagonal KMeans coincide (0,884 y 0,729). `f13_auc_cluster_sin_huecos.csv`: el AUC de la regla en los clusters cercanos sube al sacar las celdas con hueco.
+""")
+    n.code("""
+diag = pd.read_csv(REP / "f13_ari_diagnostico.csv")
+display(diag[diag["covarianza"].notna()][["k", "covarianza", "n_init", "converged", "n_iter", "tamanos", "ARI_vs_KMeans", "ARI_vs_Ward"]].round(3))
+auc = pd.read_csv(REP / "f13_auc_cluster_sin_huecos.csv")
+display(auc[["k", "cluster", "tipo_de_caso", "cajas", "cajas_en_celdas_con_hueco", "AUC_todas", "AUC_sin_celdas_con_hueco", "dif_AUC"]].round(3))
 """)
     n.guardar("15_ep3_no_supervisado.ipynb")
 

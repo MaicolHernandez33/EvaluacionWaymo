@@ -1,0 +1,46 @@
+{
+ "nota": "post hoc, no pre-declarado",
+ "definicion_20pct": {
+  "cajas_total": 80571,
+  "cajas_cola_celdas_sanas": 78626,
+  "cajas_en_celdas_con_hueco": 1945,
+  "f5_cajas_revisadas_al_20pct": 16115,
+  "pagina_cajas_revisadas_al_20pct": 15726,
+  "diferencia_cajas": 389,
+  "captura20_C_informe_f5": 0.709039878376798,
+  "captura20_A_informe_f5": 0.6189334580750789,
+  "recall_C_pagina_curva_20pct_de_la_cola": 0.7024909367325459,
+  "recall_A_pagina_curva_20pct": 0.6189334580750789,
+  "recall_C_observado_pagina_20pct_de_la_cola": 0.7033680271313296,
+  "recall_C_observado_con_las_cajas_de_f5": 0.7070518068062215,
+  "cajas_a_revisar_pagina": 15726,
+  "cajas_a_revisar_con_la_definicion_de_f5": 16115
+ },
+ "auc_base_f13": {
+  "AUC_puntaje_crudo_pooled": 0.8227680446750723,
+  "AUC_prob_Platt_pooled": 0.808841221204055,
+  "AUC_f13_aporte_cluster_base_reproducido": 0.7981601481250986,
+  "AUC_por_fold_[crudo,Platt]": {
+   "0": [
+    0.6474784345936252,
+    0.6474784345936252
+   ],
+   "1": [
+    0.8368231847127952,
+    0.8368231847127952
+   ],
+   "2": [
+    0.8480524421199802,
+    0.8480524421199802
+   ],
+   "3": [
+    0.9037639945308147,
+    0.9037639945308147
+   ],
+   "4": [
+    0.8985034980536285,
+    0.8985034980536285
+   ]
+  }
+ }
+}

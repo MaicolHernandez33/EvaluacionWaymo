@@ -1,0 +1,9 @@
+{
+ "sumas": "818 de 818",
+ "ep2": "14 de 14",
+ "v3": "5 de 5",
+ "nosup": "1 de 1",
+ "plan": "coincide",
+ "tests": "97 pasadas y 1 omitida (falta el parquet crudo por licencia)",
+ "humo": "8 secciones x 3 perfiles x modo presentación = 48 combinaciones, 0 con falla"
+}

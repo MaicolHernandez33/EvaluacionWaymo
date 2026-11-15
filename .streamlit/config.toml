@@ -9,3 +9,12 @@ gatherUsageStats = false
 
 [client]
 toolbarMode = "minimal"
+
+# Tema (F18-C1): paleta sobria definida en app/estilos.py (TOKENS); tipografia del sistema, sin fuentes externas.
+[theme]
+base = "light"
+primaryColor = "#1D4E89"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F5F9"
+textColor = "#1B2430"
+font = "sans serif"
