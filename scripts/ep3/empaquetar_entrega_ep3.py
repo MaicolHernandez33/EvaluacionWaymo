@@ -43,8 +43,10 @@ ARTEFACTOS = {
     "umbrales_v3.json": "data/06_models_ep3/umbrales_v3.json", "detector_params_v3.json": "data/06_models_ep3/detector_params_v3.json",
     "plan_v3.md": "docs/ep3/plan_v3.md", "plan_v3.json": "docs/ep3/plan_v3.json", "plan_v3.sha256": "docs/ep3/plan_v3.sha256", "plan_v3_desviaciones.md": "docs/ep3/plan_v3_desviaciones.md",
     "lista_A_huecos.csv": "data/08_reporting_ep3/lista_A_huecos.csv", "pruebas_ep3_conteo.json": "data/08_reporting_ep3/pruebas_ep3_conteo.json",
+    "plan_seleccion_ep3.json": "docs/ep3/plan_seleccion_ep3.json", "plan_seleccion_ep3.sha256": "docs/ep3/plan_seleccion_ep3.sha256",
+    "pagina_comparacion_antes_despues.csv": "data/08_reporting_ep3/pagina_comparacion_antes_despues.csv", "pagina_tiempos_carga.json": "data/08_reporting_ep3/pagina_tiempos_carga.json",
 }
-PREFIJOS_TABLAS = ("f1_", "f2_", "f3_", "f4_", "f5_", "f6_", "f12_", "f12b_", "f13_")
+PREFIJOS_TABLAS = ("f1_", "f2_", "f3_", "f4_", "f5_", "f6_", "f12_", "f12b_", "f13_", "f18_")
 SUFIJOS_TABLAS = (".csv", ".json")
 EXCLUIR_TABLAS = {"f3_bordes_extension.json"}
 
@@ -82,9 +84,9 @@ Carpeta fuera de `data/` (que git ignora) con lo liviano y **agregado** de EP3: 
 ## Qué es cada archivo
 - `manifest_v3.json`: sha256 de `modelo_final_v3.joblib`, `umbrales_v3.json` y `detector_params_v3.json` (la solución congelada v3: regla «menos puntos top», umbrales A y B, detector de huecos). `manifest_no_supervisado.json`: sha256 del scaler y KMeans descriptivos (post hoc).
 - `umbrales_v3.json`, `detector_params_v3.json`: copia legible de esos parámetros (el verificador mira los de `data/06_models_ep3`, no estas copias).
-- `plan_v3.md`, `plan_v3.json`, `plan_v3.sha256`: el plan congelado antes de experimentar (no se editan). `plan_v3_desviaciones.md`: DEV-1 y DEV-2.
+- `plan_v3.md`, `plan_v3.json`, `plan_v3.sha256`: el plan congelado antes de experimentar (no se editan). `plan_v3_desviaciones.md`: las desviaciones DEV-1, DEV-2 y DEV-3 (DEV-3: se dice «celdas marcadas», no «falsas alarmas»).
 - `lista_A_huecos.csv`: las 2 celdas (segmento x cámara) con hueco.
-- `f1_` a `f6_`, `f12_`, `f12b_`, `f13_`: tablas y resúmenes de cada fase (F1 datos, F2 detector, F3 IE9, F4 IE10, F5 IE11, F6 IE12, F12 análisis en muestra, F13 no supervisado).
+- `f1_` a `f6_`, `f12_`, `f12b_`, `f13_`, `f18_`: tablas y resúmenes de cada fase (F1 datos, F2 detector, F3 IE9, F4 IE10, F5 IE11, F6 IE12, F12 análisis en muestra, F13 no supervisado, F18 verificaciones y sesgo de selección). Las columnas `falsas_alarmas` de `f12_sensibilidad_detector.csv` y `f12_resumen.json` y las del plan v3 conservan su nombre original; significan «celdas marcadas además de los 2 de referencia, sin verdad externa» (DEV-3).
 
 ## Cómo verificarlo
 1. Con el repositorio completo y `data/`: `python scripts/ep3/verificar_congelados_v3.py` y `python scripts/ep3/verificar_no_supervisado.py`.

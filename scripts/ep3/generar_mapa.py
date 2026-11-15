@@ -26,11 +26,12 @@ DESC: dict[str, tuple[str, str, str]] = {
     "entrega_EP3.zip": ("Entrega completa (código, notebooks ejecutados, docs, datos derivados mínimos, `SHA256SUMS`, `LEEME_ENTREGA.md`).", "Para entregar o verificar en otra carpeta", "se genera con `empaquetar_entrega_ep3.py` (~1 min, no medido con precisión)"),
     "entrega_EP3.sha256": ("Hash del zip (queda fuera del zip: un archivo no puede contener su propio hash).", "Para comprobar que el zip no cambió", "no (se compara con `Get-FileHash`)"),
     # ---- notebooks
+    "notebooks/00b_seleccion_segmentos_ep2.ipynb": ("Selección de segmentos de EP2 (original, solo lectura): de ahí sale el pool que reproduce el 00b de EP3.", "Solo como referencia", "no (EP2, solo lectura)"),
     "notebooks/00b_seleccion_segmentos_ep3.ipynb": ("Selecciona segmentos NUEVOS en Colab (validación externa sellada).", "Cuando se quiera la prueba ciega", "solo en Colab con acceso al bucket; NO se ha ejecutado"),
     "notebooks/11_ep3_datos_y_deteccion.ipynb": ("Datos, EDA, calidad y detector de huecos.", "Para ver los datos y el filtro 1", "sí; con `RECALCULAR = False` solo muestra artefactos (segundos)"),
     "notebooks/12_ep3_tuning_y_ensambles.ipynb": ("IE9 e IE10: optimización de hiperparámetros y ensambles.", "Para ver la evidencia de IE9 e IE10", "sí; con `RECALCULAR = False` segundos"),
     "notebooks/13_ep3_generalizacion_y_seleccion.ipynb": ("IE11 e IE12: generalización, selección, brazos A, B y C.", "Para ver la selección del modelo", "sí; con `RECALCULAR = False` segundos"),
-    "notebooks/14_ep3_dos_pasos_y_app.ipynb": ("Flujo en dos pasos, página y prueba de humo de las 7 secciones.", "Plan B de la demo", "se entrega ejecutado; contiene una demostración con `lidar_box` crudo que no se puede repetir sin esos datos"),
+    "notebooks/14_ep3_dos_pasos_y_app.ipynb": ("Flujo en dos pasos, página y prueba de humo de las 8 secciones.", "Plan B de la demo", "se entrega ejecutado; contiene una demostración con `lidar_box` crudo que no se puede repetir sin esos datos"),
     "notebooks/15_ep3_no_supervisado.ipynb": ("Aprendizaje no supervisado descriptivo (post hoc).", "Para ver clusters e IsolationForest", "sí; con `RECALCULAR = False` segundos"),
     # ---- scripts
     "scripts/ep3/f1_datos.py": ("F1: arma `dev_41.parquet` (41 segmentos) y los folds.", "Solo para reconstruir los datos", "NO ejecutar: reescribe `dev_41.parquet`, que está congelado"),
@@ -58,6 +59,28 @@ DESC: dict[str, tuple[str, str, str]] = {
     "scripts/ep3/generar_mapa.py": ("Genera este mapa desde el sistema de archivos.", "Al agregar o quitar archivos", "sí, segundos"),
     "scripts/ep3/crear_notebook_00b.py": ("Crea el notebook 00b.", "Solo si se rehace el 00b", "sí, segundos (no ejecuta el notebook)"),
     "scripts/ep3/crear_notebooks_ep3.py": ("Crea los notebooks 11 a 15 (no los ejecuta).", "Solo si se rehacen", "sí, segundos"),
+    "scripts/ep3/f12c_eda_puntos_top_sin_huecos.py": ("F18-A3c (post hoc): tasa de sin_camara por tramo de puntos del sensor superior con y sin celdas con hueco.", "Para explicar por qué la tasa sube con más de 100 puntos", "sí, segundos"),
+    "scripts/ep3/f13c_auc_cluster_sin_huecos.py": ("F18-A3b (post hoc): AUC de la regla dentro de cada cluster sin las celdas con hueco.", "Para ver si la regla pierde capacidad en cajas cercanas por el hueco", "sí, segundos"),
+    "scripts/ep3/f18_verificar_definiciones.py": ("F18-A4: cómo se define el «20 %» en el informe y en la página, y por qué el AUC base de f13 es 0,798.", "Para citar la causa exacta de 70,9 % contra 70,2 %", "sí, segundos"),
+    "scripts/ep3/f18_sesgo_seleccion.py": ("F18-A6: motivos de descarte y rendimiento de la selección de segmentos de EP2.", "Para el sesgo de selección del informe", "sí, segundos"),
+    "scripts/ep3/plan_seleccion_ep3.py": ("F18-B4: calcula (sin descargar nada) el plan de selección de segmentos nuevos y su sha256; `--verificar` lo comprueba.", "Antes del Colab; el plan se declara una sola vez", "sí, segundos"),
+    "scripts/ep3/f18_pagina_numeros_antes.py": ("F18-C: captura las cifras de la página ANTES del rediseño (una sola vez).", "Ya se corrió; no repetir con la página nueva", "no repetir (se niega si el archivo existe)"),
+    "scripts/ep3/f18_pagina_comparacion.py": ("F18-C: cifras de la página rediseñada frente a las de antes, y tiempos de carga por sección.", "Después de cambiar la página", "sí, ~30 s"),
+    "scripts/ep3/generar_guia_estilo.py": ("F18-C0: genera la guía de estilo desde los tokens de `app/estilos.py`.", "Si cambian los tokens", "sí, segundos"),
+    "scripts/ep3/generar_icono_pagina.py": ("F18-C1: dibuja el ícono de la página (`app/assets/icono.png`).", "Si se quiere otro ícono", "sí, segundos"),
+    "scripts/ep3/capturar_pagina.py": ("F18-C14: captura cada sección con el Chrome o Edge instalado en modo sin interfaz (no instala nada).", "Con la página corriendo, para las imágenes de `images/ep3/pagina/`", "sí, ~2 min"),
+    "docs/ep3/GUIA_VALIDACION_EXTERNA.md": ("Pasos exactos de la validación externa sellada (Colab, comandos, casos y paso opcional con `camera_box`).", "Antes de abrir segmentos nuevos", "no (documento)"),
+    "docs/ep3/plan_seleccion_ep3.json": ("Plan de selección de segmentos nuevos: parámetros, cuotas, embudo y orden de candidatos.", "Lo comprueba el notebook 00b; debe commitearse antes del Colab", "no (sellado)"),
+    "docs/ep3/plan_seleccion_ep3.sha256": ("Hash del plan de selección.", "Idem", "no (sellado)"),
+    "docs/ep3/guia_estilo_pagina.md": ("Guía de estilo de la página: producto, paleta con contraste, tipografía, componentes y redacción.", "Para cambiar o extender la página", "se regenera con `generar_guia_estilo.py`"),
+    "docs/ep3/pagina_guia_demo.md": ("Recorrido exacto de la demo (clics y qué decir) y guion del video de 90 s.", "Para la presentación", "se regenera con `generar_docs_ep3.py`"),
+    "docs/ep3/REPORTE_F18.md": ("Reporte final de la tarea F18 (correcciones, selección de segmentos nuevos y rediseño).", "Para ver qué cambió en F18", "no (documento)"),
+    "app/secciones.py": ("Las 8 secciones de la página (una función por sección).", "Lo importa `app/app.py`", "no se ejecuta solo"),
+    "app/estilos.py": ("Tokens de color, contraste WCAG, CSS propio y componentes HTML de la página.", "Lo importa `app/app.py`", "no se ejecuta solo"),
+    "app/assets/icono.png": ("Ícono de la página (propio, sin marcas).", "Lo usa `st.set_page_config`", "no"),
+    "images/ep3/pagina": ("Capturas de cada sección de la página (perfil analista) y del modo presentación.", "Para la presentación o el informe", "se regeneran con `capturar_pagina.py`"),
+    "data/08_reporting_ep3/pagina_numeros_antes.json": ("Cifras que mostraba la página antes del rediseño (referencia de la prueba de regresión).", "Lo lee `tests/ep3/test_pagina_rediseno.py`", "no"),
+    "scripts/ep3/generar_reporte_f18.py": ("Genera `REPORTE_F18.md` leyendo las cifras de los archivos de resultados.", "Al cerrar F18", "sí, segundos"),
     "scripts/ep3/actualizar_revision.py": ("Regenera `docs/ep3/revision/` con copias de los archivos pequeños (nada por caja) e `INDICE.md`.", "Antes de empaquetar, para revisión externa", "sí, ~1 s"),
     "scripts/ep3/empaquetar_entrega_ep3.py": ("Arma `artefactos_ep3/` y `entrega_EP3.zip` con `SHA256SUMS`.", "Al cerrar la entrega", "sí, ~1 min"),
     "scripts/ep3/arrancar_app.bat": ("Abre la página en localhost:8501 (Windows).", "Para usar la página", "sí, doble clic; Ctrl+C para detener"),
@@ -83,7 +106,7 @@ DESC: dict[str, tuple[str, str, str]] = {
     "docs/ep3/freeze_despues_f7.txt": ("`pip freeze` después de instalar streamlit.", "Idem", "no"),
     "docs/ep3/revision": ("Copias de los archivos pequeños para revisar sin abrir el repo (ignorada por git).", "Para revisión externa", "no; se regenera con `empaquetar_entrega_ep3.py`"),
     # ---- app y paquete
-    "app/app.py": ("La página (Streamlit, 7 secciones, 3 perfiles, modo presentación).", "Para la demo y el uso diario", "sí, `scripts\\ep3\\arrancar_app.bat`"),
+    "app/app.py": ("La página «Auditor de etiquetas 3D» (Streamlit, 8 secciones, 3 perfiles, modo presentación); las secciones están en `secciones.py` y los estilos en `estilos.py`.", "Para la demo y el uso diario", "sí, `scripts\\ep3\\arrancar_app.bat`"),
     "app/.streamlit/config.toml": ("Configuración de la imagen Docker (no se modifica).", "Solo dentro del contenedor", "no"),
     "artefactos_ep3": ("Tablas agregadas y manifests versionables (sin filas por caja) + `README_artefactos.md`.", "Para revisar resultados sin los datos", "se regenera con `empaquetar_entrega_ep3.py`"),
     "data/06_models_ep3/manifest_v3.json": ("Hashes de la solución v3 congelada.", "Lo lee `verificar_congelados_v3.py`", "no (congelado)"),
@@ -103,12 +126,12 @@ def tam(p: Path) -> str:
 def main() -> None:
     reales: list[str] = []
     for patron in ("notebooks/00b_*.ipynb", "notebooks/1[1-5]_*.ipynb", "scripts/ep3/*.py", "scripts/ep3/*.bat", "scripts/ep3/*.ps1", "docs/ep3/*.md", "docs/ep3/*.json", "docs/ep3/*.sha256", "docs/ep3/*.txt",
-                   "app/app.py", "app/.streamlit/config.toml", "data/06_models_ep3/manifest*.json"):
+                   "app/app.py", "app/secciones.py", "app/estilos.py", "app/assets/icono.png", "app/.streamlit/config.toml", "data/06_models_ep3/manifest*.json", "data/08_reporting_ep3/pagina_numeros_antes.json", "docs/ep3/plan_seleccion*"):
         reales += [p.relative_to(RAIZ).as_posix() for p in sorted(RAIZ.glob(patron))]
     reales += [r for r in ("CLAUDE.md", "Dockerfile", ".dockerignore", "docker-compose.yml", "requirements_app.txt", "requirements_ep3.txt", "constraints_ep3.txt", ".streamlit/config.toml", "entrega_EP3.zip", "entrega_EP3.sha256")
                if (RAIZ / r).exists()]
-    reales += [r for r in ("docs/ep3/revision", "artefactos_ep3") if (RAIZ / r).exists()]
-    orden = ["CLAUDE", "Dockerfile", ".docker", "docker", "requirements", "constraints", ".streamlit", "entrega", "notebooks", "scripts", "docs", "app", "artefactos", "data"]
+    reales += [r for r in ("docs/ep3/revision", "artefactos_ep3", "images/ep3/pagina") if (RAIZ / r).exists()]
+    orden = ["CLAUDE", "Dockerfile", ".docker", "docker", "requirements", "constraints", ".streamlit", "entrega", "notebooks", "scripts", "docs", "app", "artefactos", "images", "data"]
     reales = sorted(set(reales), key=lambda r: (next(i for i, k in enumerate(orden) if r.startswith(k)), r))
     sin = [r for r in reales if r not in DESC]
     if sin:

@@ -1,0 +1,18 @@
+seccion,caso,cifra,antes,despues,explicacion
+Cola de revisión,presupuesto 20 %,cajas a revisar,15.726,15.726,igual
+Cola de revisión,presupuesto 20 %,horas (20 s por caja),"87,4","87,4",igual
+Cola de revisión,presupuesto 20 %,cobertura (tarjeta antes / frase ahora),"70,2 %",70 de cada 100,"una sola fuente: el conteo observado (70,3 %, que antes mostraba el texto); la tarjeta usaba la curva interpolada. Diferencia <= 0,1 punto"
+Cola de revisión,presupuesto 20 %,filas de la tabla,500,500,igual
+Cola de revisión,presupuesto 68 %,cajas a revisar,53.466,53.466,igual
+Cola de revisión,presupuesto 68 %,horas (20 s por caja),"297,0","297,0",igual
+Cola de revisión,presupuesto 68 %,cobertura (tarjeta antes / frase ahora),"96,5 %",97 de cada 100,"una sola fuente: el conteo observado (96,6 %, que antes mostraba el texto); la tarjeta usaba la curva interpolada. Diferencia <= 0,1 punto"
+Cola de revisión,presupuesto 68 %,filas de la tabla,500,500,igual
+Inicio,resultados técnicos,AUC fuera de fold,"0,823","0,823",igual
+Inicio,resultados técnicos,Recall en el punto A,"79,8 %","79,8 %",igual
+Inicio,resultados técnicos,Captura al revisar el 20 %,"61,9 %","61,9 %",igual
+Inicio,resultados técnicos,Cajas a revisar para el 80 %,"44,6 %","44,6 %",igual
+Inicio,resultados técnicos,Punto de equilibrio de la auditoría (en muestra),6059 cajas,6.059 cajas,igual (6059 pasa a 6.059 por el formato es-CL)
+Explica una caja,valores por defecto,Puntaje,"-50,000","-50,000",igual
+Explica una caja,valores por defecto,Lugar en la cola,entre el 59 % primero,entre el 59 % primero,igual
+Explica una caja,valores por defecto,Probabilidad calibrada de no tener pareja,"10,1 %","10,1 %",igual
+Evidencia,tablas,número de tablas,26,26,igual

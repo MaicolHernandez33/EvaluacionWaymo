@@ -5,9 +5,9 @@ Carpeta fuera de `data/` (que git ignora) con lo liviano y **agregado** de EP3: 
 ## Qué es cada archivo
 - `manifest_v3.json`: sha256 de `modelo_final_v3.joblib`, `umbrales_v3.json` y `detector_params_v3.json` (la solución congelada v3: regla «menos puntos top», umbrales A y B, detector de huecos). `manifest_no_supervisado.json`: sha256 del scaler y KMeans descriptivos (post hoc).
 - `umbrales_v3.json`, `detector_params_v3.json`: copia legible de esos parámetros (el verificador mira los de `data/06_models_ep3`, no estas copias).
-- `plan_v3.md`, `plan_v3.json`, `plan_v3.sha256`: el plan congelado antes de experimentar (no se editan). `plan_v3_desviaciones.md`: DEV-1 y DEV-2.
+- `plan_v3.md`, `plan_v3.json`, `plan_v3.sha256`: el plan congelado antes de experimentar (no se editan). `plan_v3_desviaciones.md`: las desviaciones DEV-1, DEV-2 y DEV-3 (DEV-3: se dice «celdas marcadas», no «falsas alarmas»).
 - `lista_A_huecos.csv`: las 2 celdas (segmento x cámara) con hueco.
-- `f1_` a `f6_`, `f12_`, `f12b_`, `f13_`: tablas y resúmenes de cada fase (F1 datos, F2 detector, F3 IE9, F4 IE10, F5 IE11, F6 IE12, F12 análisis en muestra, F13 no supervisado).
+- `f1_` a `f6_`, `f12_`, `f12b_`, `f13_`, `f18_`: tablas y resúmenes de cada fase (F1 datos, F2 detector, F3 IE9, F4 IE10, F5 IE11, F6 IE12, F12 análisis en muestra, F13 no supervisado, F18 verificaciones y sesgo de selección). Las columnas `falsas_alarmas` de `f12_sensibilidad_detector.csv` y `f12_resumen.json` y las del plan v3 conservan su nombre original; significan «celdas marcadas además de los 2 de referencia, sin verdad externa» (DEV-3).
 
 ## Cómo verificarlo
 1. Con el repositorio completo y `data/`: `python scripts/ep3/verificar_congelados_v3.py` y `python scripts/ep3/verificar_no_supervisado.py`.
@@ -24,6 +24,8 @@ Esta carpeta no alcanza: la página necesita `data/09_app_ep3/` (predicciones po
 | `f12_diferencia_C_menos_A.csv` | `data/08_reporting_ep3/f12_diferencia_C_menos_A.csv` | 2.810 | `52ec49a4e4f1393c...` |
 | `f12_eda_calidad.csv` | `data/08_reporting_ep3/f12_eda_calidad.csv` | 2.039 | `1893b639ff9fd26a...` |
 | `f12_eda_calidad_resumen.json` | `data/08_reporting_ep3/f12_eda_calidad_resumen.json` | 403 | `12613cffc0b62f60...` |
+| `f12_eda_puntos_top_resumen.json` | `data/08_reporting_ep3/f12_eda_puntos_top_resumen.json` | 1.287 | `881b16d333c309eb...` |
+| `f12_eda_puntos_top_sin_huecos.csv` | `data/08_reporting_ep3/f12_eda_puntos_top_sin_huecos.csv` | 2.716 | `b8bf14049696aad9...` |
 | `f12_eda_tasas.csv` | `data/08_reporting_ep3/f12_eda_tasas.csv` | 1.830 | `9f50b65d0bf1c77b...` |
 | `f12_equidad.csv` | `data/08_reporting_ep3/f12_equidad.csv` | 2.356 | `9a47b691d1b25bd3...` |
 | `f12_resumen.json` | `data/08_reporting_ep3/f12_resumen.json` | 1.592 | `a8403bdc5bcf1ffe...` |
@@ -32,6 +34,8 @@ Esta carpeta no alcanza: la página necesita `data/09_app_ep3/` (predicciones po
 | `f13_aporte_cluster.csv` | `data/08_reporting_ep3/f13_aporte_cluster.csv` | 704 | `e8677b5f27ca3fc0...` |
 | `f13_ari_diagnostico.csv` | `data/08_reporting_ep3/f13_ari_diagnostico.csv` | 1.633 | `e09882c62df5e5df...` |
 | `f13_ari_diagnostico.json` | `data/08_reporting_ep3/f13_ari_diagnostico.json` | 687 | `31d863b1fa7b7d98...` |
+| `f13_auc_cluster_sin_huecos.csv` | `data/08_reporting_ep3/f13_auc_cluster_sin_huecos.csv` | 1.260 | `4f9b51c9e8e27ed1...` |
+| `f13_auc_cluster_sin_huecos.json` | `data/08_reporting_ep3/f13_auc_cluster_sin_huecos.json` | 279 | `b8523287c3ed57e3...` |
 | `f13_clusters_k2.csv` | `data/08_reporting_ep3/f13_clusters_k2.csv` | 836 | `661b5e5d4671c833...` |
 | `f13_clusters_k4.csv` | `data/08_reporting_ep3/f13_clusters_k4.csv` | 1.397 | `22655c2c64ef7564...` |
 | `f13_comparacion_ep2_ep3.csv` | `data/08_reporting_ep3/f13_comparacion_ep2_ep3.csv` | 1.325 | `557058479c7f440e...` |
@@ -39,6 +43,11 @@ Esta carpeta no alcanza: la página necesita `data/09_app_ep3/` (predicciones po
 | `f13_isolation_forest.csv` | `data/08_reporting_ep3/f13_isolation_forest.csv` | 184 | `9152d1168f6d8d49...` |
 | `f13_resumen.json` | `data/08_reporting_ep3/f13_resumen.json` | 3.022 | `b75b665139ae1529...` |
 | `f13_seleccion_k.csv` | `data/08_reporting_ep3/f13_seleccion_k.csv` | 796 | `9d151a0623d58dd8...` |
+| `f18_definiciones.json` | `data/08_reporting_ep3/f18_definiciones.json` | 1.287 | `9f36a8f704f30cca...` |
+| `f18_seleccion_motivos.csv` | `data/08_reporting_ep3/f18_seleccion_motivos.csv` | 199 | `06188a7d4ba0d59c...` |
+| `f18_seleccion_rendimiento.csv` | `data/08_reporting_ep3/f18_seleccion_rendimiento.csv` | 1.094 | `f81761f2df2b0898...` |
+| `f18_seleccion_resumen.json` | `data/08_reporting_ep3/f18_seleccion_resumen.json` | 226 | `7c5771f8b5c56187...` |
+| `f18_verificacion.json` | `data/08_reporting_ep3/f18_verificacion.json` | 276 | `23592d890efe98d3...` |
 | `f1_reproduccion_pred_test.csv` | `data/08_reporting_ep3/f1_reproduccion_pred_test.csv` | 225 | `e7d522be5800e851...` |
 | `f1_resumen.json` | `data/08_reporting_ep3/f1_resumen.json` | 1.594 | `4e1e7fa61ac799b9...` |
 | `f2_baselines_reglas_41.csv` | `data/08_reporting_ep3/f2_baselines_reglas_41.csv` | 912 | `a913d6114b082c22...` |
@@ -79,9 +88,13 @@ Esta carpeta no alcanza: la página necesita `data/09_app_ep3/` (predicciones po
 | `lista_A_huecos.csv` | `data/08_reporting_ep3/lista_A_huecos.csv` | 357 | `eb079342be1e457a...` |
 | `manifest_no_supervisado.json` | `data/06_models_ep3/manifest_no_supervisado.json` | 623 | `f0693e1a38cacdd5...` |
 | `manifest_v3.json` | `data/06_models_ep3/manifest_v3.json` | 1.744 | `06807ad082a3c87f...` |
+| `pagina_comparacion_antes_despues.csv` | `data/08_reporting_ep3/pagina_comparacion_antes_despues.csv` | 1.749 | `df74de3615c8be2a...` |
+| `pagina_tiempos_carga.json` | `data/08_reporting_ep3/pagina_tiempos_carga.json` | 1.666 | `484349ba8e18b2db...` |
+| `plan_seleccion_ep3.json` | `docs/ep3/plan_seleccion_ep3.json` | 31.548 | `862346e1317b8be3...` |
+| `plan_seleccion_ep3.sha256` | `docs/ep3/plan_seleccion_ep3.sha256` | 91 | `3fa5121725da8681...` |
 | `plan_v3.json` | `docs/ep3/plan_v3.json` | 4.160 | `cc3bcfb33e94180f...` |
 | `plan_v3.md` | `docs/ep3/plan_v3.md` | 4.998 | `fff0a19898b1b003...` |
 | `plan_v3.sha256` | `docs/ep3/plan_v3.sha256` | 156 | `01e0ccd660d9c560...` |
-| `plan_v3_desviaciones.md` | `docs/ep3/plan_v3_desviaciones.md` | 2.857 | `ed28ca0429c934c6...` |
-| `pruebas_ep3_conteo.json` | `data/08_reporting_ep3/pruebas_ep3_conteo.json` | 586 | `43659ea1b7971bb9...` |
+| `plan_v3_desviaciones.md` | `docs/ep3/plan_v3_desviaciones.md` | 4.365 | `fb33917c745cd1a5...` |
+| `pruebas_ep3_conteo.json` | `data/08_reporting_ep3/pruebas_ep3_conteo.json` | 675 | `94028486c926b0cb...` |
 | `umbrales_v3.json` | `data/06_models_ep3/umbrales_v3.json` | 31 | `3a9a893b4eda285c...` |
