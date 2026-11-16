@@ -10,13 +10,23 @@ import pytest
 from sklearn.linear_model import LogisticRegression
 
 from waymo_evaluacion.ep3.app_logica import (
-    AVISO_EN_MUESTRA, PERFILES, cargar_datos, cargar_no_supervisado, curvas_a_mostrar, info_tipo_de_caso, tipo_de_caso, cola_segmento, curva_dependencia, horas_revision, matriz_calor, ocultar_identificadores, percentil_en_cola, recall_en_presupuesto,
+    ARCHIVO_PAGINA, AVISO_EN_MUESTRA, CHIP_ESTADO, PERFILES, SECCIONES, cargar_datos, cargar_no_supervisado, curvas_a_mostrar, info_tipo_de_caso, tipo_de_caso, cola_segmento, curva_dependencia, horas_revision, matriz_calor, ocultar_identificadores, percentil_en_cola, recall_en_presupuesto,
 )
 from waymo_evaluacion.ep3.congelado import CalibradorPlatt, PuntuadorRegla
 from waymo_evaluacion.ep3.detector_huecos import ParametrosDetector
 from waymo_evaluacion.ep3.inferencia import V16, Artefactos
 
 R = Path(__file__).resolve().parents[2]
+
+
+def ir_a(at, seccion: str):
+    """Cambia de página con ``AppTest.switch_page`` (las páginas de F20 son archivos de ``app/paginas``) y ejecuta."""
+    return at.switch_page(ARCHIVO_PAGINA[seccion]).run()
+
+
+def textos(at) -> str:
+    """Todo el texto Markdown de la página (incluye el contenido de los popover)."""
+    return " ".join([m.value for m in at.markdown] + [c.value for c in at.caption])
 
 
 def _datos_sinteticos(carpeta: Path) -> None:
@@ -111,7 +121,7 @@ def test_matriz_calor_y_percentil(tmp_path: Path) -> None:
     assert len(PERFILES) == 3
 
 
-@pytest.mark.parametrize("seccion", ["Inicio", "Auditoría de cámaras", "Cola de revisión", "Explica una caja", "Evidencia", "Ética y límites", "Puntuar datos nuevos", "Ayuda y glosario"])
+@pytest.mark.parametrize("seccion", SECCIONES)
 def test_app_humo_cada_seccion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, seccion: str) -> None:
     at_mod = pytest.importorskip("streamlit.testing.v1")
     _datos_sinteticos(tmp_path / "datos")
@@ -120,24 +130,26 @@ def test_app_humo_cada_seccion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, 
     monkeypatch.setenv("WAYMO_APP_MODELOS", str(tmp_path / "modelos"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
     assert not at.exception, at.exception
-    at.sidebar.radio[0].set_value(seccion).run()
+    ir_a(at, seccion)
     assert not at.exception, at.exception
     at.sidebar.toggle[0].set_value(True).run()                       # modo presentacion
     assert not at.exception, at.exception
     assert at.title[0].value == seccion
-    if seccion in ("Inicio", "Cola de revisión"):          # aviso "en muestra" visible (no en un tooltip)
-        at.sidebar.toggle[0].set_value(False).run()
-        assert any("En muestra" in w.value for w in at.warning)
-        assert any("2 celdas cámara x segmento" in m.value for m in at.markdown)          # texto completo, visible en el expander «¿Qué significa?»
+    at.sidebar.toggle[0].set_value(False).run()
+    assert not at.exception, at.exception
+    assert "2 celdas cámara x segmento" in textos(at)               # el chip de estado abre el texto completo de «en muestra» en TODAS las secciones (DEC-14)
+    assert not at.warning                                            # sin banners ámbar por pantalla
     if seccion == "Cola de revisión":
-        assert any(sb.label == "Modelo de referencia" for sb in at.selectbox)
+        assert any(sb.label == "Comparar con un modelo de referencia" for sb in at.selectbox)
 
 
 def test_app_sin_datos_muestra_error_claro(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at_mod = pytest.importorskip("streamlit.testing.v1")
     monkeypatch.setenv("WAYMO_APP_DATA", str(tmp_path / "vacio"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
-    assert not at.exception and any("No encuentro los datos" in e.value for e in at.error)
+    assert not at.exception and any("No se encuentran los datos" in e.value for e in at.error)
+    ir_a(at, "Ética y límites")                          # las secciones que no necesitan los datos de la página siguen funcionando
+    assert not at.exception and not at.error
 
 
 def test_tipo_de_caso_curvas_de_referencia_y_aviso(tmp_path: Path) -> None:

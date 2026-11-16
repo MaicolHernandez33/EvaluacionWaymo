@@ -39,7 +39,7 @@ md(f"""
 **Para correr en Google Colab, no en este repositorio.** Toma segmentos que EP2 nunca evaluó para probar la solución final una sola vez (plan v3, P9). Los pasos exactos están en `docs/ep3/GUIA_VALIDACION_EXTERNA.md`.
 
 **Reglas de esta selección**
-- Usa **solo metadatos** (hora del día, ubicación, número de frames, número de detecciones) y nunca `sin_camara` ni resultados de modelos. El orden de candidatos se calculó antes, sin descargar nada, y está en `docs/ep3/plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`).
+- Usa **solo metadatos** (hora del día, ubicación, número de frames, número de detecciones) y nunca `sin_camara` ni resultados de modelos. El orden de candidatos se calculó antes, sin descargar nada, y está en `docs/ep3/plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`): **el notebook exige subir el plan y su hash y usa su orden**; el recalculado en Colab solo se compara.
 - **Mismo pool que EP2** (`00b_seleccion_segmentos_ep2.ipynb`): sin lluvia ({E['sin_lluvia']}) → al menos {P['min_frames']} frames ({E['n_frames_>=190']}) → `n_detecciones` entre los percentiles {P['percentiles_detecciones'][0]} y {P['percentiles_detecciones'][1]} calculados sobre esos {E['n_frames_>=190']} ({n(round(E['limite_inferior_detecciones']))} a {n(round(E['limite_superior_detecciones']))}; pool de {E['n_detecciones_entre_percentiles']}) → **solo después** se excluyen los {E['evaluados_ep2_dentro_del_pool']} segmentos que EP2 ya evaluó ({E['candidatos_sin_los_evaluados_por_ep2']} candidatos). El notebook se detiene si el embudo no da {E['sin_lluvia']}, {E['n_frames_>=190']} y {E['n_detecciones_entre_percentiles']}.
 - **Cuotas fijas de segmentos ÚTILES por estrato** (`time_of_day x location`), declaradas en la celda de parámetros:
 
@@ -94,48 +94,70 @@ print(subprocess.run(["gsutil", "version"], capture_output=True, text=True).stdo
 """)
 
 md("""
-## 3. Metadatos de EP2 (suba los tres CSV de `docs/seleccion_segmentos/` y, si quiere comprobar el plan, `docs/ep3/plan_seleccion_ep3.json` y `.sha256`)
-`inventario_segmentos.csv` (798 segmentos), `registro_verificacion_ep2.csv` (los 91 evaluados) y `diagnostico_lluvia_ep2.csv`.
+## 3. Archivos que hay que subir (los 5 son OBLIGATORIOS)
+Los tres CSV de `docs/seleccion_segmentos/` (`inventario_segmentos.csv` con los 798 segmentos, `registro_verificacion_ep2.csv` con los 91 evaluados y `diagnostico_lluvia_ep2.csv`) **y el plan sellado** `docs/ep3/plan_seleccion_ep3.json` con su `plan_seleccion_ep3.sha256`. Sin los cinco, o si el hash del plan no coincide, el notebook se detiene antes de tocar el bucket.
 """)
 code("""
 RUTA_META = TRABAJO / "meta"
 RUTA_META.mkdir(exist_ok=True)
-if EN_COLAB and not (RUTA_META / "inventario_segmentos.csv").exists():
+REQUERIDOS = ["inventario_segmentos.csv", "registro_verificacion_ep2.csv", "diagnostico_lluvia_ep2.csv", "plan_seleccion_ep3.json", "plan_seleccion_ep3.sha256"]
+if EN_COLAB and not all((RUTA_META / n).exists() for n in REQUERIDOS):
+    print("Suba los 5 archivos:", ", ".join(REQUERIDOS))
     for nombre, contenido in files.upload().items():
         (RUTA_META / nombre).write_bytes(contenido)
+faltan = [n for n in REQUERIDOS if not (RUTA_META / n).exists()]
+assert not faltan, f"FALTAN ARCHIVOS OBLIGATORIOS en {RUTA_META}: {faltan}. Vuelva a ejecutar esta celda y suba los 5."
 inv = pd.read_csv(RUTA_META / "inventario_segmentos.csv", dtype={"segment_id": str})
 reg = pd.read_csv(RUTA_META / "registro_verificacion_ep2.csv", dtype={"segment_id": str})
 assert len(inv) == 798 and len(reg) == 91, (len(inv), len(reg))
 print(f"inventario {len(inv)} | ya evaluados en EP2 {len(reg)}")
+
+# el plan sellado: existe, su sha256 coincide y trae la version esperada
+ruta_plan, ruta_hash = RUTA_META / "plan_seleccion_ep3.json", RUTA_META / "plan_seleccion_ep3.sha256"
+HASH_PLAN = hashlib.sha256(ruta_plan.read_bytes()).hexdigest()
+assert HASH_PLAN == ruta_hash.read_text().split()[0], "EL PLAN SUBIDO NO COINCIDE CON SU sha256: no siga (el sellado no vale)"
+plan = json.loads(ruta_plan.read_text(encoding="utf-8"))
+assert plan.get("version") == "plan_seleccion_ep3_v1", plan.get("version")
+print("OK: plan sellado verificado, sha256", HASH_PLAN[:16], "... version", plan["version"])
 """)
 
-md("## 4. Embudo, candidatos y orden por estrato (solo metadatos)")
+md("## 4. Embudo, candidatos y orden por estrato (solo metadatos)\nEl orden que se USA es el del plan sellado (verificado por hash). El notebook también lo recalcula con las versiones de numpy y pandas de Colab y lo compara: si difiere, se usa igualmente el del plan y se imprime una advertencia visible. Si el embudo difiere en conteos, se detiene.")
 code("""
 # El paso «existe lidar_box y asociacion» de EP2 depende del bucket: se cuenta aqui y debe dar 793 (todos los sin lluvia).
 def listar(componente):
-    s = subprocess.run(["gsutil", "ls", f"{BUCKET}/{componente}/*.parquet"], capture_output=True, text=True).stdout
-    return {Path(l).stem for l in s.splitlines() if l.endswith(".parquet")}
+    r = subprocess.run(["gsutil", "ls", f"{BUCKET}/{componente}/*.parquet"], capture_output=True, text=True)
+    assert r.returncode == 0, f"gsutil ls {componente} fallo: {r.stderr[:300]}"
+    return {Path(l).stem for l in r.stdout.splitlines() if l.endswith(".parquet")}
 con_ambos = listar("lidar_box") & listar("camera_to_lidar_box_association")
 sin_lluvia = set(inv.loc[inv["weather"] != "rain", "segment_id"])
-print("sin lluvia:", len(sin_lluvia), "| con lidar_box y asociacion:", len(sin_lluvia & con_ambos))
+n_con_ambos = len(sin_lluvia & con_ambos)
+print("sin lluvia:", len(sin_lluvia), "| con lidar_box y asociacion:", n_con_ambos)
+assert n_con_ambos == 793, f"el paso con lidar_box y asociacion deberia dar 793 como en EP2 y da {n_con_ambos}: NO seguir y reportarlo"
 
 candidatos, pasos = embudo(inv, reg["segment_id"])
 print(json.dumps(pasos, indent=1))
 assert (pasos["sin_lluvia"], pasos[f"n_frames_>={MIN_FRAMES}"], pasos["n_detecciones_entre_percentiles"]) == (793, 786, 746), "el embudo no coincide con EP2: NO seguir y reportarlo"
 assert pasos["candidatos_sin_los_evaluados_por_ep2"] == 655, pasos
-orden = orden_por_estrato(candidatos)
-print({k: len(v) for k, v in orden.items()})
-""")
-code("""
-# Comprobacion opcional contra el plan pre-declarado del repositorio (si subio los dos archivos)
-rp, rh = RUTA_META / "plan_seleccion_ep3.json", RUTA_META / "plan_seleccion_ep3.sha256"
-if rp.exists() and rh.exists():
-    assert hashlib.sha256(rp.read_bytes()).hexdigest() == rh.read_text().split()[0], "el plan subido no coincide con su sha256"
-    plan = json.loads(rp.read_text(encoding="utf-8"))
-    assert plan["orden_por_estrato"] == orden, "el orden calculado aqui NO coincide con el plan pre-declarado"
-    print("OK: el orden de candidatos coincide con docs/ep3/plan_seleccion_ep3.json (sha256", rh.read_text().split()[0][:16], "...)")
+# el embudo calculado aqui debe tener los mismos conteos que el del plan
+for k, v in plan["embudo"].items():
+    if isinstance(v, int):
+        assert pasos[k] == v, f"EL EMBUDO DIFIERE DEL PLAN en {k}: Colab {pasos[k]} contra plan {v}. NO seguir y reportarlo."
+
+orden_calculado = orden_por_estrato(candidatos)
+orden = plan["orden_por_estrato"]                      # el que se USA: el del plan sellado
+ORDEN_COINCIDE = (orden_calculado == orden)
+if ORDEN_COINCIDE:
+    print("OK: el orden recalculado con numpy", np.__version__, "y pandas", pd.__version__, "coincide con el del plan sellado.")
 else:
-    print("(plan no subido: no se compara; el orden queda guardado en el paquete de salida)")
+    print("!" * 78)
+    print("ADVERTENCIA: el orden recalculado en este Colab (numpy", np.__version__, ") NO coincide con el del plan sellado.")
+    print("Se usa el orden DEL PLAN (verificado por hash). Reporte esta diferencia: queda registrada en verificacion_colab.json.")
+    print("!" * 78)
+    from IPython.display import HTML, display as _display
+    _display(HTML("<div style='background:#FDECEA;border:2px solid #B42318;padding:10px;font-size:16px'><b>ADVERTENCIA:</b> el orden recalculado difiere del plan sellado; se usa el del plan.</div>"))
+ids_plan = {s for v in orden.values() for s in v}
+assert ids_plan <= set(candidatos["segment_id"]), "el plan trae segmentos que no estan entre los candidatos: NO seguir"
+print({k: len(v) for k, v in orden.items()})
 """)
 
 md("""
@@ -149,6 +171,8 @@ def gcopiar(ruta, destino):
 
 def evaluar(seg):
     t = TRABAJO / "tmp"
+    for viejo in ("asoc.parquet", "lidar.parquet"):           # evita arrastrar archivos del candidato anterior
+        (t / viejo).unlink(missing_ok=True)
     m = dict(segment_id=seg, asoc_filas=0, lidar_disponible=True, lidar_filas=np.nan, frames_totales=np.nan, frames_etiquetados=np.nan, positivos=0, tasa_etiquetado_pct=np.nan, archivo_asoc_ausente=False)
     if not gcopiar(f"{BUCKET}/camera_to_lidar_box_association/{seg}.parquet", t / "asoc.parquet"):
         m["archivo_asoc_ausente"] = True
@@ -173,6 +197,8 @@ code("""
 REGISTRO = TRABAJO / "registro_verificacion_ep3.csv"
 hechos = pd.read_csv(REGISTRO, dtype={"segment_id": str}) if REGISTRO.exists() else pd.DataFrame()
 previos = {r["segment_id"]: r for r in hechos.to_dict("records")}
+if previos:
+    print(f"Reanudando: {len(previos)} candidatos ya medidos en {REGISTRO.name}")
 meta = inv.set_index("segment_id")
 t0 = time.time()
 
@@ -203,17 +229,24 @@ if n_util < META_UTILES:
 
 md("""
 ## 7. Exportar el paquete
-Se escribe la lista de segmentos útiles, el registro completo (incluye descartados), el resumen por estrato («faltan») y los parámetros, y se empaqueta todo en un `.tar.gz` con su sha256. Descárguelo y llévelo al repositorio (por ejemplo a `data/01_raw_nuevos/`).
+Se escribe la lista de segmentos útiles, el registro completo (incluye descartados), el resumen por estrato («faltan»), los parámetros y `verificacion_colab.json` (hash del plan, versiones de numpy y pandas de Colab, embudo, cuotas y si el orden recalculado coincidió), y se empaqueta todo en un `.tar.gz` con su sha256. Descárguelo y llévelo al repositorio (por ejemplo a `data/01_raw_nuevos/`).
 """)
 code("""
 utiles = reg3[reg3["resultado"] == "util"][["segment_id", "estrato", "time_of_day", "location", "n_frames_inventario", "asoc_filas", "lidar_filas", "positivos", "tasa_etiquetado_pct"]]
 utiles.to_csv(SALIDA / "segmentos_nuevos_ep3.csv", index=False)
 reg3.to_csv(SALIDA / "registro_verificacion_ep3.csv", index=False)
 resumen.to_csv(SALIDA / "resumen_cuotas_ep3.csv", index=False)
-params = dict(semilla=SEMILLA, meta_utiles=META_UTILES, tope_evaluaciones=TOPE_EVALUACIONES, min_frames=MIN_FRAMES, percentiles=list(PERCENTILES_DETECCIONES), min_asociaciones=MIN_ASOCIACIONES,
+params = dict(plan_sha256=HASH_PLAN, semilla=SEMILLA, meta_utiles=META_UTILES, tope_evaluaciones=TOPE_EVALUACIONES, min_frames=MIN_FRAMES, percentiles=list(PERCENTILES_DETECCIONES), min_asociaciones=MIN_ASOCIACIONES,
               min_positivos=MIN_POSITIVOS, min_tasa_etiquetada_pct=MIN_TASA_ETIQUETADA, cuotas={f"{a} / {b}": q for (a, b), q in CUOTAS.items()}, embudo=pasos, bucket=BUCKET,
               usa_sin_camara=False, evaluados=int(len(reg3)), utiles=int(len(utiles)), segmentos_utiles=sorted(utiles["segment_id"]), orden_por_estrato=orden)
 (SALIDA / "parametros_seleccion_ep3.json").write_text(json.dumps(params, indent=1), encoding="utf-8")
+import platform, sys as _sys
+verificacion = dict(plan_sha256=HASH_PLAN, plan_version=plan["version"], numpy=np.__version__, pandas=pd.__version__, python=platform.python_version(), plataforma=platform.platform(),
+                    embudo=pasos, embudo_coincide_con_el_plan=True, con_lidar_box_y_asociacion=n_con_ambos, cuotas={f"{a} / {b}": q for (a, b), q in CUOTAS.items()},
+                    orden_recalculado_coincide_con_el_plan=bool(ORDEN_COINCIDE), orden_usado="el del plan sellado", evaluados=int(len(reg3)), utiles=int(len(utiles)),
+                    sha256_csv={n: hashlib.sha256((RUTA_META / n).read_bytes()).hexdigest() for n in REQUERIDOS[:3]})
+(SALIDA / "verificacion_colab.json").write_text(json.dumps(verificacion, indent=1), encoding="utf-8")
+print(json.dumps(verificacion, indent=1))
 paquete = TRABAJO / "segmentos_nuevos_ep3.tar.gz"
 with tarfile.open(paquete, "w:gz") as tar:
     tar.add(SALIDA, arcname="segmentos_nuevos_ep3")

@@ -68,26 +68,26 @@
 
 ![EDA: tasa por tramo](../../images/ep3/12_eda_tasas.png)
 
-| variable | tramo | cajas | positivos | tasa | IC | segmentos |
+| Variable | Tramo | Cajas | Cajas sin pareja | Proporción sin pareja | IC 95 % por segmentos | Segmentos |
 |---|---|---|---|---|---|---|
-| puntos_top | 0-5 | 10362 | 8303 | 80,1 % | 68,8 % a 87,5 % | 40 |
-| puntos_top | 6-10 | 5521 | 2211 | 40,0 % | 29,4 % a 50,3 % | 40 |
-| puntos_top | 11-20 | 10781 | 1992 | 18,5 % | 12,0 % a 26,3 % | 41 |
-| puntos_top | 21-50 | 20657 | 2349 | 11,4 % | 7,8 % a 14,9 % | 41 |
-| puntos_top | 51-100 | 13720 | 779 | 5,7 % | 2,9 % a 8,6 % | 40 |
-| puntos_top | >100 | 19530 | 1468 | 7,5 % | 1,0 % a 16,4 % | 40 |
-| azimut_abs_deg | 0-20 | 37754 | 8454 | 22,4 % | 16,6 % a 27,4 % | 38 |
-| azimut_abs_deg | 20-40 | 19220 | 4020 | 20,9 % | 14,6 % a 28,0 % | 40 |
-| azimut_abs_deg | 40-60 | 10474 | 2151 | 20,5 % | 12,1 % a 29,2 % | 41 |
-| azimut_abs_deg | 60-80 | 7071 | 1377 | 19,5 % | 13,1 % a 25,8 % | 40 |
-| azimut_abs_deg | 80-100 | 6052 | 1100 | 18,2 % | 12,3 % a 25,6 % | 40 |
-| distancia_m_quintiles | (2.258, 18.613] | 16115 | 2240 | 13,9 % | 6,1 % a 22,5 % | 38 |
-| distancia_m_quintiles | (18.613, 30.336] | 16114 | 2284 | 14,2 % | 10,2 % a 17,9 % | 39 |
-| distancia_m_quintiles | (30.336, 42.004] | 16114 | 2609 | 16,2 % | 12,0 % a 20,1 % | 37 |
-| distancia_m_quintiles | (42.004, 54.747] | 16114 | 4640 | 28,8 % | 23,1 % a 34,7 % | 39 |
-| distancia_m_quintiles | (54.747, 77.67] | 16114 | 5329 | 33,1 % | 25,0 % a 40,6 % | 39 |
-| clase | PEDESTRIAN | 78756 | 16987 | 21,6 % | 17,9 % a 24,7 % | 40 |
-| clase | CYCLIST | 1815 | 115 | 6,3 % | 1,1 % a 14,0 % | 14 |
+| Puntos del sensor superior | 0-5 | 10.362 | 8.303 | 80,1 % | 68,8 % a 87,5 % | 40 |
+| Puntos del sensor superior | 6-10 | 5.521 | 2.211 | 40,0 % | 29,4 % a 50,3 % | 40 |
+| Puntos del sensor superior | 11-20 | 10.781 | 1.992 | 18,5 % | 12,0 % a 26,3 % | 41 |
+| Puntos del sensor superior | 21-50 | 20.657 | 2.349 | 11,4 % | 7,8 % a 14,9 % | 41 |
+| Puntos del sensor superior | 51-100 | 13.720 | 779 | 5,7 % | 2,9 % a 8,6 % | 40 |
+| Puntos del sensor superior | >100 | 19.530 | 1.468 | 7,5 % | 1,0 % a 16,4 % | 40 |
+| Azimut absoluto | 0 a 20° | 37.754 | 8.454 | 22,4 % | 16,6 % a 27,4 % | 38 |
+| Azimut absoluto | 20 a 40° | 19.220 | 4.020 | 20,9 % | 14,6 % a 28,0 % | 40 |
+| Azimut absoluto | 40 a 60° | 10.474 | 2.151 | 20,5 % | 12,1 % a 29,2 % | 41 |
+| Azimut absoluto | 60 a 80° | 7.071 | 1.377 | 19,5 % | 13,1 % a 25,8 % | 40 |
+| Azimut absoluto | 80 a 100° | 6.052 | 1.100 | 18,2 % | 12,3 % a 25,6 % | 40 |
+| Distancia (quintiles) | (2,26; 18,61] m | 16.115 | 2.240 | 13,9 % | 6,1 % a 22,5 % | 38 |
+| Distancia (quintiles) | (18,61; 30,34] m | 16.114 | 2.284 | 14,2 % | 10,2 % a 17,9 % | 39 |
+| Distancia (quintiles) | (30,34; 42,00] m | 16.114 | 2.609 | 16,2 % | 12,0 % a 20,1 % | 37 |
+| Distancia (quintiles) | (42,00; 54,75] m | 16.114 | 4.640 | 28,8 % | 23,1 % a 34,7 % | 39 |
+| Distancia (quintiles) | (54,75; 77,67] m | 16.114 | 5.329 | 33,1 % | 25,0 % a 40,6 % | 39 |
+| Clase | PEDESTRIAN | 78.756 | 16.987 | 21,6 % | 17,9 % a 24,7 % | 40 |
+| Clase | CYCLIST | 1.815 | 115 | 6,3 % | 1,1 % a 14,0 % | 14 |
 
 **Calidad de datos** (`f12_eda_calidad.csv`, `f12_eda_calidad_resumen.json`): nulos en las 16 variables: 0; llaves duplicadas (segmento, marca de tiempo, objeto): 0; cajas con 0 puntos LiDAR: 4.590 (5,7 %); con 0 puntos del sensor superior: 4.757 (5,9 %), de las cuales 90,5 % no tienen pareja. Atípicos fuera de 1,5 IQR: los más altos son `densidad_puntos` (11,9 %), `num_lidar_points` (11,0 %) y `num_top_lidar_points` (10,7 %): son cajas muy cercanas con muchísimos puntos, no errores; no se eliminaron.
 
@@ -140,17 +140,17 @@ El plan v3 (`plan_v3.md`, `plan_v3.json`, hash en `plan_v3.sha256`) se congeló 
 | DEC-11 | Las fases 12 y 13 son análisis en muestra, post hoc | no estaban en el plan v3 |
 | DEC-12 | No supervisado: silhouette en 20.000 cajas, GMM y Ward en 15.000, estabilidad con KMeans `n_init=3` y scaler fijo | costo de cómputo |
 | DEC-13 | El artefacto no supervisado tiene manifest propio y no se usa para puntuar | no tocar `manifest_v3.json` |
-| DEC-14 | Aviso «en muestra» visible en Inicio y Cola de revisión | evitar leer una ganancia en muestra como resultado ciego |
+| DEC-14 | Aviso «en muestra» siempre visible (desde F20, un chip persistente en todas las páginas con su popover, y una etiqueta junto a cada cifra del flujo en dos pasos) | evitar leer una ganancia en muestra como resultado ciego |
 | DEC-15 | El selector de referencia de la página usa las curvas ya calculadas de XGBoost y E2 | no generar predicciones nuevas |
 | DEC-16 | Docker sin probar | el demonio estaba apagado |
 
 ## 8. Filtro 1: detector de huecos por cámara
 Parámetros congelados de EP2, sin recalcular: rango de azimut p5-p95 por cámara con los 33 segmentos de train, mediana de la tasa por cámara con los 41, hueco si la tasa es menor al 25 % de la mediana y hay al menos 100 cajas en el rango. Marca **2 celdas**, las mismas que EP2 (diferencia máxima contra los CSV de EP2: 1.1e-16):
 
-| segmento | grupo | camara | tasa | Cajas en el rango del detector (|azimut| ≤ 120°) | Cajas en la población principal (|azimut| ≤ 100°) | Positivos en la población principal |
+| Segmento | Grupo | Cámara | Tasa de pares | Cajas en el rango del detector (azimut absoluto ≤ 120°) | Cajas en la población principal (azimut absoluto ≤ 100°) | Positivos en la población principal |
 |---|---|---|---|---|---|---|
-| 911012534050 | train | 5 (lateral der.) | 0.0 | 300 | 268 | 227 |
-| 257766998801 | test | 3 (frontal der.) | 0.0 | 1677 | 1677 | 1338 |
+| 911012534050 | train | 5 (lateral der.) | 0 % | 300 | 268 | 227 |
+| 257766998801 | test | 3 (frontal der.) | 0 % | 1.677 | 1.677 | 1.338 |
 
 *Población de cada columna:* «cajas en el rango del detector» cuenta las cajas con |azimut| hasta 120° que caen en el rango de azimut de esa cámara (300 en la celda `911012534050` cámara 5); «cajas en la población principal» cuenta solo las de |azimut| ≤ 100° (268 en esa celda; en la otra celda ambas coinciden) y los positivos se cuentan en esta última población.
 
@@ -163,67 +163,67 @@ Esas celdas contienen 1.565 de los 17.102 positivos (9,2 %) en 1.945 cajas. **Po
 ## 9. Aprendizaje no supervisado *(descriptivo; no está en el plan v3: post hoc, no pre-declarado)*
 **Qué se hizo.** Sobre las 80.571 cajas de la población principal, con `distancia_m`, `azimut_abs_deg`, `log1p(num_lidar_points)`, `log1p(densidad_puntos)` y `log1p(volumen_caja)` estandarizadas, **sin `sin_camara` ni nada del par 2D**. EP2 usó además variables de oclusión que no están en `dev_41`, así que la comparación no es idéntica. KMeans k = 2 a 8 (`n_init=10`, semilla 42) con silhouette (muestra de 20.000), Davies-Bouldin y Calinski-Harabasz; GMM (BIC) y Ward en una muestra de 15.000; estabilidad al remuestrear segmentos (30 réplicas). Se elige k por máximo silhouette entre 2 y 6: **k = 2**, y se explora también k = 4 como en EP2.
 
-| k | silhouette_muestra_20000 | davies_bouldin | calinski_harabasz | tamano_cluster_mas_chico | BIC_GMM_muestra_15000 |
+| k | Silhouette (muestra de 20.000) | Davies-Bouldin | Calinski-Harabasz | Tamaño del cluster más chico (fracción) | BIC del GMM (muestra de 15.000) |
 |---|---|---|---|---|---|
-| 2 | 0.317 | 1.2 | 47413.992 | 0.46 | 86283.005 |
-| 3 | 0.248 | 1.369 | 37420.444 | 0.272 | 66153.39 |
-| 4 | 0.243 | 1.222 | 33140.722 | 0.198 | 56734.221 |
-| 5 | 0.24 | 1.244 | 31196.261 | 0.11 | 48493.657 |
-| 6 | 0.247 | 1.186 | 29711.882 | 0.091 | 26202.999 |
-| 7 | 0.232 | 1.172 | 28324.866 | 0.083 | 22449.363 |
-| 8 | 0.232 | 1.168 | 27080.174 | 0.079 | 14497.301 |
+| 2 | 0,317 | 1,200 | 47.414 | 0,460 | 86.283 |
+| 3 | 0,248 | 1,369 | 37.420 | 0,272 | 66.153 |
+| 4 | 0,243 | 1,222 | 33.141 | 0,198 | 56.734 |
+| 5 | 0,240 | 1,244 | 31.196 | 0,110 | 48.494 |
+| 6 | 0,247 | 1,186 | 29.712 | 0,091 | 26.203 |
+| 7 | 0,232 | 1,172 | 28.325 | 0,083 | 22.449 |
+| 8 | 0,232 | 1,168 | 27.080 | 0,079 | 14.497 |
 
 **Estructura.** Con k = 2 el silhouette es 0,317 y la estabilidad por segmentos tiene ARI medio 0,930 y mínimo 0,815; con k = 4, 0,660 y 0,401. El acuerdo entre técnicas es **bajo**: ARI KMeans contra GMM 0,008 (k = 2) y 0,265 (k = 4); KMeans contra Ward 0,426 y 0,354. Es decir, los clusters son una partición cómoda de un continuo (distancia y densidad), no grupos naturales firmes.
 
 **Diagnóstico del ARI bajo** (post hoc, `f13_ari_diagnostico.csv` y `.json`; lo produce `scripts/ep3/f13b_diagnostico_ari.py`). EP2 reportó un ARI KMeans contra GMM de 0,997; aquí es 0,008 con k = 2. Se revisó si era un error de código: las tres técnicas se comparan sobre **las mismas 15.000 filas, en el mismo orden** (la muestra tiene 15.000 filas distintas), el ARI recalculado coincide con `f13_resumen.json` (sí) y los GMM convergieron todos (`converged_`). **No hay error.** El GMM de f13 usa covarianza `full` y `n_init=2`. Con k = 2 los tamaños de cluster son KMeans [6980, 8020], Ward [5544, 9456] y GMM `full` [10471, 4529]; con covarianza `diag` el ARI KMeans–GMM sube a 0,729 y con `spherical` a 0,884, y con k = 4 `full` da 0,265.
 
-| k | covarianza | n_init | converged_ | n_iter | tamanos | ARI vs KMeans | ARI vs Ward |
+| k | Covarianza | Inicios (n_init) | Convergió | Iteraciones | Tamaños de los grupos | ARI contra KMeans | ARI contra Ward |
 |---|---|---|---|---|---|---|---|
-| 2 | full | 2 | True | 18 | [10471, 4529] | 0.008 | 0.082 |
-| 2 | full | 10 | True | 18 | [4532, 10468] | 0.008 | 0.081 |
-| 2 | diag | 2 | True | 8 | [5884, 9116] | 0.729 | 0.271 |
-| 2 | diag | 10 | True | 8 | [5883, 9117] | 0.729 | 0.271 |
-| 2 | spherical | 2 | True | 3 | [6533, 8467] | 0.884 | 0.362 |
-| 2 | spherical | 10 | True | 3 | [8536, 6464] | 0.867 | 0.353 |
-| 4 | full | 2 | True | 31 | [6730, 2382, 4469, 1419] | 0.265 | 0.079 |
-| 4 | full | 10 | True | 55 | [2335, 4251, 2560, 5854] | 0.246 | 0.077 |
-| 4 | diag | 2 | True | 36 | [4839, 1808, 3179, 5174] | 0.309 | 0.443 |
-| 4 | diag | 10 | True | 24 | [3748, 3230, 2795, 5227] | 0.345 | 0.452 |
-| 4 | spherical | 2 | True | 8 | [4511, 4493, 4012, 1984] | 0.683 | 0.314 |
-| 4 | spherical | 10 | True | 15 | [3677, 3881, 3265, 4177] | 0.387 | 0.448 |
+| 2 | full | 2 | sí | 18 | 10.471 y 4.529 | 0,008 | 0,082 |
+| 2 | full | 10 | sí | 18 | 4.532 y 10.468 | 0,008 | 0,081 |
+| 2 | diag | 2 | sí | 8 | 5.884 y 9.116 | 0,729 | 0,271 |
+| 2 | diag | 10 | sí | 8 | 5.883 y 9.117 | 0,729 | 0,271 |
+| 2 | spherical | 2 | sí | 3 | 6.533 y 8.467 | 0,884 | 0,362 |
+| 2 | spherical | 10 | sí | 3 | 8.536 y 6.464 | 0,867 | 0,353 |
+| 4 | full | 2 | sí | 31 | 6.730 y 2.382 y 4.469 y 1.419 | 0,265 | 0,079 |
+| 4 | full | 10 | sí | 55 | 2.335 y 4.251 y 2.560 y 5.854 | 0,246 | 0,077 |
+| 4 | diag | 2 | sí | 36 | 4.839 y 1.808 y 3.179 y 5.174 | 0,309 | 0,443 |
+| 4 | diag | 10 | sí | 24 | 3.748 y 3.230 y 2.795 y 5.227 | 0,345 | 0,452 |
+| 4 | spherical | 2 | sí | 8 | 4.511 y 4.493 y 4.012 y 1.984 | 0,683 | 0,314 |
+| 4 | spherical | 10 | sí | 15 | 3.677 y 3.881 y 3.265 y 4.177 | 0,387 | 0,448 |
 
 **Qué coincide y qué no, y qué dice EP2 (hipótesis, post hoc, no verificada).** (i) KMeans coincide con el GMM esférico (ARI 0,884) y con el diagonal (0,729); **el discrepante es el GMM de covarianza `full`**, que parte la muestra en 70 % y 30 % mientras KMeans la parte en 47 % y 53 %; Ward queda en el medio (ARI 0,426 con KMeans). Por eso el ARI de 0,008 **siempre debe leerse junto al 0,884 del GMM esférico**: no hay desacuerdo general entre técnicas, hay un GMM que modela otra forma. (ii) **Evidencia de EP2 (solo lectura):** EP2 usó variables de oclusión además de las cinco de aquí (`docs/informe_tecnico_EP2.md:408`), sus clusters se describen como «ocluidos» y «sin oclusores» (`docs/informe_tecnico_EP2.md:428-429`), y su propio diagnóstico encontró covarianzas degeneradas del GMM, con varianza mínima 1,0e-06 (el piso de scikit-learn) en las variables discretas `n_ocl`, `frac_cub` y `dist_ocl_f` (`docs/informe_tecnico_EP2.md:422`); el ARI de 0,997, 1,000 y 0,997 está en `data/08_reporting/08_no_supervisado_resumen.json:5-7`. **Hipótesis (no verificada):** el 0,997 de EP2 probablemente estaba inflado por esas variables discretas, que producen una estructura que las tres técnicas parten igual; el 0,008 de EP3 no es la anomalía: es lo que da un GMM de covarianza completa sobre cinco variables continuas sin separación natural. (iii) El BIC del GMM baja de 86.283 (k = 2) a 14.497 (k = 8) sin dar un mínimo y **no se usa para elegir k** (como en EP2, que tampoco lo usó).
 
 **AUC de la regla dentro de cada cluster (k = 2).** Columna `AUC_regla_dentro_del_cluster` de `f13_clusters_k2.csv`:
 
-| cluster | tipo_de_caso | cajas | tasa_sin_camara | ic_lo | ic_hi | AUC_regla_dentro_del_cluster |
+| Cluster | Tipo de caso | Cajas | Proporción sin pareja | IC inferior | IC superior | AUC de la regla dentro del cluster |
 |---|---|---|---|---|---|---|
-| 0 | cercanos y densos | 37094 | 0.089 | 0.044 | 0.147 | 0.531 |
-| 1 | lejanos y poco densos | 43477 | 0.318 | 0.254 | 0.384 | 0.837 |
+| 0 | cercanos y densos | 37.094 | 0,089 | 0,044 | 0,147 | 0,531 |
+| 1 | lejanos y poco densos | 43.477 | 0,318 | 0,254 | 0,384 | 0,837 |
 
 *Lectura:* la regla pierde capacidad de ordenar en las cajas **cercanas y densas** (AUC 0,531, casi azar) y ordena bien en las **lejanas y poco densas** (0,837); con k = 4 el AUC por cluster es 0,416, 0,687, 0,819, 0,622 (clusters 0 a 3). No es un fallo del clustering: es dónde la regla ordena peor.
 
 **Análisis nuevo, post hoc, no pre-declarado: ¿es por las celdas con hueco?** (`f13_auc_cluster_sin_huecos.csv`, `scripts/ep3/f13c_auc_cluster_sin_huecos.py`; descriptivo, sin IC). Se recalculó ese AUC sin las 1.945 cajas de las celdas con hueco:
 
-| k | cluster | tipo_de_caso | cajas | cajas_en_celdas_con_hueco | AUC_todas | AUC_sin_celdas_con_hueco | dif_AUC |
+| k | Cluster | Tipo de caso | Cajas | Cajas en celdas con hueco | AUC (todas las cajas) | AUC (sin celdas con hueco) | Diferencia de AUC |
 |---|---|---|---|---|---|---|---|
-| 2 | 0 | cercanos y densos | 37094 | 1772 | 0.531 | 0.748 | 0.217 |
-| 2 | 1 | lejanos y poco densos | 43477 | 173 | 0.837 | 0.842 | 0.005 |
-| 4 | 0 | cercanos y densos | 20156 | 1230 | 0.416 | 0.75 | 0.334 |
-| 4 | 1 | a distancia media y de densidad media | 15948 | 348 | 0.687 | 0.742 | 0.055 |
-| 4 | 2 | lejanos y poco densos | 19007 | 17 | 0.819 | 0.819 | -0.0 |
-| 4 | 3 | a distancia media y de densidad media | 25460 | 350 | 0.622 | 0.652 | 0.03 |
+| 2 | 0 | cercanos y densos | 37.094 | 1.772 | 0,531 | 0,748 | 0,217 |
+| 2 | 1 | lejanos y poco densos | 43.477 | 173 | 0,837 | 0,842 | 0,005 |
+| 4 | 0 | cercanos y densos | 20.156 | 1.230 | 0,416 | 0,750 | 0,334 |
+| 4 | 1 | a distancia media y de densidad media | 15.948 | 348 | 0,687 | 0,742 | 0,055 |
+| 4 | 2 | lejanos y poco densos | 19.007 | 17 | 0,819 | 0,819 | -0,000 |
+| 4 | 3 | a distancia media y de densidad media | 25.460 | 350 | 0,622 | 0,652 | 0,030 |
 
 **Resultado:** el AUC de los clusters cercanos **sube mucho**: con k = 2, de 0,531 a 0,748 (+0,217); con k = 4 (cluster 0), de 0,416 a 0,750 (+0,334); los clusters lejanos casi no cambian (0,837 a 0,842). Es decir, **la mayor parte de la pérdida de capacidad en cajas cercanas se debe a las 2 celdas con hueco** (1.772 cajas y 1.418 de los 3.285 positivos del cluster cercano caen ahí: cajas con muchos puntos y sin pareja). Aun así queda una brecha (0,748 contra 0,842): la regla sigue ordenando algo peor entre cajas cercanas. En conjunto, el AUC global de la probabilidad con Platt pasa de 0,809 a 0,871 sin esas celdas. Los positivos de las celdas con hueco son 43 % de los positivos del cluster cercano: explican buena parte de la pérdida, no toda.
 
 **Cruce con `sin_camara` (k = 4)** y comparación con lo que predice la regla (probabilidad con Platt):
 
-| cluster | tipo_de_caso | cajas | tasa_sin_camara | ic_lo | ic_hi | prob_media_regla_platt | diferencia_tasa_menos_prob_regla | AUC_regla_dentro_del_cluster |
+| Cluster | Tipo de caso | Cajas | Proporción sin pareja | IC inferior | IC superior | Probabilidad media de la regla (Platt) | Tasa menos probabilidad de la regla | AUC de la regla dentro del cluster |
 |---|---|---|---|---|---|---|---|---|
-| 0 | cercanos y densos | 20156 | 0.081 | 0.023 | 0.167 | 0.045 | 0.036 | 0.416 |
-| 1 | a distancia media y de densidad media | 15948 | 0.148 | 0.107 | 0.186 | 0.187 | -0.04 | 0.687 |
-| 2 | lejanos y poco densos | 19007 | 0.546 | 0.451 | 0.627 | 0.529 | 0.017 | 0.819 |
-| 3 | a distancia media y de densidad media | 25460 | 0.107 | 0.072 | 0.149 | 0.125 | -0.018 | 0.622 |
+| 0 | cercanos y densos | 20.156 | 0,081 | 0,023 | 0,167 | 0,045 | 0,036 | 0,416 |
+| 1 | a distancia media y de densidad media | 15.948 | 0,148 | 0,107 | 0,186 | 0,187 | -0,040 | 0,687 |
+| 2 | lejanos y poco densos | 19.007 | 0,546 | 0,451 | 0,627 | 0,529 | 0,017 | 0,819 |
+| 3 | a distancia media y de densidad media | 25.460 | 0,107 | 0,072 | 0,149 | 0,125 | -0,018 | 0,622 |
 
 Los clusters 1 y 3 de k = 4 comparten el rótulo «a distancia media y de densidad media» pero tienen tasas de 14,8 % y 10,7 %: el rótulo (basado en terciles de distancia y densidad) no los distingue. La página usa k = 2 (el `k_elegido` del artefacto), por lo que no muestra estos dos clusters.
 
@@ -235,18 +235,18 @@ Con k = 2: «cercanos y densos» tasa 8,9 % (IC 4,4 % a 14,7 %, 37.094 cajas), �
 
 **EP2 contra EP3** (EP2 solo se lee; fuentes en la tabla):
 
-| medida | EP2 | EP3 | fuente_EP2 | fuente_EP3 |
+| Medida | EP2 | EP3 | Fuente EP2 | Fuente EP3 |
 |---|---|---|---|---|
-| k elegido (maximo silhouette) | 2.0 | 2.0 | 08_no_supervisado_resumen.json | f13_seleccion_k.csv |
-| silhouette con k=2 | 0.387 | 0.317 | 08_clusters_seleccion_k.csv | f13_seleccion_k.csv |
-| silhouette con k=4 | 0.251 | 0.243 | 08_clusters_seleccion_k.csv | f13_seleccion_k.csv |
-| tasa sin_camara del cluster de mayor tasa con k=4 (%) | 62.706 | 54.575 | 08_clusters_vs_franja.csv (cluster 'lejanos, poco densos y ocluidos', 13.584 filas) | f13_clusters_k4.csv (cluster 2: lejanos y poco densos, 19007 cajas) |
-| IsolationForest: tasa sin_camara de atipicas (%) | 80.3 | 68.114 | 08_no_supervisado_resumen.json | f13_isolation_forest.csv |
-| IsolationForest: tasa de las no atipicas (%) | 22.6 | 20.752 | 08_no_supervisado_resumen.json | f13_isolation_forest.csv |
-| IsolationForest: segmentos que aportan atipicos | 28.0 | 36.0 | 08_no_supervisado_resumen.json | f13_isolation_forest.csv |
-| estabilidad: ARI medio al remuestrear segmentos (k elegido) | 0.953 | 0.93 | 08_no_supervisado_resumen.json | f13_estabilidad.csv |
-| estabilidad: ARI minimo (k elegido) | 0.301 | 0.815 | 08_no_supervisado_resumen.json | f13_estabilidad.csv |
-| ARI KMeans vs GMM (k elegido) | 0.997 | 0.008 | 08_no_supervisado_resumen.json | f13_resumen.json |
+| k elegido (maximo silhouette) | 2 | 2 | 08_no_supervisado_resumen.json | f13_seleccion_k.csv |
+| silhouette con k=2 | 0,387 | 0,317 | 08_clusters_seleccion_k.csv | f13_seleccion_k.csv |
+| silhouette con k=4 | 0,251 | 0,243 | 08_clusters_seleccion_k.csv | f13_seleccion_k.csv |
+| tasa sin_camara del cluster de mayor tasa con k=4 (%) | 62,71 | 54,57 | 08_clusters_vs_franja.csv (cluster 'lejanos, poco densos y ocluidos', 13.584 filas) | f13_clusters_k4.csv (cluster 2: lejanos y poco densos, 19007 cajas) |
+| IsolationForest: tasa sin_camara de atipicas (%) | 80,30 | 68,11 | 08_no_supervisado_resumen.json | f13_isolation_forest.csv |
+| IsolationForest: tasa de las no atipicas (%) | 22,60 | 20,75 | 08_no_supervisado_resumen.json | f13_isolation_forest.csv |
+| IsolationForest: segmentos que aportan atipicos | 28 | 36 | 08_no_supervisado_resumen.json | f13_isolation_forest.csv |
+| estabilidad: ARI medio al remuestrear segmentos (k elegido) | 0,953 | 0,930 | 08_no_supervisado_resumen.json | f13_estabilidad.csv |
+| estabilidad: ARI minimo (k elegido) | 0,301 | 0,815 | 08_no_supervisado_resumen.json | f13_estabilidad.csv |
+| ARI KMeans vs GMM (k elegido) | 0,997 | 0,008 | 08_no_supervisado_resumen.json | f13_resumen.json |
 
 **Lectura.** Los resultados cambian: el silhouette con k = 2 baja (0,387 a 0,317), el cluster de mayor tasa con k = 4 baja de 62,7 % a 54,6 % y los atípicos de 80,3 % a 68,1 %. Una parte probable de la diferencia es que aquí no hay variables de oclusión y que se usan 41 segmentos en vez de 33 (hipótesis, no verificada). **Qué cambió respecto de EP2 y por qué:** lo que cambia es sobre todo el acuerdo entre técnicas (ARI KMeans–GMM de 0,997 a 0,008), que el diagnóstico de arriba muestra que no es un error de filas ni de convergencia; sin oclusión, los grupos ya no son compactos y las técnicas discrepan. Con los umbrales de EP2 para llamar «estructura» (silhouette >= 0,25, ARI >= 0,8, rango de tasa >= 10 puntos), k = 2 los cumple y k = 4 no (ARI mínimo 0,401). **Los clusters no aportan a la predicción**; se usan solo para mostrar el «tipo de caso» en la página, con su tasa histórica.
 
@@ -350,14 +350,29 @@ Accuracy y F1 son solo referencia: con una clase minoritaria de 21,2 %, un clasi
 **Solución final en tres capas.** (1) **Filtro 1**: detector de huecos con parámetros congelados (`detector_params_v3.json`). (2) **Regla**: menos puntos del LiDAR superior primero, con umbrales A = 32 y B = 11 (se marcan las cajas con ese número de puntos o menos) y calibración Platt. (3) **Persona** que revisa y decide. v3 está congelado con sha256 en `manifest_v3.json` (modelo_final_v3.joblib, umbrales_v3.json, detector_params_v3.json); se verifica con `scripts/ep3/verificar_congelados_v3.py`.
 
 ## 13. La página y su despliegue
-`app/app.py` (Streamlit, solo local; producto «Auditor de etiquetas 3D», rediseñado en F18-C: guía de estilo en `guia_estilo_pagina.md`) con 8 secciones: Inicio, Auditoría de cámaras, Cola de revisión, Explica una caja, Evidencia, Ética y límites, Puntuar datos nuevos y Ayuda y glosario. En **Cola de revisión** se decide con un presupuesto (parte en 20 %) o con una meta («quiero encontrar X %», interpolación de la curva guardada), el resultado se dice en lenguaje simple («unas 70 de cada 100 cajas sin pareja»), con un bloque «¿Qué tan confiable es esto?», un selector de modelo de referencia (XGBoost o E2), la clase de cada caja con advertencia para ciclistas y el **tipo de caso**. Tres perfiles y un **modo presentación** que oculta los identificadores y agranda la letra. Usa predicciones **fuera de fold**, y muestra en Inicio y en Cola de revisión (no en un tooltip) el aviso: «en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos. La ganancia del brazo C sale de 2 celdas cámara x segmento, una de ellas en el segmento donde se descubrió el hueco.». Pruebas: 98 en `tests/ep3` (incluye una prueba de humo de las 8 secciones por 3 perfiles, con el modo presentación activado y desactivado, con `streamlit.testing.v1.AppTest`). Despliegue: local (`scripts/ep3/arrancar_app.bat`) y Docker (lista blanca que excluye `data/`, volúmenes de solo lectura); **Docker no se probó**. La guía de AWS (EC2 + S3 privado) es solo orientativa y advierte que los datos por caja de Waymo no deben salir del equipo (`despliegue.md`).
+`app/app.py` (Streamlit, solo local; producto «Auditor de etiquetas 3D», rediseñado en F20 como una consola interna de revisión: guía de estilo en `guia_estilo_pagina.md` y auditoría de diseño en `auditoria_diseno_pagina.md`) es el marco de la página: navegación agrupada (`st.navigation`) con 8 páginas (Resumen, Cola de revisión, Explica una caja, Auditoría de cámaras, Validación, Puntuar datos nuevos, Ética y límites y Ayuda y glosario), el rol al pie de la barra lateral y un único chip de estado. En **Cola de revisión** (maestro-detalle) se decide con un presupuesto (parte en 20 %) o con una meta («quiero encontrar X %», interpolación de la curva guardada) y se elige el flujo, de un paso o de dos pasos; el resultado se dice en lenguaje simple con ambos flujos («con auditoría previa, unas 70 de cada 100; solo cola, unas 62 de cada 100»); al seleccionar una fila se abre el detalle de esa caja (probabilidad calibrada, posición en la cola, tipo de caso, advertencia para ciclistas), hay una vista «Agrupar por objeto» y filtros por clase y cámara, y los supuestos y la confiabilidad van en un popover, junto a un selector de modelo de referencia (XGBoost o E2). Tres roles y un **modo presentación** que oculta los identificadores y agranda la letra. Usa predicciones **fuera de fold**, y el estado «en muestra» está en un chip persistente en todas las páginas, con el texto completo en su popover: «en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos. La ganancia del brazo C sale de 2 celdas cámara x segmento, una de ellas en el segmento donde se descubrió el hueco.». Pruebas: 177 en `tests/ep3` (incluye una prueba de humo de las 8 páginas por 3 roles, con el modo presentación activado y desactivado, con `streamlit.testing.v1.AppTest`). Despliegue: local (`scripts/ep3/arrancar_app.bat`, que usa `app/lanzar.py` para precargar la solución congelada y los datos antes de la primera visita) y Docker (lista blanca que excluye `data/`, volúmenes de solo lectura); **Docker no se probó**. La guía de AWS (EC2 + S3 privado) es solo orientativa y advierte que los datos por caja de Waymo no deben salir del equipo (`despliegue.md`).
 
 **Seguridad de la página.** La app escucha **solo en `localhost`**: `.streamlit/config.toml` fija `server.address = "localhost"`, `scripts/ep3/arrancar_app.bat` pasa `--server.address localhost`, sin telemetría (`browser.gatherUsageStats = false`) y con la barra superior mínima (`client.toolbarMode = "minimal"`, sin el botón Deploy). En Docker el contenedor escucha en `0.0.0.0` (es necesario dentro del contenedor), pero `docker-compose.yml` publica el puerto solo en el equipo (`127.0.0.1:8501:8501`) y `.dockerignore` deja `data/` fuera de la imagen. **No debe exponerse sin autenticación y sin quitar los identificadores, y no se publica en servicios de nube con datos de Waymo.** Una prueba de solo lectura (`tests/ep3/test_seguridad_pagina.py`) falla si cambian estos valores.
 
 **Lo que muestra la página** (Cola de revisión, Segmento «Todos», presupuesto 20 %, Solución elegida, dos pasos (C); en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos): la página dice «unas 70 de cada 100 cajas sin pareja» (70,3 % con el conteo observado, única fuente tras el rediseño; antes la tarjeta mostraba 70,2 %, de la curva interpolada; intervalo 62,4 % a 78,9 %), 15.726 cajas a revisar de 78.626 en la cola y 87,4 h con 20 s por caja. Con un paso (A) y el mismo 20 % el recall esperado es 61,9 % (IC 53,3 % a 72,3 %). Son dos números distintos de dos brazos distintos; ver `PENDIENTES_PAGINA.md`. **El «20 %» de la página es el 20 % de la cola de celdas sanas (15.726 cajas), no el 20 % del total (16.115 cajas) del informe §12:** por eso la página dice 70,3 % y el informe 70,9 %.
 
 ## 14. Validación externa sellada (P9): preparada, pendiente
-`notebooks/00b_seleccion_segmentos_ep3.ipynb` (Colab) reconstruye el pool de EP2 (sin lluvia 793, al menos 190 frames 786, `n_detecciones` entre percentiles 746) y, **solo después**, excluye los 91 evaluados por EP2 (655 candidatos nuevos). Usa **cuotas fijas de 26 segmentos útiles** por `time_of_day x location` (de día en San Francisco 8; la noche queda mal representada: 23 y 9 candidatos en SF y Phoenix, 0 en otras), semilla 42, tope de 55 evaluaciones y meta >= 15 útiles; el orden de candidatos está sellado en `plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`). Guía paso a paso: `GUIA_VALIDACION_EXTERNA.md`. `scripts/ep3/evaluar_sellado.py congelar` guarda el sha256 de la lista y de v3 **antes** de abrir los datos; `evaluar` corre **una sola vez** (candado) y compara solución contra regla y dos pasos contra un paso. Con segmentos nuevos se medirá **(i)** la tasa de celdas marcadas por el detector, **(ii)** su estabilidad frente a las 30 combinaciones de parámetros y, **(iii) opcional y post hoc**, si Waymo v2 trae el componente `camera_box`, si en cada celda marcada esa cámara tiene cajas 2D en el rango sin pares (laguna de asociación) o no tiene ninguna (laguna de etiquetado o de datos). No hay verdad externa: no se medirán sensibilidad ni especificidad (DEV-3). Nada se selecciona con esos datos. Es la única forma de saber si la ganancia del dos pasos y el detector se sostienen.
+### 14.1 Selección de segmentos y sellado
+`notebooks/00b_seleccion_segmentos_ep3.ipynb` (Colab) reconstruye el pool de EP2 (sin lluvia 793, al menos 190 frames 786, `n_detecciones` entre percentiles 746) y, **solo después**, excluye los 91 evaluados por EP2 (655 candidatos nuevos). Usa **cuotas fijas de 26 segmentos útiles** por `time_of_day x location` (de día en San Francisco 8; la noche queda mal representada: 23 y 9 candidatos en SF y Phoenix, 0 en otras), semilla 42, tope de 55 evaluaciones y meta >= 15 útiles; el orden de candidatos está sellado en `plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`). Guía paso a paso: `GUIA_VALIDACION_EXTERNA.md`. `scripts/ep3/evaluar_sellado.py congelar` guarda el sha256 de la lista y de v3 **antes** de abrir los datos; `evaluar` corre **una sola vez** (candado) y compara dos pasos contra un paso.
+
+### 14.2 Qué se mide
+**Solución contra regla da diferencia 0 por construcción:** el puntaje de la solución congelada v3 es la propia regla «menos puntos del sensor superior» (`PuntuadorRegla`, monótono con ella; `inferencia.py` y `congelado.py`), así que lo que se mide es el desempeño de la regla fuera de muestra, su recall y precisión con los umbrales A = 32 y B = 11 congelados, el brazo C contra A y la tasa de celdas marcadas.
+
+### 14.3 Alternativas congeladas (DEV-4)
+Para poder decir algo más, **antes de abrir datos** se congelaron dos alternativas, LR3 y XGBoost entrenadas con los 41 segmentos (`alternativas_v3.joblib` y `manifest_alternativas.json`, aparte de `manifest_v3.json`; configuración de XGBoost: la más repetida entre los 5 folds, 2 de 5; DEV-4, post hoc respecto del plan v3 y sin cambiar la solución elegida); la validación las compara con la regla (diferencia de AUC y de fracción para el 80 % con intervalo pareado por segmentos, `externa_alternativas.csv`).
+
+### 14.4 Qué se medirá con segmentos nuevos y cómo se leerá cada caso
+Con segmentos nuevos se medirá:
+- **(i)** la tasa de celdas marcadas por el detector **con dos denominadores** (todas las celdas segmento x cámara y solo las celdas con >= 100 cajas en el rango; en desarrollo 2 de 111) y cada una con su intervalo por segmentos;
+- **(ii)** su estabilidad frente a las 30 combinaciones de parámetros;
+- **(iii) opcional y post hoc**, si Waymo v2 trae el componente `camera_box`, si en cada celda marcada esa cámara tiene cajas 2D en el rango sin pares (laguna de asociación) o no tiene ninguna (laguna de etiquetado o de datos).
+
+No hay verdad externa: no se medirán sensibilidad ni especificidad (DEV-3). Nada se selecciona con esos datos. Es la única forma de saber si la ganancia del dos pasos y el detector se sostienen. Los casos de resultado (A: sin huecos; B: huecos encontrados; C: marcas sin verificar; D: una alternativa «gana») y cómo leer cada uno están en `GUIA_VALIDACION_EXTERNA.md`, sección 7.
 
 ## 15. Conclusiones y recomendaciones para el negocio
 **Conclusiones.** (1) La señal principal son los puntos del LiDAR: una regla simple alcanza AUC 0,823 y ningún modelo ni ensamble la supera de forma distinguible. (2) Optimizar hiperparámetros ayuda solo a los modelos que por defecto se sobreajustan. (3) Los clusters describen, no predicen. (4) La utilidad del filtro 1 *(en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos)* depende de 2 celdas; hay que verla en datos nuevos.
@@ -405,7 +420,7 @@ Accuracy y F1 son solo referencia: con una clase minoritaria de 21,2 %, un clasi
 9. **Brazo C** (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos): en cajas revisadas casi por construcción no es peor que A (la auditoría quita cajas de la cola sin costo); el límite superior 0 del IC de C menos A se debe a que 11,9 % de las réplicas no contienen ninguno de los 2 segmentos con hueco (probabilidad exacta del diseño 12,87 %); lo informativo es el punto de equilibrio y la tasa de celdas marcadas del detector (con su estabilidad), que solo se pueden medir con datos nuevos.
 10. **Ciclistas:** la regla es poco confiable (recall 0,443 contra 0,806 en peatones; 115 positivos en 14 segmentos).
 11. **Estabilidad por fold:** el brazo B (post hoc) la explica, pero la elección y la regla de reserva DEV-2 se hicieron sobre el brazo A.
-"12. **La página** escucha solo en localhost y no está lista para exponerse en una red (sin autenticación).
+12. **La página** escucha solo en localhost y no está lista para exponerse en una red (sin autenticación).
 13. **Selección de segmentos:** 50 de 91 candidatos de EP2 se descartaron; el detector solo se probó con etiquetado denso y la noche está poco representada (sección 3).
 
 ## 18. Reproducción
@@ -424,48 +439,51 @@ Ver `docs/ep3/README_EP3.md`. Entorno: Python 3.10, `requirements.txt` + `requir
 | No supervisado | `f13_seleccion_k.csv`, `f13_clusters_k2.csv`, `f13_clusters_k4.csv`, `f13_estabilidad.csv`, `f13_aporte_cluster.csv`, `f13_isolation_forest.csv`, `f13_comparacion_ep2_ep3.csv`, `f13_resumen.json`, `f13_ari_diagnostico.csv` y `.json` |
 | Brazo C: hechos y probabilidad exacta | `f12b_hechos_brazoC.json`, `f12_diferencia_C_menos_A.csv` |
 | Conteo de pruebas | `pruebas_ep3_conteo.json` (`pytest --collect-only`, sin ejecutar) |
+| Alternativas congeladas (DEV-4) y ensayo general | `f19_alternativas_congeladas.json`, `ensayo_resultado.json` (ensayo con datos de desarrollo, sin valor como resultado) |
 | Selección de segmentos | `docs/seleccion_segmentos/inventario_segmentos.csv`, `registro_verificacion_ep2.csv` |
 | Solución congelada | `data/06_models_ep3/manifest_v3.json`, `manifest_no_supervisado.json`, `f6_final_resumen.json` |
 
 ## Anexo B. Análisis en muestra (post hoc, no pre-declarado) *(en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos)*
 ### B.1 AUC por fold y brazos A, B y C (regla; LR3 y XGBoost en `f12_auc_por_fold_brazos.csv`)
-| fold | segmentos | cajas | celdas_con_hueco | hueco_contenido | AUC_A | AUC_B_celdas_sanas | Fraccion80_A | Fraccion80_B_celdas_sanas | Fraccion80_C |
+| Fold | Segmentos | Cajas | Celdas con hueco | Hueco contenido | AUC (brazo A) | AUC (brazo B, celdas sanas) | Fracción para 80 % (A) | Fracción para 80 % (B, celdas sanas) | Fracción para 80 % (C) |
 |---|---|---|---|---|---|---|---|---|---|
-| 0 | 7 | 14968 | 1 | 257766998801 camara 3 | 0.647 | 0.842 | 0.805 | 0.466 | 0.236 |
-| 1 | 9 | 14971 | 1 | 911012534050 camara 5 | 0.837 | 0.919 | 0.315 | 0.193 | 0.174 |
-| 2 | 9 | 14950 | 0 | ninguno | 0.848 | 0.848 | 0.378 | 0.378 | 0.378 |
-| 3 | 7 | 15659 | 0 | ninguno | 0.904 | 0.904 | 0.343 | 0.343 | 0.343 |
-| 4 | 9 | 20023 | 0 | ninguno | 0.899 | 0.899 | 0.287 | 0.287 | 0.287 |
-| global | 41 | 80571 | 2 | 911012534050 camara 5; 257766998801 camara 3 | 0.823 | 0.879 | 0.446 | 0.337 | 0.296 |
+| 0 | 7 | 14.968 | 1 | 257766998801 camara 3 | 0,647 | 0,842 | 0,805 | 0,466 | 0,236 |
+| 1 | 9 | 14.971 | 1 | 911012534050 camara 5 | 0,837 | 0,919 | 0,315 | 0,193 | 0,174 |
+| 2 | 9 | 14.950 | 0 | ninguno | 0,848 | 0,848 | 0,378 | 0,378 | 0,378 |
+| 3 | 7 | 15.659 | 0 | ninguno | 0,904 | 0,904 | 0,343 | 0,343 | 0,343 |
+| 4 | 9 | 20.023 | 0 | ninguno | 0,899 | 0,899 | 0,287 | 0,287 | 0,287 |
+| global | 41 | 80.571 | 2 | 911012534050 camara 5; 257766998801 camara 3 | 0,823 | 0,879 | 0,446 | 0,337 | 0,296 |
 
 Respuestas: **¿el brazo B cumple AUC mínimo por fold >= 0,75?** Sí: 0,842 (regla), 0,842 (LR3), 0,841 (XGBoost); el brazo A no (0,647, 0,651, 0,685). **¿Qué hace C en el fold 1?** Baja la Fracción para 80 % de 0,315 a 0,174 (celda 911012534050 camara 5). **¿El IC de C menos A excluye 0?** No: -0,150 con IC -0,490 a 0,000 (LR3 y XGBoost igual: ver el CSV).
 
 ### B.2 Diferencia pareada C menos A en Fracción para 80 % (1.000 réplicas por segmentos; regla)
-| variante | Fraccion80_A | Fraccion80_C | dif_C_menos_A | ic_lo | ic_hi | excluye_0 | segmentos |
+| Variante | Fracción para 80 % (A) | Fracción para 80 % (C) | Diferencia C menos A | IC inferior | IC superior | El IC excluye 0 | Segmentos |
 |---|---|---|---|---|---|---|---|
-| global: ambas celdas auditadas | 0.446 | 0.296 | -0.15 | -0.49 | 0.0 | False | 41 |
-| solo se audita 911012534050 camara 5 (la otra celda queda en la cola) | 0.446 | 0.425 | -0.021 | -0.091 | 0.0 | False | 41 |
-| se excluye el segmento 911012534050 del analisis (queda solo la otra celda) | 0.434 | 0.305 | -0.129 | -0.436 | 0.0 | False | 40 |
-| solo se audita 257766998801 camara 3 (la otra celda queda en la cola) | 0.446 | 0.319 | -0.127 | -0.465 | 0.0 | False | 41 |
-| se excluye el segmento 257766998801 del analisis (queda solo la otra celda) | 0.354 | 0.333 | -0.021 | -0.095 | 0.0 | False | 40 |
+| global: ambas celdas auditadas | 0,446 | 0,296 | -0,150 | -0,490 | 0 | no | 41 |
+| solo se audita 911012534050 camara 5 (la otra celda queda en la cola) | 0,446 | 0,425 | -0,021 | -0,091 | 0 | no | 41 |
+| se excluye el segmento 911012534050 del analisis (queda solo la otra celda) | 0,434 | 0,305 | -0,129 | -0,436 | 0 | no | 40 |
+| solo se audita 257766998801 camara 3 (la otra celda queda en la cola) | 0,446 | 0,319 | -0,127 | -0,465 | 0 | no | 41 |
+| se excluye el segmento 257766998801 del analisis (queda solo la otra celda) | 0,354 | 0,333 | -0,021 | -0,095 | 0 | no | 40 |
 
 *Lectura:* las variantes «solo se audita una celda» y «se excluye un segmento» muestran que la ganancia depende de las dos celdas: la celda de `257766998801` sola ya da casi toda la ganancia (diferencia -0,127).
 
 ### B.3 Sensibilidad del detector (resumen por configuración; detalle en `f12_sensibilidad_detector.csv`)
-| mediana | frac | marcadas_min | marcadas_max | extra_min | extra_max | detecta_los_2 |
+| Mediana de referencia | Fracción del umbral | Celdas marcadas (mínimo) | Celdas marcadas (máximo) | Marcadas además de los 2 (mínimo) | Marcadas además de los 2 (máximo) | Marca los 2 de referencia |
 |---|---|---|---|---|---|---|
-| con los 41 segmentos | 0.15 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| con los 41 segmentos | 0.2 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| con los 41 segmentos | 0.25 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| con los 41 segmentos | 0.3 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| con los 41 segmentos | 0.35 | 3 | 4 | 1 | 2 | sí en las 3 variantes de min_cajas |
-| sin el segmento candidato | 0.15 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| sin el segmento candidato | 0.2 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| sin el segmento candidato | 0.25 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| sin el segmento candidato | 0.3 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
-| sin el segmento candidato | 0.35 | 3 | 4 | 1 | 2 | sí en las 3 variantes de min_cajas |
+| con los 41 segmentos | 0,150 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| con los 41 segmentos | 0,200 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| con los 41 segmentos | 0,250 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| con los 41 segmentos | 0,300 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| con los 41 segmentos | 0,350 | 3 | 4 | 1 | 2 | sí en las 3 variantes de min_cajas |
+| sin el segmento candidato | 0,150 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| sin el segmento candidato | 0,200 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| sin el segmento candidato | 0,250 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| sin el segmento candidato | 0,300 | 2 | 3 | 0 | 1 | sí en las 3 variantes de min_cajas |
+| sin el segmento candidato | 0,350 | 3 | 4 | 1 | 2 | sí en las 3 variantes de min_cajas |
 
 Con `frac` = 0,35 aparece una celda marcada más (sin verdad externa) en la celda `247562357599|cam5`; con `min_cajas` = 50 y `frac` <= 0,30, la celda `143581920096|cam5`. Los 2 huecos de EP2 se detectan en todas las combinaciones.
+
+**Nota sobre la celda `247562357599|cam5`** *(post hoc, no pre-declarado, hipótesis no verificada)*. El segmento `247562357599`, cámara 5, tiene 184 positivos en 665 cajas con más de 100 puntos del sensor superior (27,7 %; `f12_eda_puntos_top_resumen.json`, campo `top3_segmentos_positivos_mayor_100_sin_hueco`) y es la celda que aparece marcada con `frac` = 0,35 (`f12_sensibilidad_detector.csv`, columna `marcadas_lista`). Con los parámetros congelados (`frac` = 0,25) **no se marca**. *Hipótesis (no verificada):* podría ser un tercer hueco que el umbral de EP2 no alcanza a marcar; no hay verdad externa para decidirlo. No cambia el detector ni ninguna cifra.
 
 ### B.4 Equidad (post hoc, descriptivo; detalle en `f12_equidad.csv`)
 | Variable | Grupo | Segmentos | Cajas | Positivos | Recall A (con celdas con hueco) | % revisado | Recall A (sin celdas con hueco) | AUC (con / sin) |

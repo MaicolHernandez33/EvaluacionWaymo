@@ -6,4 +6,4 @@ if not exist ".venv\Scripts\python.exe" (
   echo No encuentro .venv. Vea docs\ep3\despliegue.md
   exit /b 1
 )
-".venv\Scripts\python.exe" -m streamlit run app\app.py --server.address localhost --server.port 8501 --browser.gatherUsageStats false
+".venv\Scripts\python.exe" app\lanzar.py --server.address localhost --server.port 8501 --browser.gatherUsageStats false

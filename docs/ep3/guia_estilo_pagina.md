@@ -1,79 +1,116 @@
 # Guía de estilo de la página
 
-*Generada por `scripts/ep3/generar_guia_estilo.py` desde `app/estilos.py` y `src/waymo_evaluacion/ep3/app_logica.py`. La prueba `tests/ep3/test_pagina_rediseno.py` exige el contraste y que el tema de Streamlit use estos tokens.*
+*Generada por `scripts/ep3/generar_guia_estilo.py` desde `app/estilos.py` y `src/waymo_evaluacion/ep3/app_logica.py`. Las pruebas `tests/ep3/test_pagina_rediseno.py`, `tests/ep3/test_pagina_pulido.py` y `tests/ep3/test_pagina_f20.py` exigen el contraste, que el tema de Streamlit use estos tokens y las reglas de gráficos, tablas y textos de abajo.*
 
-## Producto
-- **Nombre:** Auditor de etiquetas 3D (neutro: no usa la marca ni el logo de Waymo; la fuente de datos solo se cita en el pie: «Waymo Open Dataset v2, uso académico»).
-- **Eslogan:** Revise primero las cajas que más probablemente no tienen su par en cámara.
-- **Ícono:** `app/assets/icono.png`, dibujado por `scripts/ep3/generar_icono_pagina.py` (una caja 3D con una marca de verificación: una persona revisa).
-- **Secciones (8):** Inicio, Auditoría de cámaras, Cola de revisión, Explica una caja, Evidencia, Ética y límites, Puntuar datos nuevos, Ayuda y glosario.
+## Producto y marco (F20)
+- **Nombre:** Auditor de etiquetas 3D (neutro: no usa la marca ni el logo de Waymo; la fuente de datos solo se cita en el pie: «Waymo Open Dataset v2, uso académico»). Aparece **una sola vez**, en el wordmark de la barra lateral (SVG propio e inline, sin URL, con la versión de la solución debajo).
+- **Descripción:** Revisión priorizada de cajas 3D de peatones y ciclistas sin par 2D.
+- **Ícono de la pestaña:** `app/assets/icono.png`, dibujado por `scripts/ep3/generar_icono_pagina.py`.
+- **Navegación** (`st.navigation` con páginas de archivo en `app/paginas/`; 8 páginas agrupadas):
+- **Revisión:** Resumen, Cola de revisión, Explica una caja
+- **Calidad de datos:** Auditoría de cámaras
+- **Análisis:** Validación
+- **Herramientas:** Puntuar datos nuevos
+- **Ayuda:** Ética y límites, Ayuda y glosario
+- **Rol** (selector discreto al pie de la barra lateral, etiqueta «Rol»; 3 roles): cambiar de rol lleva a la página que sugiere y ordena primero su alerta en el Resumen. Sin píldora de perfil en el encabezado.
+- **Encabezado de página:** título pequeño (1,5 rem, no un H1 enorme), una línea de descripción y, a la derecha, **un solo chip de estado** «Datos de desarrollo · sin validación externa» que abre un popover con el texto completo de «en muestra». Es el que cumple la visibilidad exigida por DEC-14: no hay banners ámbar por pantalla ni acordeones «¿Qué significa?». Además, cada cifra del flujo en dos pasos lleva una etiqueta pequeña «en muestra».
+- **Pie único:** versión de la solución, fuente de datos y «Datos de desarrollo». «Nada se guarda ni se envía» aparece solo en Ayuda y Ética.
 
 ## Paleta (tokens)
-Azul profundo como color primario, un acento verde azulado, ámbar para avisos, rojo para huecos y grises neutros. Apta para daltonismo: el rojo de los huecos nunca va solo (siempre con contorno grueso y una «X» en el mapa, y con texto), y las celdas sanas usan una escala de un solo tono (azul).
+Un solo acento (azul oscuro). El color semántico se reserva para el estado: **rojo = hueco**, **ámbar = etiqueta «en muestra»**. Bordes de 1 px, radio de 6 px, fondo blanco y gris muy claro; sin sombras, sin bordes superiores de color y sin píldoras. Apta para daltonismo: el rojo de los huecos nunca va solo (siempre con contorno grueso y una «X» en el mapa, y con texto), y las celdas sanas usan una escala de un solo tono (azul).
 
 | Token | Valor | Uso |
 |---|---|---|
-| `primario` | `#1D4E89` | títulos, botón principal, enlaces, celdas sanas del mapa |
+| `primario` | `#1D4E89` | el único acento: títulos de página, enlaces, selección, barra de un paso y celdas sanas del mapa |
 | `primario_oscuro` | `#14365F` | texto sobre fondos de énfasis |
-| `acento` | `#0B6E69` | datos positivos y pasos |
 | `texto` | `#1B2430` | texto principal |
-| `texto_suave` | `#4A5568` | texto secundario y notas |
+| `texto_suave` | `#4A5568` | texto secundario, notas y encabezados de tabla |
 | `fondo` | `#FFFFFF` | fondo de la página |
-| `superficie` | `#F2F5F9` | tarjetas y barra lateral |
-| `borde` | `#D5DCE6` | bordes y separadores (decorativo) |
-| `aviso_fondo` | `#FFF4D6` | fondo de los avisos «en muestra» y de las advertencias |
-| `aviso_texto` | `#5C3D00` | texto de los avisos |
-| `aviso_borde` | `#C98A00` | borde de avisos (decorativo) |
-| `hueco` | `#B42318` | huecos de cámara (rojo) |
-| `hueco_fondo` | `#FDECEA` | fondo de las insignias de hueco |
+| `superficie` | `#F2F5F9` | barra lateral, métricas y encabezados de tabla |
+| `borde` | `#D5DCE6` | bordes de 1 px y separadores (decorativo) |
+| `aviso_fondo` | `#FFF4D6` | SOLO la etiqueta «en muestra» y el chip de estado |
+| `aviso_texto` | `#5C3D00` | texto de la etiqueta «en muestra» y del chip |
+| `aviso_borde` | `#C98A00` | borde de la etiqueta «en muestra» y del chip (decorativo) |
+| `hueco` | `#B42318` | SOLO huecos de cámara (rojo): contorno con X en el mapa y cifra de celdas marcadas |
+| `hueco_fondo` | `#FDECEA` | fondo de apoyo del rojo de hueco |
 
 ## Contraste (WCAG, mínimo 4,5:1 en texto)
 | Par | Razón | Estado |
 |---|---|---|
-| texto sobre fondo | 15.65:1 | cumple |
-| texto sobre superficie | 14.31:1 | cumple |
-| texto_suave sobre fondo | 7.53:1 | cumple |
-| texto_suave sobre superficie | 6.88:1 | cumple |
-| primario sobre fondo | 8.39:1 | cumple |
-| primario sobre superficie | 7.67:1 | cumple |
-| fondo sobre primario | 8.39:1 | cumple |
-| fondo sobre primario_oscuro | 12.19:1 | cumple |
-| acento sobre fondo | 6.09:1 | cumple |
-| acento sobre superficie | 5.57:1 | cumple |
-| aviso_texto sobre aviso_fondo | 9.03:1 | cumple |
-| hueco sobre fondo | 6.57:1 | cumple |
-| hueco sobre hueco_fondo | 5.75:1 | cumple |
+| texto sobre fondo | 15,65:1 | cumple |
+| texto sobre superficie | 14,31:1 | cumple |
+| texto_suave sobre fondo | 7,53:1 | cumple |
+| texto_suave sobre superficie | 6,88:1 | cumple |
+| primario sobre fondo | 8,39:1 | cumple |
+| primario sobre superficie | 7,67:1 | cumple |
+| fondo sobre primario | 8,39:1 | cumple |
+| fondo sobre primario_oscuro | 12,19:1 | cumple |
+| aviso_texto sobre aviso_fondo | 9,03:1 | cumple |
+| hueco sobre fondo | 6,57:1 | cumple |
+| hueco sobre hueco_fondo | 5,75:1 | cumple |
 
 ## Tipografía y espaciado
-- Tipografía del sistema (`font = "sans serif"`; la fuente que incluye Streamlit en su paquete). **Sin fuentes externas, sin CDN, sin imágenes remotas:** una prueba falla si algún archivo de `app/` contiene `http://` o `https://`.
-- Escala: cuerpo 1 rem; títulos de tarjeta 0,92 rem; cifras de tarjeta 2 rem; modo presentación multiplica por 1,18.
-- Espaciado: xs = 0.25rem, s = 0.5rem, m = 1rem, l = 1.5rem, xl = 2rem (se aplican como márgenes y separaciones de las tarjetas y bloques).
+- Pila del sistema con «Segoe UI» primero: `"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif`. **Sin fuentes externas, sin CDN, sin imágenes remotas:** una prueba falla si algún archivo de `app/` contiene `http://` o `https://` (la única excepción es la declaración de espacio de nombres del SVG propio).
+- Cifras con `font-variant-numeric: tabular-nums`. Escala: cuerpo 15 px; título de página 1.5rem; cifras de las métricas 1.5rem; tablas compactas (filas de 30 px); modo presentación multiplica la letra por 1,18.
+- Espaciado: xs = 0.25rem, s = 0.5rem, m = 1rem, l = 1.5rem, xl = 2rem (se aplican como márgenes y separaciones).
+- Estados **hover** y **foco** visibles (contorno de 2 px en el azul del acento) en botones, enlaces de la navegación y controles.
 
 ## Componentes
-- **Tarjeta de cifra** (`aud-tarjeta`): título, cifra grande, nota. Borde superior de color: azul (neutro), verde azulado, ámbar (estimaciones) o rojo (huecos).
-- **Insignia** (`aud-insignia`): perfil activo, avisos.
-- **Aviso «en muestra»**: compacto, siempre visible (no en un tooltip), con un expander «¿Qué significa?» con el texto completo.
-- **Pasos** (`aud-paso`): «Cómo funciona» en 3 pasos dibujados con HTML y CSS propios.
-- **Resultado destacado** (`aud-resultado`): la frase principal de la cola.
-- **Pie**: versión de la solución, fuente de datos, «Una persona revisa y decide», «Nada se guarda ni se envía».
+- **Métricas** (`aud-metrica`): franja de 4 cajas compactas de la misma altura (etiqueta, cifra de 1.5rem, nota), sin bordes de color. En modo presentación van 2 x 2 (nunca una tarjeta huérfana).
+- **Etiqueta «en muestra»** (`aud-muestra`): pequeña, ámbar, junto a cada cifra del flujo en dos pasos.
+- **Filas de alerta** (`aud-fila`): punto de color de estado, título, texto y enlace a la sección.
+- **Ficha** (`aud-ficha`): bloques de título pequeño y texto, en dos columnas (Ética y límites).
+- **Resultado** (`aud-resultado`): la frase principal de la cola, con ambos flujos.
+- **Tablas HTML** (`aud-tabla`) para textos largos (glosario): dos columnas, el texto se ajusta a la celda; las tablas de datos son `st.dataframe` compactos con el ancho de cada columna **calculado** con su encabezado y su contenido (`formato.anchos_columnas`), de modo que ningún encabezado queda cortado.
 
-## Íconos
-Material Icons de Streamlit (`:material/nombre:`), sin emojis (una prueba lo vigila).
+## Gráficos y mapas
+- **Mapa de calor de la Auditoría** (escala de un solo tono azul, de casi blanco = 0 % a azul oscuro = 100 %), dentro de un contenedor de altura fija con desplazamiento y **una sola leyenda** en palabras (`leyenda_mapa`). Tiene **tres estados que no se confunden**:
+  1. celda con datos suficientes: azul según la proporción de cajas con pareja;
+  2. **«Sin cajas o menos de 100 en el rango»**: gris con rayado diagonal; significa «no se evalúa» y **no es lo mismo que una tasa de 0 %**;
+  3. **hueco**: contorno rojo grueso con una «X» (el rojo nunca va solo).
+  Las etiquetas de segmento son los **últimos 6 dígitos** (el id completo va en el tooltip); por defecto los segmentos con celdas marcadas van primero y se puede ver solo las celdas con datos suficientes.
+- **Curvas de la cola**: la línea lleva el color **y** el trazo (no solo el color), la banda sombreada es del mismo color con transparencia, y la leyenda sale de las líneas y lista solo las curvas dibujadas. Regla técnica: la banda no codifica el campo «nombre» (Vega-Lite fusionaría las leyendas y borraría la de las líneas), así que hay una banda por curva con color fijo.
+- **Impacto estimado** (Resumen): barras horizontales de horas para encontrar el 80 % (sin orden, solo cola, auditoría + cola); la tercera lleva «en muestra».
+- **Validación**: cada pestaña abre con un gráfico leído de los CSV de origen (barras con intervalo de confianza, puntos con intervalo y por pliegue, tasa por tipo de caso, brazos A, B y C) y deja la tabla completa en un solo expander; el eje usa coma decimal.
 
-| Sección | Ícono |
-|---|---|
-| Inicio | `material/home` |
-| Auditoría de cámaras | `material/videocam` |
-| Cola de revisión | `material/format_list_numbered` |
-| Explica una caja | `material/help` |
-| Evidencia | `material/science` |
-| Ética y límites | `material/balance` |
-| Puntuar datos nuevos | `material/upload_file` |
-| Ayuda y glosario | `material/menu_book` |
+| Curva | Color | Trazo | Contraste sobre blanco |
+|---|---|---|---|
+| Dos pasos | `#1D4E89` | continuo | 8,39:1 |
+| Un paso | `#C2410C` | discontinuo (trazo 7, hueco 4) | 5,18:1 |
+| Regla de puntos, un paso | `#6B7280` | discontinuo (trazo 2, hueco 3) | 4,83:1 |
+| XGBoost (referencia) | `#0B6E69` | discontinuo (trazo 4, hueco 2) | 6,09:1 |
+| Ensamble E2 (referencia) | `#7C3AED` | continuo | 5,70:1 |
+
+## Tablas
+- **Cola de revisión (maestro-detalle):** `st.dataframe` con selección de una fila (`on_select="rerun"`); al elegirla se abre un panel de detalle a la derecha con la explicación de esa caja. La columna **Prob. sin pareja** (probabilidad calibrada, en %) reemplaza a la antigua barra «Prioridad», que quedaba saturada en 100.
+- **Fotogramas en la cola** (`Fotogramas en la cola`): un mismo objeto aparece en varios fotogramas y cada uno es una caja distinta de la cola; la vista «Agrupar por objeto» deja una fila por objeto sin cambiar el conteo de cajas a revisar.
+- **Formatos (es-CL) de `tabla_legible`**: enteros sin decimales («3», «1.600»), proporciones como porcentaje, el parámetro de regularización C en notación científica («1,0e-5»), nombres legibles de hiperparámetros y valores en español («Pliegue», nunca «Fold»); nunca una columna con dos escalas distintas mezcladas («20» junto a «1.600» es lo esperado; «20,000» junto a «1.600» no) ni «-0,000».
+- **Controles**: sin decimales con punto (la distancia de «Explica una caja» va de 1 en 1 m).
+
+## Cargador de archivos
+Los textos propios de Streamlit («Drag and drop…», «Browse files», «500MB per file») no se pueden cambiar por configuración: se ocultan con CSS y se muestra el texto en español («Arrastre el archivo aquí · Parquet, hasta 500 MB», botón «Elegir archivo»). Riesgo: depende de los `data-testid` de Streamlit 1.65. Los cargadores se rotulan «Archivo 1 (obligatorio)» y «Archivo 2 (opcional)» (sin tarjetas numeradas).
+
+## Arranque
+`scripts/ep3/arrancar_app.bat` y `.ps1` abren la página con `app/lanzar.py`, que carga y calienta los datos y la solución congelada (`app/precarga.py`) antes de aceptar visitas; con `streamlit run app/app.py` directo la página funciona igual, pero la carga empieza en la primera visita. Medición: `data/08_reporting_ep3/pagina_arranque.json`.
+
+## Íconos y direcciones
+Material Icons de Streamlit (`:material/nombre:`), sin emojis (una prueba lo vigila). La página por defecto (Resumen) se sirve en la raíz; las demás, en la ruta indicada.
+
+| Página | Ícono | Ruta |
+|---|---|---|
+| Resumen | `material/dashboard` | `/resumen` |
+| Cola de revisión | `material/format_list_numbered` | `/cola` |
+| Explica una caja | `material/manage_search` | `/explica` |
+| Auditoría de cámaras | `material/videocam` | `/auditoria` |
+| Validación | `material/fact_check` | `/validacion` |
+| Puntuar datos nuevos | `material/upload_file` | `/puntuar` |
+| Ética y límites | `material/balance` | `/etica` |
+| Ayuda y glosario | `material/help` | `/ayuda` |
 
 ## Números y redacción
 - **Formato es-CL** (`src/waymo_evaluacion/ep3/formato.py`, con pruebas): miles con punto (80.571), decimales con coma (87,4), porcentaje con espacio (70,3 %).
+- **Registro neutro de herramienta interna** («Se muestran…», «Seleccione…»): sin frases que hablen de la propia página, sin tutorial en segunda persona, sin repetir avisos. Una prueba vigila las frases prohibidas («Empiece por aquí», «Cómo funciona», «la página se lo dice», «Mueva los controles», «vea qué pasa», «¿Qué significa?»).
 - **Sin jerga** ni nombres de columna en snake_case en pantalla: las tablas pasan por `tabla_legible`. Se evita «recall» como titular: se dice «unas 70 de cada 100 cajas sin pareja».
-- **Términos definidos** en «Ayuda y glosario»: caja, par 2D, celda, hueco, cola, presupuesto, cobertura, intervalo de confianza, post hoc, en muestra, sin prueba ciega.
+- **Términos definidos** en «Ayuda y glosario» (tabla de dos columnas): caja, par 2D, celda, hueco, cola, presupuesto, cobertura, intervalo de confianza, post hoc, en muestra, sin prueba ciega.
 - Las celdas que marca el detector se llaman **celdas marcadas** (DEV-3), nunca «falsas alarmas».
-- Toda cifra del flujo en dos pasos lleva el aviso «en muestra».
+- Toda cifra del flujo en dos pasos lleva la etiqueta «en muestra»; el supuesto de 20 s por caja se dice siempre como supuesto.

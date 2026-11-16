@@ -43,6 +43,7 @@ ARTEFACTOS = {
     "umbrales_v3.json": "data/06_models_ep3/umbrales_v3.json", "detector_params_v3.json": "data/06_models_ep3/detector_params_v3.json",
     "plan_v3.md": "docs/ep3/plan_v3.md", "plan_v3.json": "docs/ep3/plan_v3.json", "plan_v3.sha256": "docs/ep3/plan_v3.sha256", "plan_v3_desviaciones.md": "docs/ep3/plan_v3_desviaciones.md",
     "lista_A_huecos.csv": "data/08_reporting_ep3/lista_A_huecos.csv", "pruebas_ep3_conteo.json": "data/08_reporting_ep3/pruebas_ep3_conteo.json",
+    "manifest_alternativas.json": "data/06_models_ep3/manifest_alternativas.json", "f19_alternativas_congeladas.json": "data/08_reporting_ep3/f19_alternativas_congeladas.json",
     "plan_seleccion_ep3.json": "docs/ep3/plan_seleccion_ep3.json", "plan_seleccion_ep3.sha256": "docs/ep3/plan_seleccion_ep3.sha256",
     "pagina_comparacion_antes_despues.csv": "data/08_reporting_ep3/pagina_comparacion_antes_despues.csv", "pagina_tiempos_carga.json": "data/08_reporting_ep3/pagina_tiempos_carga.json",
 }

@@ -521,21 +521,26 @@ print(json.dumps(r.resumen, ensure_ascii=False, indent=1))
 display(r.lista_A.round(3))
 display(r.lista_B.drop(columns=["key.frame_timestamp_micros", "key.laser_object_id"]).head(5).round(3))
 """)
-    n.md("## La página «Auditor de etiquetas 3D» (Streamlit) y su prueba de humo\nSe ejecuta con `streamlit run app/app.py` (solo local). Aquí corremos **todas las secciones con cada perfil** con `streamlit.testing.v1.AppTest` sobre los datos reales de `data/09_app_ep3` para comprobar que no hay errores. El número de secciones y de perfiles se lee del código de la página.")
+    n.md("## La página «Auditor de etiquetas 3D» (Streamlit) y su prueba de humo\nSe ejecuta con `streamlit run app/app.py` (solo local; F20: consola de revisión con navegación agrupada, una página por archivo en `app/paginas/`). Aquí corremos **todas las páginas con cada rol**, y luego con el **modo presentación**, con `streamlit.testing.v1.AppTest` (`switch_page`) sobre los datos reales de `data/09_app_ep3` para comprobar que no hay errores. El número de páginas y de roles se lee del código de la página.")
     n.code("""
 import logging
 logging.getLogger("streamlit").setLevel(logging.ERROR)
 from streamlit.testing.v1 import AppTest
-from waymo_evaluacion.ep3.app_logica import PERFILES, SECCIONES
+from waymo_evaluacion.ep3.app_logica import ARCHIVO_PAGINA, PERFILES, SECCIONES
 estado = {}
 for perfil in PERFILES:
     for s in SECCIONES:
         at = AppTest.from_file(str(RAIZ / "app/app.py"), default_timeout=120).run()
-        at.sidebar.selectbox[0].set_value(perfil).run()
-        at.sidebar.radio[0].set_value(s).run()
+        at.sidebar.selectbox[0].set_value(perfil).run()                 # el rol está al pie de la barra lateral
+        at.switch_page(ARCHIVO_PAGINA[s]).run()
         estado.setdefault(s, {})[perfil] = "sin errores" if not at.exception else f"ERROR: {at.exception[0].value[:80]}"
+for s in SECCIONES:                                                      # modo presentación (rol por defecto)
+    at = AppTest.from_file(str(RAIZ / "app/app.py"), default_timeout=120).run()
+    at.sidebar.toggle[0].set_value(True).run()
+    at.switch_page(ARCHIVO_PAGINA[s]).run()
+    estado.setdefault(s, {})["modo presentación"] = "sin errores" if not at.exception else f"ERROR: {at.exception[0].value[:80]}"
 display(pd.DataFrame(estado).T)
-print(f"{len(SECCIONES)} secciones x {len(PERFILES)} perfiles = {len(SECCIONES) * len(PERFILES)} combinaciones; con error: {sum(v != 'sin errores' for d in estado.values() for v in d.values())}")
+print(f"{len(SECCIONES)} páginas x {len(PERFILES)} roles + modo presentación = {len(SECCIONES) * (len(PERFILES) + 1)} combinaciones; con error: {sum(v != 'sin errores' for d in estado.values() for v in d.values())}")
 """)
     n.md("### Cifras de la página: antes y después del rediseño (F18-C)\nEl rediseño cambia el diseño y el lenguaje, no las cifras. La única diferencia deliberada es la **cobertura de la cola**: antes la tarjeta usaba la curva interpolada y el texto el conteo observado (70,2 % contra 70,3 %; 96,5 % contra 96,6 %); ahora hay una sola fuente (el conteo observado). Fuente: `pagina_comparacion_antes_despues.csv` y tiempos en `pagina_tiempos_carga.json` (AppTest, caché caliente, meta menor a 3 s).")
     n.code("""
@@ -543,6 +548,11 @@ comp = pd.read_csv(REP / "pagina_comparacion_antes_despues.csv")
 display(comp[["seccion", "caso", "cifra", "antes", "despues"]])
 tiempos = json.loads((REP / "pagina_tiempos_carga.json").read_text(encoding="utf-8"))
 display(pd.DataFrame(tiempos["secciones"]).T)
+ruta20 = REP / "pagina_arranque_f20.json"          # F20-P12: tiempos hasta página completa con un navegador sin interfaz (con y sin lanzador)
+if ruta20.exists():
+    ar20 = json.loads(ruta20.read_text(encoding="utf-8"))
+    display(pd.DataFrame([{"escenario": e["escenario"][:30], "repetición": e["repeticion"], "servidor (s)": e["servidor_responde_s"], "primera visita (s)": e["primera_visita_explica_s"], **e["secciones_s"]}
+                          for e in ar20["escenarios"]]))
 """)
     n.md("""
 ## Validación externa sellada (P9) y despliegue

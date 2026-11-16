@@ -9,7 +9,7 @@
 4. **Los notebooks `11` a `15`** (ya ejecutados) en ese orden: datos y detector, IE9/IE10, IE11/IE12, dos pasos y página, no supervisado.
 5. **La página** (`scripts\ep3\arrancar_app.bat`) y, si se va a presentar, `docs/ep3/guion_presentacion.md` y `docs/ep3/preguntas_cruzadas.md`.
 
-Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_congelados.py` (EP2, 14 de 14), `.venv\Scripts\python scripts\ep3\verificar_congelados_v3.py` (5 de 5) y `.venv\Scripts\python scripts\ep3\verificar_no_supervisado.py` (1 de 1). Pruebas de EP3: 98 recolectadas (`pruebas_ep3_conteo.json`).
+Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_congelados.py` (EP2, 14 de 14), `.venv\Scripts\python scripts\ep3\verificar_congelados_v3.py` (5 de 5) y `.venv\Scripts\python scripts\ep3\verificar_no_supervisado.py` (1 de 1). Pruebas de EP3: 177 recolectadas (`pruebas_ep3_conteo.json`).
 
 ## Tabla de archivos
 | Ruta | Para qué sirve | Cuándo se usa | ¿Se puede ejecutar? (tiempo aproximado) |
@@ -37,9 +37,11 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `scripts/ep3/arrancar_docker.ps1` | Levanta la página con Docker Compose. | Para correr en Docker | sí; NO probado |
 | `scripts/ep3/capturar_pagina.py` | F18-C14: captura cada sección con el Chrome o Edge instalado en modo sin interfaz (no instala nada). | Con la página corriendo, para las imágenes de `images/ep3/pagina/` | sí, ~2 min |
 | `scripts/ep3/contar_pruebas.py` | Cuenta las pruebas de EP3 con `pytest --collect-only` (sin ejecutarlas). | Antes de generar los documentos | sí, ~22 s (medido) |
+| `scripts/ep3/copiar_sello_a_artefactos.py` | F19-A5: verifica y copia a `artefactos_ep3/` los manifests y la lista de segmentos, para commitearlos antes de evaluar. | Después de `congelar` y antes de `evaluar` | sí, segundos |
 | `scripts/ep3/crear_notebook_00b.py` | Crea el notebook 00b. | Solo si se rehace el 00b | sí, segundos (no ejecuta el notebook) |
 | `scripts/ep3/crear_notebooks_ep3.py` | Crea los notebooks 11 a 15 (no los ejecuta). | Solo si se rehacen | sí, segundos |
 | `scripts/ep3/empaquetar_entrega_ep3.py` | Arma `artefactos_ep3/` y `entrega_EP3.zip` con `SHA256SUMS`. | Al cerrar la entrega | sí, ~1 min |
+| `scripts/ep3/ensayo_validacion_externa.py` | F19-A3: ensayo general con 4 segmentos de desarrollo y el CLI real (congelar con manifest alternativo, ingesta, evaluar --ensayo). | Antes de la corrida real, y tras cualquier cambio en la tubería | sí, ~10 s; no toca manifest, nuevos.parquet ni candado reales |
 | `scripts/ep3/evaluar_sellado.py` | Congela y evalúa la validación externa (`congelar`, `evaluar`; una sola vez). | Después de correr el notebook 00b | NO se ha ejecutado; `evaluar` se corre una sola vez |
 | `scripts/ep3/f12_analisis_muestra.py` | Fase 12 (post hoc): brazos por fold, C menos A, sensibilidad del detector, equidad, EDA. | Para repetir el análisis en muestra | sí; no medido |
 | `scripts/ep3/f12b_hechos_brazoC.py` | Probabilidad exacta de réplicas sin segmentos con hueco (por qué el IC de C menos A llega a 0). | Para citar los hechos del brazo C | sí, ~2 s (medido) |
@@ -51,6 +53,8 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `scripts/ep3/f18_pagina_numeros_antes.py` | F18-C: captura las cifras de la página ANTES del rediseño (una sola vez). | Ya se corrió; no repetir con la página nueva | no repetir (se niega si el archivo existe) |
 | `scripts/ep3/f18_sesgo_seleccion.py` | F18-A6: motivos de descarte y rendimiento de la selección de segmentos de EP2. | Para el sesgo de selección del informe | sí, segundos |
 | `scripts/ep3/f18_verificar_definiciones.py` | F18-A4: cómo se define el «20 %» en el informe y en la página, y por qué el AUC base de f13 es 0,798. | Para citar la causa exacta de 70,9 % contra 70,2 % | sí, segundos |
+| `scripts/ep3/f19_congelar_alternativas.py` | F19-A4b (DEV-4): congela LR3 y XGBoost (entrenados con los 41 segmentos) ANTES de abrir datos nuevos, con su manifest aparte. | Ya se corrió; se niega a sobrescribir | no repetir (~4 s; se niega a sobrescribir) |
+| `scripts/ep3/f19_medir_arranque.py` | F19-B9 y F20-P12: mide el arranque en frío de la página (con y sin lanzador) y el tiempo hasta estar lista cada sección, con un navegador sin interfaz. | Para comprobar que la página abre rápido | sí, ~3 min (4 arranques); escribe `pagina_arranque.json` y restaura `capturas_resultado.json` |
 | `scripts/ep3/f1_datos.py` | F1: arma `dev_41.parquet` (41 segmentos) y los folds. | Solo para reconstruir los datos | NO ejecutar: reescribe `dev_41.parquet`, que está congelado |
 | `scripts/ep3/f2_detector.py` | F2: detector de huecos, Lista A y reglas simples. | Para reconstruir el filtro 1 | NO ejecutar: reescribe `detector_params_v3.json` (congelado) |
 | `scripts/ep3/f3_analisis.py` | F3: tablas de IE9 desde los checkpoints. | Después de `f3_tuning.py` | sí; no medido (minutos o menos) |
@@ -61,15 +65,21 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `scripts/ep3/f6_final.py` | F6: congela la solución v3 y escribe el manifest. | Solo una vez al elegir | NO ejecutar: reescribe `manifest_v3.json` (congelado) |
 | `scripts/ep3/f6_seleccion.py` | F6: tabla de selección y regla de reserva DEV-2. | Para repetir IE12 | sí; no medido |
 | `scripts/ep3/f7_preparar_app.py` | F7: arma `data/09_app_ep3` (datos de la página, fuera de fold). | Antes de abrir la página | sí; no medido |
+| `scripts/ep3/generar_auditoria_diseno.py` | Genera `auditoria_diseno_pagina.md` (patrones de plantilla, causa del render incompleto, pasadas de corrección). | Al cambiar la página | sí, segundos |
 | `scripts/ep3/generar_docs_ep3.py` | Genera informe, README_EP3, guion y preguntas; sincroniza conteos en otros docs. | Después de cambiar cualquier resultado | sí, segundos |
+| `scripts/ep3/generar_ensayo_md.py` | Genera `ensayo_validacion_externa.md` desde `ensayo_resultado.json`. | Después del ensayo | sí, segundos |
 | `scripts/ep3/generar_guia_estilo.py` | F18-C0: genera la guía de estilo desde los tokens de `app/estilos.py`. | Si cambian los tokens | sí, segundos |
 | `scripts/ep3/generar_icono_pagina.py` | F18-C1: dibuja el ícono de la página (`app/assets/icono.png`). | Si se quiere otro ícono | sí, segundos |
 | `scripts/ep3/generar_mapa.py` | Genera este mapa desde el sistema de archivos. | Al agregar o quitar archivos | sí, segundos |
 | `scripts/ep3/generar_pendientes_pagina.py` | Genera `PENDIENTES_PAGINA.md` con archivo y línea de cada mejora. | Si cambia `app/app.py` | sí, segundos |
 | `scripts/ep3/generar_reporte_f18.py` | Genera `REPORTE_F18.md` leyendo las cifras de los archivos de resultados. | Al cerrar F18 | sí, segundos |
+| `scripts/ep3/generar_reporte_f19a.py` | Genera `REPORTE_F19A.md` leyendo los resultados del ensayo y de las alternativas. | Al cerrar F19-A | sí, segundos |
+| `scripts/ep3/generar_reporte_f19b.py` | Genera `REPORTE_F19B.md` leyendo los tiempos medidos, las capturas y el conteo de pruebas, y corriendo las tres verificaciones de congelados. | Al cerrar F19-B | sí, ~5 s |
+| `scripts/ep3/generar_reporte_f20.py` | Genera `REPORTE_F20.md` leyendo las capturas, los tiempos, el conteo de pruebas y las verificaciones. | Al cerrar F20 | sí, ~1 min (corre las tres verificaciones) |
 | `scripts/ep3/ingesta_nuevos.py` | Ingesta de segmentos nuevos para la validación externa. | Solo en la validación sellada | NO se ha ejecutado |
 | `scripts/ep3/plan_seleccion_ep3.py` | F18-B4: calcula (sin descargar nada) el plan de selección de segmentos nuevos y su sha256; `--verificar` lo comprueba. | Antes del Colab; el plan se declara una sola vez | sí, segundos |
 | `scripts/ep3/puntuar_segmento.py` | Puntúa un segmento nuevo desde la línea de comandos. | Para usar la solución con datos nuevos | sí (necesita un `lidar_box` y su asociación) |
+| `scripts/ep3/revisar_documentos.py` | F19-C1 y C3: revisa tablas Markdown y caracteres de control en los documentos de `docs/ep3` y en las cadenas de los scripts; sale con código 1 si hay problemas. | Después de regenerar documentos | sí, segundos |
 | `scripts/ep3/verificar_congelados_v3.py` | Comprueba los hashes de la solución v3 (5 de 5). | Al inicio y al final de cada tarea | sí, segundos |
 | `scripts/ep3/verificar_no_supervisado.py` | Comprueba el hash del artefacto no supervisado (1 de 1). | Idem | sí, segundos |
 | `docs/ep3/ESTADO.md` | Estado de fases, decisiones (DEC-n) y bloqueos. | **Primero**: al retomar el trabajo | no (documento) |
@@ -78,7 +88,12 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `docs/ep3/PENDIENTES_PAGINA.md` | Mejoras pendientes de la página, con archivo y línea. | Antes de pulir la página | se regenera con `generar_pendientes_pagina.py` |
 | `docs/ep3/README_EP3.md` | Resumen de EP3 (candidato a README raíz). | Para una vista rápida | se regenera con `generar_docs_ep3.py` (~1 s) |
 | `docs/ep3/REPORTE_F18.md` | Reporte final de la tarea F18 (correcciones, selección de segmentos nuevos y rediseño). | Para ver qué cambió en F18 | no (documento) |
+| `docs/ep3/REPORTE_F19A.md` | Reporte final de la tarea F19-A (preparar el sello antes del Colab). | Para ver qué cambió en F19-A | no (documento) |
+| `docs/ep3/REPORTE_F19B.md` | Reporte final de la tarea F19-B (pulido de la página y corrección de documentos). | Para ver qué cambió en F19-B | no (documento) |
+| `docs/ep3/REPORTE_F20.md` | Reporte final de la tarea F20 (rediseño de la página y cierre de documentos). | Para ver qué cambió en F20 | se regenera con `generar_reporte_f20.py` |
+| `docs/ep3/auditoria_diseno_pagina.md` | F20-P0 y P11: auditoría de las capturas contra los patrones de plantilla, causa del render incompleto de «Ética y límites» y las dos pasadas de corrección. | Para ver qué se corrigió del diseño y por qué | se regenera con `generar_auditoria_diseno.py` |
 | `docs/ep3/despliegue.md` | Cómo correr la página (local, Docker, guía AWS no ejecutada) y seguridad. | Para desplegar | no (documento) |
+| `docs/ep3/ensayo_validacion_externa.md` | Log del ensayo general (con datos de desarrollo: no es un resultado). | Para ver qué se probó antes de la corrida real | se regenera con `generar_ensayo_md.py` |
 | `docs/ep3/freeze_antes.txt` | `pip freeze` antes de instalar (evidencia de que no se movieron versiones). | Auditoría del entorno | no |
 | `docs/ep3/freeze_despues.txt` | `pip freeze` después de instalar xgboost y lightgbm. | Idem | no |
 | `docs/ep3/freeze_despues_f7.txt` | `pip freeze` después de instalar streamlit. | Idem | no |
@@ -94,17 +109,25 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `docs/ep3/plan_v3.sha256` | Hash del plan v3. | Idem | no (congelado) |
 | `docs/ep3/plan_v3_desviaciones.md` | Desviaciones del plan (DEV-1, DEV-2). | Para saber qué se cambió y por qué | no (documento) |
 | `docs/ep3/preguntas_cruzadas.md` | Preguntas con respuesta, cifra y fuente. | Para prepararse | se regenera con `generar_docs_ep3.py` (~1 s) |
-| `docs/ep3/revision/` | Copias de los archivos pequeños para revisar sin abrir el repo (ignorada por git). (45 archivos) | Para revisión externa | no; se regenera con `empaquetar_entrega_ep3.py` |
+| `docs/ep3/revision/` | Copias de los archivos pequeños para revisar sin abrir el repo (ignorada por git). (55 archivos) | Para revisión externa | no; se regenera con `empaquetar_entrega_ep3.py` |
 | `docs/ep3/verificacion_copia_limpia.md` | Registro de la verificación en copia limpia. | Para ver qué se probó y qué no | no (documento) |
 | `app/.streamlit/config.toml` | Configuración de la imagen Docker (no se modifica). | Solo dentro del contenedor | no |
-| `app/app.py` | La página «Auditor de etiquetas 3D» (Streamlit, 8 secciones, 3 perfiles, modo presentación); las secciones están en `secciones.py` y los estilos en `estilos.py`. | Para la demo y el uso diario | sí, `scripts\ep3\arrancar_app.bat` |
+| `app/app.py` | El marco de la página «Auditor de etiquetas 3D» (Streamlit): navegación agrupada con `st.navigation`, wordmark, rol y modo presentación al pie de la barra lateral y pie único; las secciones están en `secciones.py` (cada una se abre desde un archivo de `app/paginas/`) y los estilos en `estilos.py`. | Para la demo y el uso diario | sí, `scripts\ep3\arrancar_app.bat` |
 | `app/assets/icono.png` | Ícono de la página (propio, sin marcas). | Lo usa `st.set_page_config` | no |
+| `app/contexto.py` | F20: carpetas de datos y modelos (se leen del entorno en cada llamada) y el diccionario `ctx` que reciben las secciones. | Lo importa `app/secciones.py` | no se ejecuta solo |
 | `app/estilos.py` | Tokens de color, contraste WCAG, CSS propio y componentes HTML de la página. | Lo importa `app/app.py` | no se ejecuta solo |
-| `app/secciones.py` | Las 8 secciones de la página (una función por sección). | Lo importa `app/app.py` | no se ejecuta solo |
-| `artefactos_ep3/` | Tablas agregadas y manifests versionables (sin filas por caja) + `README_artefactos.md`. (80 archivos) | Para revisar resultados sin los datos | se regenera con `empaquetar_entrega_ep3.py` |
-| `images/ep3/pagina/` | Capturas de cada sección de la página (perfil analista) y del modo presentación. (9 archivos) | Para la presentación o el informe | se regeneran con `capturar_pagina.py` |
+| `app/lanzar.py` | F19-B9: lanzador que inicia la precarga y ejecuta `streamlit run app/app.py` en el mismo proceso; lo usan `arrancar_app.bat` y `.ps1`. | Para abrir la página con la precarga | sí, `.venv\Scripts\python app\lanzar.py --server.address localhost` (~3 s hasta responder) |
+| `app/paginas/` | F20: una página por archivo (resumen, cola, explica, auditoría, validación, puntuar, ética, ayuda); cada una solo llama a `secciones.ejecutar`. Es lo que registra `st.navigation` (con funciones, `AppTest` no puede cambiar de página). (8 archivos) | Las abre `st.navigation` en `app/app.py` | no (se abren desde la página) |
+| `app/precarga.py` | F19-B9: carga y calienta en un hilo los datos y la solución congelada (una vez por proceso, compartido con la página). | Lo importa `app/app.py` y `app/lanzar.py` | no (módulo) |
+| `app/secciones.py` | Las 8 secciones de la página (una función por sección) y el encabezado con el chip de estado. | Lo importan los archivos de `app/paginas/` | no se ejecuta solo |
+| `artefactos_ep3/` | Tablas agregadas y manifests versionables (sin filas por caja) + `README_artefactos.md`. (81 archivos) | Para revisar resultados sin los datos | se regenera con `empaquetar_entrega_ep3.py` |
+| `images/ep3/pagina/` | Capturas de cada sección de la página (perfil analista) y del modo presentación. (45 archivos) | Para la presentación o el informe | se regeneran con `capturar_pagina.py` |
+| `data/06_models_ep3/manifest_alternativas.json` | Hash de las alternativas congeladas LR3 y XGBoost (aparte de `manifest_v3.json`). | Lo verifican `congelar` y `evaluar` | no (congelado) |
 | `data/06_models_ep3/manifest_no_supervisado.json` | Hash del artefacto no supervisado. | Lo lee `verificar_no_supervisado.py` | no |
 | `data/06_models_ep3/manifest_v3.json` | Hashes de la solución v3 congelada. | Lo lee `verificar_congelados_v3.py` | no (congelado) |
+| `data/08_reporting_ep3/captura_linea_tiempo_auditoria_de_camaras.json` | F20-P11: línea de tiempo de la carga en frío de «Auditoría de cámaras» (muestra una página a medias mientras el script se ejecuta). | Idem | `capturar_pagina.py --linea-de-tiempo` |
+| `data/08_reporting_ep3/captura_linea_tiempo_etica_y_limites.json` | F20-P11: línea de tiempo (cada 0,1 s) de la carga en frío de «Ética y límites», para la causa del render incompleto de la captura. | Para ver cuándo está completa una página | `capturar_pagina.py --linea-de-tiempo` |
+| `data/08_reporting_ep3/pagina_arranque_f20.json` | F20-P12: tiempos de arranque y de cada página (con y sin lanzador), medidos con un navegador sin interfaz. | Para citar los tiempos de carga | se regenera con `f19_medir_arranque.py` (varios minutos) |
 | `data/08_reporting_ep3/pagina_numeros_antes.json` | Cifras que mostraba la página antes del rediseño (referencia de la prueba de regresión). | Lo lee `tests/ep3/test_pagina_rediseno.py` | no |
-| `src/waymo_evaluacion/ep3/` | Paquete de EP3 (plan, datos, detector, métricas, modelos, candidatos, inferencia, lógica de la página, sellado). (14 módulos) | Lo importan los scripts, la página y las pruebas | no se ejecuta solo; se prueba con `tests/ep3` |
-| `tests/ep3/` | Pruebas de EP3 (detector, inferencia, candidatos, sellado, página, seguridad). (9 módulos) | Antes de entregar | sí, solo con `.venv\Scripts\python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider` (~1 min); `pytest` sin ruta está vetado |
+| `src/waymo_evaluacion/ep3/` | Paquete de EP3 (plan, datos, detector, métricas, modelos, candidatos, inferencia, lógica de la página, sellado). (16 módulos) | Lo importan los scripts, la página y las pruebas | no se ejecuta solo; se prueba con `tests/ep3` |
+| `tests/ep3/` | Pruebas de EP3 (detector, inferencia, candidatos, sellado, página, seguridad). (14 módulos) | Antes de entregar | sí, solo con `.venv\Scripts\python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider` (~1 min); `pytest` sin ruta está vetado |

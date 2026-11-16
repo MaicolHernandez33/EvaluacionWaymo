@@ -1,6 +1,6 @@
 # Preguntas cruzadas con respuesta, cifra y fuente
 
-*Generado por `scripts/ep3/generar_docs_ep3.py`. 70 preguntas; cada cifra sale del archivo indicado (carpeta `data/08_reporting_ep3` salvo que se diga otra). Las referencias a secciones corresponden a `informe_tecnico_EP3.md`.*
+*Generado por `scripts/ep3/generar_docs_ep3.py`. 77 preguntas; cada cifra sale del archivo indicado (carpeta `data/08_reporting_ep3` salvo que se diga otra). Las referencias a secciones corresponden a `informe_tecnico_EP3.md`.*
 
 **1. ¿Qué problema resuelve el proyecto?**
 - Respuesta: Ayuda a una persona a decidir qué cajas 3D de peatones y ciclistas probablemente no tienen su pareja 2D de cámara, para revisarlas primero.
@@ -153,9 +153,9 @@
 - Fuente: `f5_brazoC.csv`
 
 **31. ¿Qué hace la página?**
-- Respuesta: Muestra el problema, el mapa de huecos, la cola de revisión (cuánto revisar o cuánto encontrar), la explicación de una caja con su tipo de caso, la evidencia, la ética, puntúa segmentos nuevos y trae una ayuda con glosario.
-- Cifra: 8 secciones, 3 perfiles
-- Fuente: `app/app.py`
+- Respuesta: Es una consola de revisión con navegación agrupada: un resumen con el impacto estimado y alertas, la cola de revisión (cuánto revisar o cuánto encontrar, con ambos flujos, detalle por caja, vista por objeto y filtros), el mapa de huecos, la explicación de una caja con ejemplos de un clic, la validación con un gráfico por tema, la ficha de ética, el puntaje de segmentos nuevos y una ayuda con glosario.
+- Cifra: 8 páginas, 3 roles
+- Fuente: `app/app.py, app/secciones.py`
 
 **32. ¿Cómo se despliega?**
 - Respuesta: Local con Streamlit o con Docker (volumen de datos de solo lectura, sin datos en la imagen). Docker no se probó; AWS es solo una guía.
@@ -263,7 +263,7 @@
 - Fuente: `f12b_hechos_brazoC.json`
 
 **53. ¿Qué muestra la página con «Todos» y 20 %, y por qué no coincide con el 61,9 %?**
-- Respuesta: Muestra el brazo de dos pasos (C): «unas 70 de cada 100 cajas sin pareja» (70,3 %; intervalo 62,4 % a 78,9 %), 15.726 cajas y 87,4 h con 20 s por caja (en muestra). El 61,9 % es la captura del brazo de un paso (A) al revisar el 20 % y está en la tarjeta de Inicio; son brazos distintos. **El «20 %» tampoco es el mismo:** la página toma el 20 % de la cola de celdas sanas (15.726 cajas) y el informe §12 el 20 % del total (16.115 cajas), por eso el brazo C da 70,2 % en la página y 70,9 % en el informe. Tras el rediseño la página usa una sola fuente (el conteo observado, 70,3 %); antes la tarjeta mostraba 70,2 % (curva interpolada) y el texto 70,3 %.
+- Respuesta: Muestra el brazo de dos pasos (C): «unas 70 de cada 100 cajas sin pareja» (70,3 %; intervalo 62,4 % a 78,9 %), 15.726 cajas y 87,4 h con 20 s por caja (en muestra). El 61,9 % es la captura del brazo de un paso (A) al revisar el 20 % y está en la pestaña Selección de Validación; son brazos distintos. **El «20 %» tampoco es el mismo:** la página toma el 20 % de la cola de celdas sanas (15.726 cajas) y el informe §12 el 20 % del total (16.115 cajas), por eso el brazo C da 70,2 % en la página y 70,9 % en el informe. Tras el rediseño la página usa una sola fuente (el conteo observado, 70,3 %); antes la tarjeta mostraba 70,2 % (curva interpolada) y el texto 70,3 %.
 - Cifra: C 70,3 %; A 61,9 %
 - Fuente: `data/09_app_ep3 (kpis.json, curva_cola.csv), f5_metricas_candidatos.csv, f18_definiciones.json`
 
@@ -351,3 +351,38 @@
 - Respuesta: (1) Correr la validación externa sellada; (2) medir el tiempo real de revisión y el costo de una auditoría; (3) averiguar la causa de los huecos (por ejemplo con `camera_box`); (4) más repeticiones de la CV externa y más ciclistas y segmentos de noche; (5) un filtro 1 a nivel segmento.
 - Cifra: —
 - Fuente: `informe, secciones 15 y 17`
+
+**71. ¿Qué pasa con la celda `247562357599|cam5`, que aparece marcada cuando `frac` = 0,35? (post hoc, no pre-declarado, hipótesis no verificada)**
+- Respuesta: El segmento `247562357599`, cámara 5, tiene 184 positivos en 665 cajas con más de 100 puntos del sensor superior (27,7 %) y es la celda que aparece marcada con `frac` = 0,35. Con los parámetros congelados (`frac` = 0,25) **no se marca**. Hipótesis (no verificada): podría ser un tercer hueco que el umbral de EP2 no alcanza a marcar; no hay verdad externa para decidirlo. No cambia el detector ni ninguna cifra.
+- Cifra: 184 positivos en 665 cajas (27,7 %)
+- Fuente: `f12_eda_puntos_top_resumen.json (top3_segmentos_positivos_mayor_100_sin_hueco), f12_sensibilidad_detector.csv (marcadas_lista)`
+
+**72. ¿Por qué la solución contra la regla da diferencia cero fuera de muestra?**
+- Respuesta: Porque la solución congelada v3 **es** la regla: su puntaje es `PuntuadorRegla(num_top_lidar_points)`, monótono con «menos puntos del sensor superior», así que la diferencia solución menos regla es 0 por construcción (no es un empate sorprendente). En su lugar se mide el desempeño de la regla fuera de muestra (AUC, PR-AUC, captura al 20 % y fracción para el 80 %, con intervalo por segmentos), su recall y precisión con los umbrales A = 32 y B = 11 congelados, el brazo C contra A y la tasa de celdas marcadas con dos denominadores. Para poder decir algo más se congelaron aparte dos alternativas, LR3 y XGBoost (DEV-4), que sí pueden compararse con la regla; no cambian la solución elegida.
+- Cifra: diferencia solución menos regla = 0; alternativas: LR3 y XGBoost
+- Fuente: `GUIA_VALIDACION_EXTERNA.md (sección 6), src/waymo_evaluacion/ep3/congelado.py, manifest_alternativas.json, plan_v3_desviaciones.md (DEV-4)`
+
+**73. ¿Cómo se garantiza el sellado de la validación externa?**
+- Respuesta: Con cuatro candados. (1) El orden de los candidatos nuevos queda fijado en `plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`) y el notebook 00b exige y verifica ese plan. (2) `evaluar_sellado.py congelar` guarda los sha256 de la lista de segmentos y de la solución v3 y de las alternativas **antes** de abrir los datos, y `copiar_sello_a_artefactos.py` los copia a `artefactos_ep3/`. (3) Commit y push previos, que hace la persona (los scripts nunca tocan git): el sello queda en el historial antes de la evaluación. (4) `evaluar` toma un candado de una sola evaluación y lo hace solo cuando el cálculo terminó; no se puede repetir con otros parámetros. Cualquier cambio posterior de código se declara como desviación con fecha y motivo.
+- Cifra: 1 evaluación; 5 archivos de la solución v3 con sha256
+- Fuente: `GUIA_VALIDACION_EXTERNA.md, docs/ep3/plan_seleccion_ep3.sha256, scripts/ep3/evaluar_sellado.py, data/06_models_ep3/manifest_v3.json`
+
+**74. ¿Qué pasa si la validación externa no encuentra huecos? (caso A; estimación gruesa, post hoc)**
+- Respuesta: Es el caso A: C es igual a A porque no hay celdas que auditar. **No refuta ni confirma el detector**: pudo no haber huecos. Con unas 70 celdas elegibles (≈ 26 segmentos × 5 cámaras × la fracción de celdas con ≥ 100 cajas en desarrollo, 111 de 205) y una tasa de 2 de 111 (1,8 %) en desarrollo, se esperarían ≈ 1,3 celdas marcadas, y la probabilidad de no marcar ninguna es del orden del 27 % (estimación gruesa tipo Poisson, exp(−1,3); post hoc, no pre-declarada). Por eso un resultado sin huecos es plausible y se interpreta con cautela; lo informativo seguiría siendo el desempeño de la regla fuera de muestra.
+- Cifra: ≈ 1,3 celdas marcadas esperadas; probabilidad de ninguna ≈ 27 %
+- Fuente: `GUIA_VALIDACION_EXTERNA.md (sección 7, caso A), plan_seleccion_ep3.json, f12_resumen.json`
+
+**75. ¿Por qué se congelaron LR3 y XGBoost si la solución es la regla? (DEV-4)**
+- Respuesta: Porque «solución contra regla» da 0 por construcción y no informa. Se congelaron antes de abrir datos (LR3 y XGBoost entrenadas con los 41 segmentos; XGBoost con la configuración más repetida entre los 5 folds, 2 de 5) para poder preguntar si algo más complejo mejora fuera de muestra. Son 4 comparaciones (diferencia de AUC y de fracción para el 80 %, para cada alternativa): un «gana» aislado es **exploratorio** (post hoc, sin corrección por comparaciones múltiples), no cambia la solución elegida y se usaría solo para decidir una validación nueva.
+- Cifra: XGBoost: configuración elegida por 2 de 5; 4 comparaciones
+- Fuente: `f19_alternativas_congeladas.json, manifest_alternativas.json, plan_v3_desviaciones.md (DEV-4)`
+
+**76. ¿Cómo se eligieron los segmentos nuevos y qué sesgo tienen?**
+- Respuesta: Se reconstruye el pool de EP2 (sin lluvia, al menos 190 frames, número de detecciones entre los percentiles 2.5 y 97.5), se excluyen los 91 evaluados por EP2 y se toman **cuotas fijas de 26 segmentos útiles** por momento del día y ubicación, con semilla 42 y un orden sellado. Sesgos: sobremuestreo de San Francisco de día (cuota 8 de 26, 313 candidatos), la noche mal representada (23 candidatos en San Francisco, 9 en Phoenix y ninguno en otras ubicaciones) y, como en EP2, solo segmentos con etiquetado no ralo. Por eso no se puede afirmar nada de la noche ni de otras ciudades.
+- Cifra: 26 segmentos útiles; noche: 23 y 9 candidatos
+- Fuente: `plan_seleccion_ep3.json, f18_seleccion_motivos.csv, f18_seleccion_rendimiento.csv`
+
+**77. ¿Por qué el titular compara un paso contra el azar y el dos pasos va aparte?**
+- Respuesta: Porque lo robusto es que ordenar la cola con la regla reduce el tiempo frente a revisar sin orden (de ≈ 358 h a ≈ 200 h, con 20 s por caja: supuesto), con un intervalo de captura al 20 % que queda lejos del azar (0,533 a 0,723 contra 0,20). El flujo en dos pasos (≈ 132 h) sale de 2 celdas y de parámetros ajustados con los mismos datos, con una diferencia pareada cuyo IC incluye 0 (-0,490 a 0,000): va como segunda barra rotulada «en muestra».
+- Cifra: ≈ 358 h sin orden; ≈ 200 h un paso; ≈ 132 h dos pasos (en muestra)
+- Fuente: `f6_modelo_escogido.csv, f5_brazoC.csv, f12_diferencia_C_menos_A.csv`

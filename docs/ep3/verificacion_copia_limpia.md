@@ -1,5 +1,7 @@
 # Verificación en copia limpia con entorno nuevo (F18, 2026-11-15)
 
+> **Nota de F19-A (2026-11-15):** este registro es el de la verificación de F18 sobre el zip de ese momento (98 pruebas recolectadas entonces). F19-A **no rearmó el zip** y agregó código, pruebas y documentos; el zip y este registro se rehacen en la tarea siguiente. Las cifras vigentes de pruebas están en `data/08_reporting_ep3/pruebas_ep3_conteo.json`.
+
 **Alcance honesto.** Se hizo **en el mismo equipo** (no en otra máquina), con un **entorno virtual nuevo** (`C:\Users\maico\tmp_verificacion_ep3\venv_f18`, Python 3.10.11) creado con `python -m venv` y distinto del `.venv` del repositorio. **No se ejecutó la suite completa de EP2 ni Docker.** El repositorio no se tocó durante la verificación; los congelados dan EP2 14 de 14, v3 5 de 5 y no supervisado 1 de 1 al inicio y al final.
 
 ## Qué se hizo
@@ -14,11 +16,11 @@
 | Solución v3 | `python scripts/ep3/verificar_congelados_v3.py` | **5 de 5** (candidato Regla top) |
 | No supervisado | `python scripts/ep3/verificar_no_supervisado.py` | **1 de 1** (k = 2) |
 | Plan de selección de segmentos nuevos | `python scripts/ep3/plan_seleccion_ep3.py --verificar` | **coincide** con su sha256 |
-| Recolección de pruebas | `python -m pytest tests/ep3 --collect-only -q --no-cov -p no:cacheprovider` | **<!--n_ep3-->98<!--/n_ep3--> recolectadas** (EP2: <!--n_ep2-->81<!--/n_ep2-->; total <!--n_total-->179<!--/n_total-->) |
+| Recolección de pruebas | `python -m pytest tests/ep3 --collect-only -q --no-cov -p no:cacheprovider` | **98 recolectadas** (EP2: 81; total 179) |
 | Pruebas de EP3 | `python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider -rs` | **97 pasadas, 1 omitida** (~58 s) |
 | Prueba de humo de la página | `AppTest` de **8 secciones x 3 perfiles x modo presentación activado y desactivado** con los datos reales de la copia | **48 combinaciones, 0 con falla**; el aviso «en muestra» está visible en Inicio y en Cola de revisión |
 
-**La prueba omitida** (`tests/ep3/test_inferencia.py::test_variables_reales_coinciden_con_dev41`) necesita el parquet crudo de `lidar_box`, que la entrega no incluye por licencia. En el repositorio completo pasan las <!--n_ep3-->98<!--/n_ep3-->.
+**La prueba omitida** (`tests/ep3/test_inferencia.py::test_variables_reales_coinciden_con_dev41`) necesita el parquet crudo de `lidar_box`, que la entrega no incluye por licencia. En el repositorio completo pasan las 98.
 
 ## Qué incluye la entrega
 Código, notebooks ejecutados (el 00b es de Colab y no se ejecuta aquí), docs, images (incluidas las capturas de la página), app, `.streamlit/`, Dockerfile, compose, `requirements*`, `artefactos_ep3/` y los datos derivados mínimos (sin `lidar_box` originales). **Se excluyeron** `data/05_model_input/train.parquet` y los checkpoints `f4_ckpt` y `f5_ckpt` (se regeneran con `scripts/ep3/f4_ensambles.py` y `f5_loso_curva.py`); `f3_ckpt` sí va.
