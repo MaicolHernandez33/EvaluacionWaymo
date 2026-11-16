@@ -12,10 +12,10 @@ import pytest
 
 from waymo_evaluacion.ep3 import formato as F
 from waymo_evaluacion.ep3.app_logica import (
-    GLOSARIO, PERFILES, SECCIONES, cargar_datos, camara_de_azimut, curva_inversa, datos_ciclistas, formatear_kpi, nombre_curva_legible, preguntas_frecuentes, recall_en_presupuesto,
+    COLUMNA_FOTOGRAMAS, GLOSARIO, PERFILES, SECCIONES, cargar_datos, camara_de_azimut, curva_inversa, datos_ciclistas, formatear_kpi, nombre_curva_legible, preguntas_frecuentes, recall_en_presupuesto,
     resumen_cola, tabla_cola, texto_resultado_cola, validar_asociacion, validar_lidar_box,
 )
-from tests.ep3.test_app import _datos_sinteticos, _modelos_sinteticos
+from tests.ep3.test_app import _datos_sinteticos, _modelos_sinteticos, ir_a, textos
 
 R = Path(__file__).resolve().parents[2]
 REAL = R / "data/09_app_ep3"
@@ -37,7 +37,7 @@ def test_nombres_legibles_sin_snake_case() -> None:
     df = pd.DataFrame({"tasa_sin_camara": [0.2123], "AUC_min_fold": [0.65], "cajas_en_celdas_con_hueco": [1945], "es_estable": [True], "modelo": ["XGB"], "dif_AUC_lo": [-0.1]})
     out = F.tabla_legible(df)
     assert not any("_" in c for c in out.columns), list(out.columns)
-    assert out.iloc[0, 0] == "0,212" and out["Cajas en celdas con hueco"].iloc[0] == "1.945" and out["Es estable"].iloc[0] == "sí"
+    assert out.iloc[0, 0] == "21,2 %" and out["Cajas en celdas con hueco"].iloc[0] == "1.945" and out["Es estable"].iloc[0] == "sí"
 
 
 # ------------------------------------------------------------------------------------------------------------ lógica de la cola
@@ -64,7 +64,7 @@ def test_textos_distintos_para_todos_y_un_segmento(tmp_path: Path) -> None:
     uno = resumen_cola(d["cajas"], d["curva"], "sol", "aaaaaaaaaaaa", 0.2, 20)
     tt, tu = texto_resultado_cola(todos), texto_resultado_cola(uno)
     assert todos["todos"] and not uno["todos"] and tt != tu
-    assert "intervalo de confianza 95 % por segmentos" in tt and "en los 3 segmentos" in tt and "no hay intervalo de confianza" not in tt
+    assert "Con auditoría previa (en muestra)" in tt and "Solo cola" in tt and "en los 3 segmentos" in tt and "no hay intervalo de confianza" not in tt          # F20-P4b: SIEMPRE ambos flujos
     assert "En el segmento aaaaaaaaaaaa" in tu and "no hay intervalo de confianza por segmentos" in tu and "en los" not in tu.split("(")[0]
     assert np.isnan(uno["ic_lo"]) and not np.isnan(todos["ic_lo"])
 
@@ -76,7 +76,7 @@ def test_fuente_unica_de_la_cobertura(tmp_path: Path) -> None:
     for presup in (0.2, 0.68):
         r = resumen_cola(d["cajas"], d["curva"], "sol", "Todos", presup, 20)
         assert r["cobertura"] == pytest.approx(r["hallados"] / r["positivos_total"])
-        assert F.de_cada_100(r["cobertura"]) in texto_resultado_cola(r)
+        assert F.de_cada_100(r["cobertura"]) in texto_resultado_cola(r) and F.de_cada_100(r["cobertura_uno"]) in texto_resultado_cola(r)
 
 
 def test_tabla_de_la_cola_oculta_identificadores_y_avisa_de_ciclistas(tmp_path: Path) -> None:
@@ -87,10 +87,10 @@ def test_tabla_de_la_cola_oculta_identificadores_y_avisa_de_ciclistas(tmp_path: 
     con = tabla_cola(top, 100, rg, presentacion=False)
     sin = tabla_cola(top, 100, rg, presentacion=True)
     assert {"Segmento", "Marca de tiempo", "Identificador de objeto"} <= set(con.columns)
-    assert not ({"Segmento", "Marca de tiempo", "Identificador de objeto"} & set(sin.columns))
+    assert not ({"Segmento", "Marca de tiempo", "Identificador de objeto"} & set(sin.columns)) and COLUMNA_FOTOGRAMAS in sin.columns
     assert con["Clase"].iloc[0].startswith("Ciclista") and con["Clase"].iloc[1] == "Peatón"
     assert con["Cámara"].tolist() == ["1 (frontal)", "2 (frontal izq.)", "3 (frontal der.)", "—", "—"]
-    assert con["Prioridad"].iloc[0] == 100.0 and con["Prioridad"].is_monotonic_decreasing
+    assert "Prioridad" not in con.columns and con["Prob. sin pareja"].iloc[0] == "30,0 %"          # F20-P4e: la probabilidad calibrada reemplaza a la barra «Prioridad» saturada en 100
     assert not any("_" in c for c in con.columns)
 
 
@@ -113,7 +113,7 @@ def test_textos_de_ayuda_y_ciclistas() -> None:
     assert c["positivos"] == 115 and c["segmentos"] == 14
     assert "115 casos en 14 segmentos" in dict(preguntas_frecuentes(eq))["¿Qué pasa con los ciclistas?"]
     assert len(preguntas_frecuentes()) == 5 and {t for t, _ in GLOSARIO} >= {"Caja", "Par 2D", "Celda", "Hueco", "Cola", "Presupuesto", "Cobertura", "Intervalo de confianza", "Post hoc", "En muestra", "Sin prueba ciega"}
-    assert nombre_curva_legible("Solución elegida, dos pasos (C)").startswith("Dos pasos") and len(SECCIONES) == 8
+    assert nombre_curva_legible("Solución elegida, dos pasos (C)").startswith("Dos pasos") and len(SECCIONES) == 8 and SECCIONES[0] == "Resumen" and "Validación" in SECCIONES
 
 
 # ------------------------------------------------------------------------------------------------------------ humo: 8 secciones x 3 perfiles x modo presentación
@@ -132,17 +132,17 @@ def test_humo_8_secciones_x_3_perfiles(entorno: Path, monkeypatch: pytest.Monkey
     monkeypatch.setenv("WAYMO_APP_DATA", str(entorno / "datos"))
     monkeypatch.setenv("WAYMO_APP_MODELOS", str(entorno / "modelos"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
-    at.sidebar.selectbox[0].set_value(perfil).run()
-    assert at.sidebar.radio[0].value == PERFILES[perfil]["seccion"]                 # el perfil decide la sección sugerida
+    at.sidebar.selectbox[0].set_value(perfil).run()                                   # el rol está al pie de la barra lateral
+    esperada = "Resumen" if perfil == list(PERFILES)[0] else PERFILES[perfil]["seccion"]          # el rol por defecto ya está en la página de inicio (Resumen)
+    assert at.title[0].value == esperada                                              # cambiar de rol lleva a la página que ese rol sugiere
     at.sidebar.toggle[0].set_value(presentacion).run()
     for s in SECCIONES:
-        at.sidebar.radio[0].set_value(s).run()
+        ir_a(at, s)
         assert not at.exception, (perfil, presentacion, s, at.exception)
         assert at.title[0].value == s
-        if s in ("Inicio", "Cola de revisión"):
-            assert any("En muestra" in w.value for w in at.warning), (perfil, s)
-        html = " ".join(m.value for m in at.markdown)
-        assert ("--escala: 1.18" in html) == presentacion
+        assert not at.warning, (perfil, s)                                             # sin banners ámbar por pantalla
+        assert "2 celdas cámara x segmento" in textos(at), (perfil, s)                  # el chip de estado abre el texto completo de «en muestra»
+        assert ("--escala: 1.18" in textos(at)) == presentacion
 
 
 def test_modo_presentacion_oculta_identificadores_en_la_cola(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -150,7 +150,7 @@ def test_modo_presentacion_oculta_identificadores_en_la_cola(entorno: Path, monk
     monkeypatch.setenv("WAYMO_APP_DATA", str(entorno / "datos"))
     monkeypatch.setenv("WAYMO_APP_MODELOS", str(entorno / "modelos"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
-    at.sidebar.radio[0].set_value("Cola de revisión").run()
+    ir_a(at, "Cola de revisión")
     assert "Marca de tiempo" in at.dataframe[0].value.columns and "Identificador de objeto" in at.dataframe[0].value.columns
     at.sidebar.toggle[0].set_value(True).run()
     cols = set(at.dataframe[0].value.columns)
@@ -162,15 +162,15 @@ def test_cola_control_inverso_y_boton_volver_al_20(entorno: Path, monkeypatch: p
     monkeypatch.setenv("WAYMO_APP_DATA", str(entorno / "datos"))
     monkeypatch.setenv("WAYMO_APP_MODELOS", str(entorno / "modelos"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
-    at.sidebar.radio[0].set_value("Cola de revisión").run()
+    ir_a(at, "Cola de revisión")
     assert at.slider[0].value == 20                                                   # el presupuesto parte en 20 %
     at.slider[0].set_value(55).run()
     assert at.slider[0].value == 55
     next(b for b in at.button if b.label == "Volver al 20 %").click().run()
     assert at.slider[0].value == 20
-    at.radio[0].set_value("Quiero encontrar X % de las cajas sin pareja").run()
-    assert at.slider[0].label.startswith("Quiero encontrar")
-    texto = next(m.value for m in at.markdown if "Revisando" in m.value)
+    at.radio[0].set_value("Meta").run()
+    assert at.slider[0].label.startswith("Meta")
+    texto = next(m.value for m in at.markdown if "Con auditoría previa" in m.value)
     assert "de cada 100" in texto
 
 
@@ -184,17 +184,22 @@ def test_las_cifras_no_cambian_salvo_el_redondeo_unificado(monkeypatch: pytest.M
 
     def abrir(s: str):
         a = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=180).run()
-        a.sidebar.radio[0].set_value(s).run()
+        ir_a(a, s)
         assert not a.exception
         return a
 
     def texto(a) -> str:
         return " ".join(re.sub(r"<[^>]+>", " ", m.value) for m in a.markdown)
 
-    # Inicio: las 5 cifras de siempre siguen visibles (con separador de miles es-CL)
-    ini = texto(abrir("Inicio"))
+    # las 5 cifras de siempre (antes en «Resultados técnicos» de Inicio) siguen visibles, ahora en la pestaña Selección de Validación (con separador de miles es-CL)
+    val = abrir("Validación")
+    celdas = " ".join(" ".join(map(str, d.value.to_numpy().ravel())) for d in val.dataframe)
     for t in antes["Inicio"]["tarjetas"]:
-        assert formatear_kpi(t["valor"]) in ini, t
+        assert formatear_kpi(t["valor"]) in celdas, t
+    # el Resumen muestra las cifras del titular nuevo, leídas de su origen (ie12__brazo_C_y_equilibrio): 358 h sin orden, 200 h un paso, 132 h dos pasos
+    res = texto(abrir("Resumen"))
+    res = res.replace("\xa0", " ").replace("**", "")
+    assert "80.571" in res and "21,2" in res and "≈ 358 h" in res and "≈ 200 h" in res and "≈ 132 h" in res, res[-1500:]
     # Cola: cajas y horas idénticas; hallados idénticos; la cobertura pasa a una sola fuente (observada) y la tarjeta antigua difiere en <= 0,1 punto
     for clave, presup in (("presupuesto_20", 20), ("presupuesto_68", 68)):
         a = abrir("Cola de revisión")
@@ -202,7 +207,7 @@ def test_las_cifras_no_cambian_salvo_el_redondeo_unificado(monkeypatch: pytest.M
         txt = texto(a)
         old = antes["Cola de revisión"][clave]
         assert old["metricas"]["Cajas a revisar en este segmento"] in txt
-        assert old["metricas"]["Horas con 20 s por caja"] + " h" in txt
+        assert old["metricas"]["Horas con 20 s por caja"] + " h" in txt                  # el flujo por defecto sigue siendo el de dos pasos: mismas cajas y horas
         tarjeta_vieja = float(old["metricas"]["Recall esperado (todos los segmentos)"].replace(" %", "").replace(",", "."))
         texto_viejo = float(old["recall_texto"].replace(" %", "").replace(",", "."))
         assert abs(tarjeta_vieja - texto_viejo) <= 0.1 + 1e-9                           # la inconsistencia que se unificó
@@ -210,14 +215,17 @@ def test_las_cifras_no_cambian_salvo_el_redondeo_unificado(monkeypatch: pytest.M
         assert len(a.dataframe[0].value) == old["filas_tabla"]
     # Auditoría y Evidencia: mismas filas / tablas
     aud = abrir("Auditoría de cámaras")
-    assert [len(d.value) for d in aud.dataframe][-1] == antes["Auditoría de cámaras"]["tablas"][0]["filas"]
-    ev = abrir("Evidencia")
-    assert len(ev.dataframe) == antes["Evidencia"]["tablas"] and [len(d.value) for d in ev.dataframe] == antes["Evidencia"]["filas_por_tabla"]
+    assert len(aud.table[0].value) == antes["Auditoría de cámaras"]["tablas"][0]["filas"]                      # la Lista A pasó a una tabla estática
+    from collections import Counter
+
+    filas_val = Counter(len(d.value) for d in val.dataframe)
+    assert not (Counter(antes["Evidencia"]["filas_por_tabla"]) - filas_val)           # las 26 tablas de antes siguen, con las mismas filas (más el cuadro O1 a O4 y los resultados clave)
+    assert sum(filas_val.values()) == antes["Evidencia"]["tablas"] + 2
     # Explica una caja con los valores por defecto: puntaje, lugar en la cola y probabilidad idénticos
     ex = abrir("Explica una caja")
     t = texto(ex) + " " + " ".join(e.value for e in ex.markdown)
     m = antes["Explica una caja"]["metricas"]
-    assert m["Probabilidad calibrada de no tener pareja"] in t and m["Lugar en la cola"].replace("entre el ", "").replace(" primero", "") in t.replace("entre el ", "").replace(" primero", "")
+    assert m["Probabilidad calibrada de no tener pareja"] in t and "Posición en la cola: 59 %" in t.replace("\xa0", " ")                      # antes: «entre el 59 % primero»
     assert m["Puntaje"].replace("-", "") .replace(",000", "") in t or m["Puntaje"] in t
 
 
@@ -240,7 +248,7 @@ def _archivos_de_la_pagina() -> list[Path]:
 
 def test_la_pagina_no_hace_peticiones_externas() -> None:
     for p in _archivos_de_la_pagina():
-        txt = p.read_text(encoding="utf-8")
+        txt = p.read_text(encoding="utf-8").replace("http://www.w3.org/2000/svg", "")        # el espacio de nombres del SVG propio (wordmark) no es una petición de red
         assert not re.search(r"https?://", txt), f"{p.relative_to(R)} contiene una URL"
         assert "@import" not in txt and "googleapis" not in txt and "cdn." not in txt, p.name
 

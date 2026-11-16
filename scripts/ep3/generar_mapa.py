@@ -75,12 +75,28 @@ DESC: dict[str, tuple[str, str, str]] = {
     "docs/ep3/guia_estilo_pagina.md": ("Guía de estilo de la página: producto, paleta con contraste, tipografía, componentes y redacción.", "Para cambiar o extender la página", "se regenera con `generar_guia_estilo.py`"),
     "docs/ep3/pagina_guia_demo.md": ("Recorrido exacto de la demo (clics y qué decir) y guion del video de 90 s.", "Para la presentación", "se regenera con `generar_docs_ep3.py`"),
     "docs/ep3/REPORTE_F18.md": ("Reporte final de la tarea F18 (correcciones, selección de segmentos nuevos y rediseño).", "Para ver qué cambió en F18", "no (documento)"),
-    "app/secciones.py": ("Las 8 secciones de la página (una función por sección).", "Lo importa `app/app.py`", "no se ejecuta solo"),
+    "app/secciones.py": ("Las 8 secciones de la página (una función por sección) y el encabezado con el chip de estado.", "Lo importan los archivos de `app/paginas/`", "no se ejecuta solo"),
+    "app/contexto.py": ("F20: carpetas de datos y modelos (se leen del entorno en cada llamada) y el diccionario `ctx` que reciben las secciones.", "Lo importa `app/secciones.py`", "no se ejecuta solo"),
     "app/estilos.py": ("Tokens de color, contraste WCAG, CSS propio y componentes HTML de la página.", "Lo importa `app/app.py`", "no se ejecuta solo"),
     "app/assets/icono.png": ("Ícono de la página (propio, sin marcas).", "Lo usa `st.set_page_config`", "no"),
     "images/ep3/pagina": ("Capturas de cada sección de la página (perfil analista) y del modo presentación.", "Para la presentación o el informe", "se regeneran con `capturar_pagina.py`"),
     "data/08_reporting_ep3/pagina_numeros_antes.json": ("Cifras que mostraba la página antes del rediseño (referencia de la prueba de regresión).", "Lo lee `tests/ep3/test_pagina_rediseno.py`", "no"),
     "scripts/ep3/generar_reporte_f18.py": ("Genera `REPORTE_F18.md` leyendo las cifras de los archivos de resultados.", "Al cerrar F18", "sí, segundos"),
+    "scripts/ep3/f19_congelar_alternativas.py": ("F19-A4b (DEV-4): congela LR3 y XGBoost (entrenados con los 41 segmentos) ANTES de abrir datos nuevos, con su manifest aparte.", "Ya se corrió; se niega a sobrescribir", "no repetir (~4 s; se niega a sobrescribir)"),
+    "scripts/ep3/ensayo_validacion_externa.py": ("F19-A3: ensayo general con 4 segmentos de desarrollo y el CLI real (congelar con manifest alternativo, ingesta, evaluar --ensayo).", "Antes de la corrida real, y tras cualquier cambio en la tubería", "sí, ~10 s; no toca manifest, nuevos.parquet ni candado reales"),
+    "scripts/ep3/generar_ensayo_md.py": ("Genera `ensayo_validacion_externa.md` desde `ensayo_resultado.json`.", "Después del ensayo", "sí, segundos"),
+    "scripts/ep3/copiar_sello_a_artefactos.py": ("F19-A5: verifica y copia a `artefactos_ep3/` los manifests y la lista de segmentos, para commitearlos antes de evaluar.", "Después de `congelar` y antes de `evaluar`", "sí, segundos"),
+    "docs/ep3/ensayo_validacion_externa.md": ("Log del ensayo general (con datos de desarrollo: no es un resultado).", "Para ver qué se probó antes de la corrida real", "se regenera con `generar_ensayo_md.py`"),
+    "docs/ep3/REPORTE_F19A.md": ("Reporte final de la tarea F19-A (preparar el sello antes del Colab).", "Para ver qué cambió en F19-A", "no (documento)"),
+    "data/06_models_ep3/manifest_alternativas.json": ("Hash de las alternativas congeladas LR3 y XGBoost (aparte de `manifest_v3.json`).", "Lo verifican `congelar` y `evaluar`", "no (congelado)"),
+    "scripts/ep3/f19_medir_arranque.py": ("F19-B9 y F20-P12: mide el arranque en frío de la página (con y sin lanzador) y el tiempo hasta estar lista cada sección, con un navegador sin interfaz.", "Para comprobar que la página abre rápido", "sí, ~3 min (4 arranques); escribe `pagina_arranque.json` y restaura `capturas_resultado.json`"),
+    "scripts/ep3/revisar_documentos.py": ("F19-C1 y C3: revisa tablas Markdown y caracteres de control en los documentos de `docs/ep3` y en las cadenas de los scripts; sale con código 1 si hay problemas.", "Después de regenerar documentos", "sí, segundos"),
+    "scripts/ep3/generar_reporte_f19b.py": ("Genera `REPORTE_F19B.md` leyendo los tiempos medidos, las capturas y el conteo de pruebas, y corriendo las tres verificaciones de congelados.", "Al cerrar F19-B", "sí, ~5 s"),
+    "docs/ep3/REPORTE_F19B.md": ("Reporte final de la tarea F19-B (pulido de la página y corrección de documentos).", "Para ver qué cambió en F19-B", "no (documento)"),
+    "app/paginas": ("F20: una página por archivo (resumen, cola, explica, auditoría, validación, puntuar, ética, ayuda); cada una solo llama a `secciones.ejecutar`. Es lo que registra `st.navigation` (con funciones, `AppTest` no puede cambiar de página).", "Las abre `st.navigation` en `app/app.py`", "no (se abren desde la página)"),
+    "app/precarga.py": ("F19-B9: carga y calienta en un hilo los datos y la solución congelada (una vez por proceso, compartido con la página).", "Lo importa `app/app.py` y `app/lanzar.py`", "no (módulo)"),
+    "app/lanzar.py": ("F19-B9: lanzador que inicia la precarga y ejecuta `streamlit run app/app.py` en el mismo proceso; lo usan `arrancar_app.bat` y `.ps1`.", "Para abrir la página con la precarga", "sí, `.venv\\Scripts\\python app\\lanzar.py --server.address localhost` (~3 s hasta responder)"),
+    "scripts/ep3/generar_reporte_f19a.py": ("Genera `REPORTE_F19A.md` leyendo los resultados del ensayo y de las alternativas.", "Al cerrar F19-A", "sí, segundos"),
     "scripts/ep3/actualizar_revision.py": ("Regenera `docs/ep3/revision/` con copias de los archivos pequeños (nada por caja) e `INDICE.md`.", "Antes de empaquetar, para revisión externa", "sí, ~1 s"),
     "scripts/ep3/empaquetar_entrega_ep3.py": ("Arma `artefactos_ep3/` y `entrega_EP3.zip` con `SHA256SUMS`.", "Al cerrar la entrega", "sí, ~1 min"),
     "scripts/ep3/arrancar_app.bat": ("Abre la página en localhost:8501 (Windows).", "Para usar la página", "sí, doble clic; Ctrl+C para detener"),
@@ -99,6 +115,13 @@ DESC: dict[str, tuple[str, str, str]] = {
     "docs/ep3/despliegue.md": ("Cómo correr la página (local, Docker, guía AWS no ejecutada) y seguridad.", "Para desplegar", "no (documento)"),
     "docs/ep3/plan_integracion_readme.md": ("Cómo dejar README_EP3 como README raíz sin romper las pruebas de EP2.", "Cuando se integre al README", "no (documento)"),
     "docs/ep3/verificacion_copia_limpia.md": ("Registro de la verificación en copia limpia.", "Para ver qué se probó y qué no", "no (documento)"),
+    "data/08_reporting_ep3/pagina_arranque_f20.json": ("F20-P12: tiempos de arranque y de cada página (con y sin lanzador), medidos con un navegador sin interfaz.", "Para citar los tiempos de carga", "se regenera con `f19_medir_arranque.py` (varios minutos)"),
+    "data/08_reporting_ep3/captura_linea_tiempo_etica_y_limites.json": ("F20-P11: línea de tiempo (cada 0,1 s) de la carga en frío de «Ética y límites», para la causa del render incompleto de la captura.", "Para ver cuándo está completa una página", "`capturar_pagina.py --linea-de-tiempo`"),
+    "data/08_reporting_ep3/captura_linea_tiempo_auditoria_de_camaras.json": ("F20-P11: línea de tiempo de la carga en frío de «Auditoría de cámaras» (muestra una página a medias mientras el script se ejecuta).", "Idem", "`capturar_pagina.py --linea-de-tiempo`"),
+    "docs/ep3/auditoria_diseno_pagina.md": ("F20-P0 y P11: auditoría de las capturas contra los patrones de plantilla, causa del render incompleto de «Ética y límites» y las dos pasadas de corrección.", "Para ver qué se corrigió del diseño y por qué", "se regenera con `generar_auditoria_diseno.py`"),
+    "docs/ep3/REPORTE_F20.md": ("Reporte final de la tarea F20 (rediseño de la página y cierre de documentos).", "Para ver qué cambió en F20", "se regenera con `generar_reporte_f20.py`"),
+    "scripts/ep3/generar_auditoria_diseno.py": ("Genera `auditoria_diseno_pagina.md` (patrones de plantilla, causa del render incompleto, pasadas de corrección).", "Al cambiar la página", "sí, segundos"),
+    "scripts/ep3/generar_reporte_f20.py": ("Genera `REPORTE_F20.md` leyendo las capturas, los tiempos, el conteo de pruebas y las verificaciones.", "Al cerrar F20", "sí, ~1 min (corre las tres verificaciones)"),
     "docs/ep3/PENDIENTES_PAGINA.md": ("Mejoras pendientes de la página, con archivo y línea.", "Antes de pulir la página", "se regenera con `generar_pendientes_pagina.py`"),
     "docs/ep3/MAPA_DE_ARCHIVOS.md": ("Este mapa.", "Para orientarse", "se regenera con `generar_mapa.py`"),
     "docs/ep3/freeze_antes.txt": ("`pip freeze` antes de instalar (evidencia de que no se movieron versiones).", "Auditoría del entorno", "no"),
@@ -106,7 +129,7 @@ DESC: dict[str, tuple[str, str, str]] = {
     "docs/ep3/freeze_despues_f7.txt": ("`pip freeze` después de instalar streamlit.", "Idem", "no"),
     "docs/ep3/revision": ("Copias de los archivos pequeños para revisar sin abrir el repo (ignorada por git).", "Para revisión externa", "no; se regenera con `empaquetar_entrega_ep3.py`"),
     # ---- app y paquete
-    "app/app.py": ("La página «Auditor de etiquetas 3D» (Streamlit, 8 secciones, 3 perfiles, modo presentación); las secciones están en `secciones.py` y los estilos en `estilos.py`.", "Para la demo y el uso diario", "sí, `scripts\\ep3\\arrancar_app.bat`"),
+    "app/app.py": ("El marco de la página «Auditor de etiquetas 3D» (Streamlit): navegación agrupada con `st.navigation`, wordmark, rol y modo presentación al pie de la barra lateral y pie único; las secciones están en `secciones.py` (cada una se abre desde un archivo de `app/paginas/`) y los estilos en `estilos.py`.", "Para la demo y el uso diario", "sí, `scripts\\ep3\\arrancar_app.bat`"),
     "app/.streamlit/config.toml": ("Configuración de la imagen Docker (no se modifica).", "Solo dentro del contenedor", "no"),
     "artefactos_ep3": ("Tablas agregadas y manifests versionables (sin filas por caja) + `README_artefactos.md`.", "Para revisar resultados sin los datos", "se regenera con `empaquetar_entrega_ep3.py`"),
     "data/06_models_ep3/manifest_v3.json": ("Hashes de la solución v3 congelada.", "Lo lee `verificar_congelados_v3.py`", "no (congelado)"),
@@ -126,11 +149,11 @@ def tam(p: Path) -> str:
 def main() -> None:
     reales: list[str] = []
     for patron in ("notebooks/00b_*.ipynb", "notebooks/1[1-5]_*.ipynb", "scripts/ep3/*.py", "scripts/ep3/*.bat", "scripts/ep3/*.ps1", "docs/ep3/*.md", "docs/ep3/*.json", "docs/ep3/*.sha256", "docs/ep3/*.txt",
-                   "app/app.py", "app/secciones.py", "app/estilos.py", "app/assets/icono.png", "app/.streamlit/config.toml", "data/06_models_ep3/manifest*.json", "data/08_reporting_ep3/pagina_numeros_antes.json", "docs/ep3/plan_seleccion*"):
+                   "app/app.py", "app/secciones.py", "app/contexto.py", "app/estilos.py", "app/precarga.py", "app/lanzar.py", "app/assets/icono.png", "app/.streamlit/config.toml", "data/06_models_ep3/manifest*.json", "data/08_reporting_ep3/pagina_numeros_antes.json", "data/08_reporting_ep3/pagina_arranque_f20.json", "data/08_reporting_ep3/captura_linea_tiempo_*.json", "docs/ep3/plan_seleccion*"):
         reales += [p.relative_to(RAIZ).as_posix() for p in sorted(RAIZ.glob(patron))]
     reales += [r for r in ("CLAUDE.md", "Dockerfile", ".dockerignore", "docker-compose.yml", "requirements_app.txt", "requirements_ep3.txt", "constraints_ep3.txt", ".streamlit/config.toml", "entrega_EP3.zip", "entrega_EP3.sha256")
                if (RAIZ / r).exists()]
-    reales += [r for r in ("docs/ep3/revision", "artefactos_ep3", "images/ep3/pagina") if (RAIZ / r).exists()]
+    reales += [r for r in ("docs/ep3/revision", "artefactos_ep3", "images/ep3/pagina", "app/paginas") if (RAIZ / r).exists()]
     orden = ["CLAUDE", "Dockerfile", ".docker", "docker", "requirements", "constraints", ".streamlit", "entrega", "notebooks", "scripts", "docs", "app", "artefactos", "images", "data"]
     reales = sorted(set(reales), key=lambda r: (next(i for i, k in enumerate(orden) if r.startswith(k)), r))
     sin = [r for r in reales if r not in DESC]

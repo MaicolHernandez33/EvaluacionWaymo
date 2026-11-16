@@ -66,3 +66,8 @@ Semilla global: **42**. `requirements.txt` no se toca.
 - La página escucha solo en `localhost` (`.streamlit/config.toml`, `arrancar_app.bat`; el compose publica `127.0.0.1:8501:8501`); la vigila `tests/ep3/test_seguridad_pagina.py`. No exponerla sin autenticación ni sin quitar identificadores.
 - El ARI bajo de la fase 13 no es un error (`scripts/ep3/f13b_diagnostico_ari.py`, `f13_ari_diagnostico.*`). Hechos del brazo C: `scripts/ep3/f12b_hechos_brazoC.py`. Pendientes de la página: `docs/ep3/PENDIENTES_PAGINA.md` (no se modificó `app/`). Orientación: `docs/ep3/MAPA_DE_ARCHIVOS.md`.
 - Documentos generados: `generar_docs_ep3.py`, `generar_pendientes_pagina.py`, `generar_mapa.py`, `actualizar_revision.py`; no editarlos a mano.
+
+## EP3: F19-A, sello antes del Colab (estado al 2026-11-15)
+- La validación externa se prepara en `docs/ep3/GUIA_VALIDACION_EXTERNA.md`; el ensayo general con datos de desarrollo es `scripts/ep3/ensayo_validacion_externa.py` (no toma candado ni toca lo real). `evaluar_sellado.py` toma el candado solo cuando el cálculo terminó; `--ensayo` exige `--manifest` distinto del real.
+- La solución v3 **es** la regla de puntos: «solución contra regla» da 0 por construcción. Las alternativas LR3 y XGBoost están congeladas aparte (`data/06_models_ep3/alternativas_v3.joblib`, `manifest_alternativas.json`; DEV-4). No sobrescribir ni tocar `manifest_v3.json`.
+- No se edita `docs/ep3/plan_seleccion_ep3.json` (ni su `.sha256`) ni `src/waymo_evaluacion/ep3/seleccion_nuevos.py`: el notebook 00b embebe su código exacto y una prueba lo comprueba.

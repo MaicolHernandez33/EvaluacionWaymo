@@ -1,0 +1,33 @@
+{
+ "version": "alternativas_v3",
+ "creado": "2026-11-15T13:08:22",
+ "sha256": {
+  "alternativas_v3.joblib": "60c9834f03cfbfffffc49910e32281ca3e194c9afefe96179d0b9c0ca10a48c5"
+ },
+ "alternativas": [
+  "LR3",
+  "XGB"
+ ],
+ "nota": "independiente de manifest_v3.json; post hoc respecto del plan v3 (DEV-4); no cambia la solución elegida",
+ "n_segmentos": 41,
+ "filas": 80571,
+ "semilla": 42,
+ "xgb_variables": "V_OBS",
+ "xgb_hiperparametros": {
+  "max_depth": 2,
+  "learning_rate": 0.1165412662228746,
+  "colsample_bytree": 0.8,
+  "min_child_weight": 100,
+  "n_estimators": 30,
+  "reg_lambda": 29.50706670790531,
+  "subsample": 0.7
+ },
+ "xgb_folds_que_la_eligieron": "2 de 5",
+ "xgb_regla_de_eleccion": "la más repetida entre los folds externos (f3_config_por_fold.csv, etapa principal)",
+ "lr3_variables": [
+  "num_lidar_points",
+  "num_top_lidar_points",
+  "azimut_abs_deg"
+ ],
+ "nota_eleccion": "distinta de config_final (mayor PR-AUC interno medio), que usan los candidatos de IE10; aqui se pidio la mas frecuente por fold"
+}
