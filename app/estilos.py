@@ -9,6 +9,7 @@ La guía ``docs/ep3/guia_estilo_pagina.md`` se genera desde aquí.
 from __future__ import annotations
 
 import html
+import re
 
 TOKENS = {
     "primario": "#1D4E89",         # el único acento: azul oscuro (títulos, enlaces, selección, celdas sanas del mapa)
@@ -98,7 +99,8 @@ hr {{ margin: .8rem 0; border-color: var(--borde); }}
 [data-testid="stSidebarNavSeparator"], [data-testid="stNavSectionHeader"], [data-testid="stSidebarNav"] header {{ font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }}
 /* encabezado de pagina: titulo pequeno, una linea y el chip de estado a la derecha */
 [data-testid="stMarkdownContainer"] .aud-descripcion {{ color: var(--suave); font-size: .92rem; margin: .15rem 0 .7rem 0; }}
-.st-key-chip_estado {{ display: flex; justify-content: flex-end; }}
+[data-testid="stColumn"]:has(.st-key-chip_estado) {{ display: flex; flex-direction: column; align-items: flex-end; }}
+.st-key-chip_estado {{ display: flex; justify-content: flex-end; margin-left: auto; }}
 .st-key-chip_estado button {{ background: var(--aviso-fondo); color: var(--aviso-texto); border: 1px solid var(--aviso-borde); border-radius: var(--radio); font-size: .8rem; font-weight: 600; padding: .2rem .7rem; min-height: 0; }}
 .st-key-chip_estado button:hover {{ background: #FFEDB8; border-color: var(--aviso-texto); color: var(--aviso-texto); }}
 .aud-muestra {{ display: inline-block; vertical-align: middle; margin-left: .4rem; padding: 0 .35rem; border: 1px solid var(--aviso-borde); border-radius: 4px; background: var(--aviso-fondo); color: var(--aviso-texto);
@@ -119,12 +121,17 @@ hr {{ margin: .8rem 0; border-color: var(--borde); }}
 .aud-punto.aviso {{ background: var(--aviso-borde); }}
 .aud-fila .tt {{ font-weight: 650; }}
 .aud-fila .tx {{ color: var(--suave); }}
+/* F21-P3b: el markdown de Streamlit lleva margen inferior negativo; sin quitarlo, la columna del texto queda mas baja que su contenido y el enlace se centra 8 px mas arriba que la alerta */
+[class*="st-key-alerta_"] [data-testid="stMarkdown"], [class*="st-key-alerta_"] [data-testid="stMarkdownContainer"] {{ margin-bottom: 0 !important; }}
+[class*="st-key-alerta_"] [data-testid="stElementContainer"] {{ margin-bottom: 0 !important; }}
 [data-testid="stMarkdownContainer"] .aud-ficha h4 {{ margin: .9rem 0 .15rem 0; font-size: .86rem; text-transform: uppercase; letter-spacing: .04em; color: var(--suave); }}
 [data-testid="stMarkdownContainer"] .aud-ficha p {{ margin: 0 0 .3rem 0; }}
 .aud-resultado {{ background: var(--superficie); border: 1px solid var(--borde); border-left: 3px solid var(--primario); border-radius: var(--radio); padding: .6rem .9rem; margin: .4rem 0 .5rem 0; font-size: calc(1.02rem * var(--escala)); }}
 [data-testid="stMarkdownContainer"] .aud-esfuerzo {{ color: var(--suave); font-size: .9rem; margin: 0 0 .5rem 0; }}
 .aud-aviso {{ background: var(--aviso-fondo); color: var(--aviso-texto); border: 1px solid var(--aviso-borde); border-radius: var(--radio); padding: .45rem .8rem; margin: .4rem 0; font-size: .9rem; }}
 [data-testid="stMarkdownContainer"] .aud-probabilidad {{ font-size: {TAMANO_METRICA}; font-weight: 650; color: var(--primario); line-height: 1.2; margin: 0; white-space: nowrap; }}
+[data-testid="stMarkdownContainer"] .aud-nota {{ font-size: .86rem; color: var(--suave); border-left: 3px solid var(--borde); padding: .15rem 7.5rem .15rem .6rem; margin: .1rem 0 .5rem 0; }}   /* a la derecha queda libre el sitio de la barra de herramientas de la tabla (F21) */
+.st-key-panel_detalle {{ margin-top: .5rem; }}
 .aud-pie {{ margin-top: 1.6rem; padding-top: .6rem; border-top: 1px solid var(--borde); color: var(--suave); font-size: .8rem; }}
 .aud-leyenda {{ display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; margin: .1rem 0 .5rem 0; font-size: .82rem; color: var(--texto); }}
 .aud-ley {{ display: inline-flex; align-items: center; gap: .4rem; }}
@@ -160,7 +167,8 @@ hr {{ margin: .8rem 0; border-color: var(--borde); }}
 
 
 def _e(x: object) -> str:
-    return html.escape(str(x), quote=True)
+    """Escapa para HTML y une cada «%» con su número con un espacio de no separación (F21): «79,8 %» no se parte entre dos líneas."""
+    return re.sub(r"(?<=\d) %", "\u00a0%", html.escape(str(x), quote=True))
 
 
 def etiqueta_muestra() -> str:
