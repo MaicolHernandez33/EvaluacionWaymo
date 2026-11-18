@@ -17,7 +17,7 @@ from waymo_evaluacion.ep3 import formato as F
 from waymo_evaluacion.ep3.app_logica import (
     ARCHIVO_PAGINA, AVISO_EN_MUESTRA, CAMARAS, CHIP_ESTADO, CLASE_ADVERTENCIA, CLASE_NORMAL, COLUMNA_FOTOGRAMAS, COLUMNA_PROBABILIDAD, CURVA_UN_PASO, DESCRIPCION_PAGINA, EJEMPLOS_CAJA,
     FLUJO_DOS, FLUJOS, GLOSARIO, NOTA_AGRUPADO, NOTA_FOTOGRAMAS, REFERENCIAS, SUPUESTO_SEGUNDOS, alertas_resumen, curva_dependencia, curva_inversa, curvas_a_mostrar, datos_validacion, detalle_caja,
-    ejemplo_lidar_box, explicacion_caja, filtrar_cola, info_tipo_de_caso, inicio_resumen, lectura_evidencia, lista_A_detalle, lista_A_presentable, matriz_calor, nombre_curva_legible,
+    ESCALA_PUNTOS, PASOS_DEL_CALCULO, ejemplo_lidar_box, explicacion_caja, nota_empate, texto_puntaje, filtrar_cola, info_tipo_de_caso, inicio_resumen, lectura_evidencia, lista_A_detalle, lista_A_presentable, matriz_calor, nombre_curva_legible,
     ocultar_identificadores, orden_segmentos, percentil_en_cola, preguntas_frecuentes, recall_en_presupuesto, resumen_cola, tabla_cola, tabla_por_objeto, tabla_resultados_clave, texto_esfuerzo_cola,
     texto_posicion, texto_resultado_cola, tipo_de_caso, validar_asociacion, validar_lidar_box,
 )
@@ -37,10 +37,10 @@ def _html(x: str) -> None:
 
 def _tabla(df: pd.DataFrame, **kw: Any) -> Any:
     """``st.dataframe`` compacto con el ancho de cada columna calculado con su encabezado y su contenido (ningún encabezado cortado)."""
-    anchos = F.anchos_columnas(df)
+    anchos = F.anchos_columnas(df, maximo=kw.pop("ancho_max", 460))
     cfg = {c: st.column_config.Column(width=w) for c, w in anchos.items()}
     cfg.update(kw.pop("column_config", {}))
-    return st.dataframe(df, width="stretch", hide_index=True, row_height=30, height=min(40 + 31 * len(df), kw.pop("alto_max", 420)), column_config=cfg, **kw)
+    return st.dataframe(df, width="stretch", hide_index=True, row_height=30, height=min(38 + 30 * len(df), kw.pop("alto_max", 420)), column_config=cfg, **kw)
 
 
 def _grafico(ch: alt.Chart | alt.LayerChart, **kw: Any) -> None:
@@ -50,6 +50,14 @@ def _grafico(ch: alt.Chart | alt.LayerChart, **kw: Any) -> None:
 def _eje_decimal(d: int = 2) -> str:
     """Expresión de Vega para que las etiquetas del eje salgan con coma decimal (es-CL)."""
     return f"replace(format(datum.value, '.{d}f'), '.', ',')"
+
+
+def _marcas_eje(valores: list[float], objetivo: int = 9) -> tuple[list[float], int]:
+    """Marcas «bonitas» para un eje de efectos (F21-P5): paso de 0,001 a 0,1 que deja unas nueve marcas, sin repetir etiquetas. Devuelve las marcas y los decimales."""
+    lo, hi = min(min(valores), 0.0), max(max(valores), 0.0)
+    paso = next((s for s in (0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2) if (hi - lo) / s <= objetivo), 0.2)
+    n0, n1 = int(np.floor(lo / paso + 1e-9)), int(np.ceil(hi / paso - 1e-9))
+    return [round(i * paso, 6) for i in range(n0, n1 + 1)], (3 if paso < 0.01 else 2)
 
 
 def encabezado(titulo: str, descripcion: str) -> None:
@@ -76,11 +84,11 @@ def resumen(ctx: dict[str, Any]) -> None:
                       ("Segmentos", F.entero(r["segmentos"]), "de desarrollo", "")], ctx["presentacion"]))
     st.markdown("#### Impacto estimado")
     if r["horas_un_paso"] is None or r["horas_dos_pasos"] is None:
-        st.caption("No hay tabla del brazo C en los datos de la página: no se puede estimar el impacto.")
+        st.caption("No hay tabla de la validación del flujo en dos pasos en los datos de la página: no se puede estimar el impacto.")
     else:
         h0, h1, h2 = r["horas_sin_orden"], r["horas_un_paso"], r["horas_dos_pasos"]
         st.markdown(f"Ordenar la cola reduce el tiempo para encontrar el 80 % de las cajas sin pareja de ≈ **{F.horas(h0, 0)}** a ≈ **{F.horas(h1, 0)}** ({F.porcentaje(1 - h1 / h0, 0)} menos). "
-                    f"Con auditoría previa de las celdas marcadas baja a ≈ {F.horas(h2, 0)} {E.etiqueta_muestra()}.", unsafe_allow_html=True)
+                    f"Con auditoría previa de las celdas marcadas baja a ≈ {F.horas(h2, 0)}.")
         nombres = ["Revisión sin orden", "Solo cola (un paso)", "Auditoría + cola (dos pasos), en muestra"]
         df = pd.DataFrame({"Flujo": nombres, "Horas": [h0, h1, h2], "Texto": [f"≈ {F.horas(h, 0)}" for h in (h0, h1, h2)], "Detalle": [f"{F.decimal(h, 1)} h" for h in (h0, h1, h2)]})
         base = alt.Chart(df).encode(y=alt.Y("Flujo:N", sort=nombres, title=None, axis=alt.Axis(labelLimit=330, labelFontSize=12, labelOverlap=False)))
@@ -89,13 +97,18 @@ def resumen(ctx: dict[str, Any]) -> None:
                                                tooltip=[alt.Tooltip("Flujo:N", title="Flujo"), alt.Tooltip("Detalle:N", title="Horas")])
         texto = base.mark_text(align="left", dx=5, fontSize=12, fontWeight="bold", color=E.TOKENS["texto"]).encode(x="Horas:Q", text="Texto:N")
         _grafico((barras + texto).properties(height=180))
-        st.caption(f"Estimación en muestra: {F.entero(r['cajas'])} cajas × fracción para el 80 % × {F.entero(segundos)} s por caja (supuesto, no medido). Fuente: f6_modelo_escogido.csv y f5_brazoC.csv.")
+        n1, n2 = st.columns([9, 1.3], vertical_alignment="center")
+        n1.caption(f"Estimación en muestra: {F.entero(r['cajas'])} cajas × fracción para el 80 % × {F.entero(segundos)} s por caja (supuesto, no medido).")
+        with n2.popover("Fuente"):
+            st.markdown("Informe técnico de EP3: sección 12 (cuadro «Modelo escogido»: fracción de cajas para el 80 % en un paso y en dos pasos) y anexo B (análisis en muestra). "
+                        f"El número de cajas es el de la población principal ({F.entero(r['cajas'])}, {F.entero(r['segmentos'])} segmentos).")
     st.markdown("#### Alertas")
     with st.container(border=True):
         for a in alertas_resumen(r, ctx["ciclistas"], ctx["perfil"]):
-            c1, c2 = st.columns([7, 2], vertical_alignment="center")
-            c1.markdown(E.fila_alerta(a["titulo"], a["texto"], a["tono"]), unsafe_allow_html=True)
-            c2.page_link(ARCHIVO_PAGINA[a["seccion"]], label=a["seccion"], icon=":material/arrow_forward:")
+            with st.container(key=f"alerta_{a['clave']}"):                                                  # cada enlace en la misma fila (y centrado) que su alerta
+                c1, c2 = st.columns([7, 2], vertical_alignment="center")
+                c1.markdown(E.fila_alerta(a["titulo"], a["texto"], a["tono"]), unsafe_allow_html=True)
+                c2.page_link(ARCHIVO_PAGINA[a["seccion"]], label=a["seccion"], icon=":material/arrow_forward:")
 
 
 # ------------------------------------------------------------------------------------------------------------ Cola de revisión
@@ -124,19 +137,29 @@ def _grafico_cobertura(D: dict[str, Any], r: dict[str, Any], presup: float, ref:
 
 
 def _panel_detalle(ctx: dict[str, Any], r: dict[str, Any], posicion: int) -> None:
-    """Panel de detalle de la fila elegida de la cola: la misma explicación de «Explica una caja», con los datos de esa caja."""
+    """Panel de detalle de la fila elegida: va DEBAJO de la tabla, a todo el ancho y en dos columnas (F21-P1c); la misma explicación de «Explica una caja», con los datos de esa caja."""
     d = detalle_caja(r["top"], posicion, r["cajas_cola_total"], ctx["rangos"], ctx["ciclistas"])
-    with st.container(border=True):
-        st.markdown(f"**Caja en la posición {F.entero(d['posicion'])}** de {F.entero(d['cola_total'])}" + ("" if ctx["presentacion"] else f" · segmento {d['segmento']}"))
-        _html(f'<p class="aud-probabilidad">{F.porcentaje(d["prob"])}</p><p class="aud-descripcion">probabilidad calibrada de no tener pareja en ninguna cámara</p>')
-        st.markdown(texto_posicion(d["percentil"]))
-        st.markdown(f"- Cámara: {d['camara']}\n- Distancia: {F.decimal(d['distancia'], 1)} m\n- Puntos del sensor superior: {F.entero(d['puntos_sup'])}\n- Puntos del LiDAR: {F.entero(d['puntos'])}\n"
-                    f"- Clase: {d['clase']}\n- Tipo de caso: {d['tipo_caso']}")
-        st.write(d["texto"])
-        if d["advertencia_ciclista"]:
-            c = ctx["ciclistas"]
-            _html('<div class="aud-aviso"><strong>Ciclista:</strong> la regla es poco confiable (' + F.decimal(c["ciclista"], 3) + " de los casos encontrados contra " + F.decimal(c["peaton"], 3) +
-                  " en peatones). Conviene revisar con más cuidado.</div>")
+    with st.container(border=True, key="panel_detalle"):
+        st.markdown(f"**Detalle de la caja en la posición {F.entero(d['posicion'])}** de {F.entero(d['cola_total'])}" + ("" if ctx["presentacion"] else f" · segmento {d['segmento']}"))
+        izq, der = st.columns([1.15, 1], gap="large")
+        with izq:
+            _html(f'<p class="aud-probabilidad">{F.porcentaje(d["prob"])}</p><p class="aud-descripcion">probabilidad calibrada de no tener pareja en ninguna cámara</p>')
+            st.markdown(f"**{texto_posicion(d['percentil'])}**")
+            st.write(d["texto"])
+        with der:
+            st.markdown(f"- Cámara: {d['camara']}\n- Distancia: {F.decimal(d['distancia'], 1)} m\n- Puntos del sensor superior: {F.entero(d['puntos_sup'])}\n- Puntos del LiDAR: {F.entero(d['puntos'])}\n"
+                        f"- Clase: {d['clase']}\n- Tipo de caso: {d['tipo_caso']}")
+            if d["advertencia_ciclista"]:
+                c = ctx["ciclistas"]
+                _html('<div class="aud-aviso"><strong>Ciclista:</strong> la regla es poco confiable (' + F.decimal(c["ciclista"], 3) + " de los casos encontrados contra " + F.decimal(c["peaton"], 3) +
+                      " en peatones). Conviene revisar con más cuidado.</div>")
+
+
+def _panel_vacio() -> None:
+    """Estado vacío del panel de detalle: dice qué trae el detalle y llena el espacio bajo la tabla."""
+    with st.container(border=True, key="panel_detalle"):
+        st.markdown("**Detalle de la caja**")
+        st.caption("Seleccione una fila de la tabla para ver el detalle de esa caja: probabilidad calibrada, posición en la cola, cámara, distancia, puntos del sensor superior y del LiDAR, clase y tipo de caso.")
 
 
 AYUDA_COLUMNAS = {COLUMNA_PROBABILIDAD: "Probabilidad calibrada de que la caja no tenga par en ninguna cámara", COLUMNA_PROBABILIDAD + " máxima": "Mayor probabilidad calibrada entre los fotogramas del objeto",
@@ -151,6 +174,8 @@ def _config_columnas_cola(tabla: pd.DataFrame) -> dict[str, Any]:
         ayuda = AYUDA_COLUMNAS.get(c)
         if c in ("Posición", "Mejor posición") or c == COLUMNA_FOTOGRAMAS:
             cfg[c] = st.column_config.NumberColumn(c, format="%d", width=anchos[c], help=ayuda)
+        elif c == "Tipo de caso":                          # sin ancho fijo: absorbe el espacio sobrante de las pantallas anchas y nunca queda por debajo de su contenido
+            cfg[c] = st.column_config.TextColumn(c, help=ayuda)
         else:
             cfg[c] = st.column_config.TextColumn(c, width=anchos[c], help=ayuda)
     return cfg
@@ -206,7 +231,7 @@ def cola(ctx: dict[str, Any]) -> None:
             ref = st.columns([1.3, 3])[0].selectbox("Comparar con un modelo de referencia", ["Ninguno", *refs])
         if ref != "Ninguno":
             er = recall_en_presupuesto(D["curva"], f"{ref} (referencia), un paso (A)", presup)
-            st.caption(f"{ref} como referencia (un paso, fuera de pliegue): unas {F.de_cada_100(er['recall'])} con el mismo porcentaje (intervalo {F.porcentaje(er['lo'], 0)} a {F.porcentaje(er['hi'], 0)}). No se eligió por simplicidad; ver Validación.")
+            st.caption(f"{ref} como referencia (un paso, validación cruzada por segmentos): unas {F.de_cada_100(er['recall'])} con el mismo porcentaje (intervalo {F.porcentaje(er['lo'], 0)} a {F.porcentaje(er['hi'], 0)}). No se eligió por simplicidad; ver Validación.")
         _grafico_cobertura(D, r, presup, ref)
     with tab_cola:
         con_filtro = bool(clases or camaras)
@@ -221,25 +246,20 @@ def cola(ctx: dict[str, Any]) -> None:
         n_total = len(vista) if con_filtro or agrupar else r["cajas_a_revisar"]
         st.caption((f"Filtrado: {F.entero(len(vista))} {unidad} de {F.entero(r['cajas_a_revisar'])} cajas de la cola. " if con_filtro else "") +
                    f"Se muestran las primeras {F.entero(len(mostrada))} de {F.entero(n_total)} {unidad}. Las cifras de arriba no cambian con los filtros." + (" " + NOTA_AGRUPADO if agrupar else ""))
-        previa = st.session_state.get("tabla_cola")
-        try:
-            con_detalle = bool(previa and previa["selection"]["rows"])
-        except (KeyError, TypeError, AttributeError):
-            con_detalle = False
-        izq, der = st.columns([3.2, 1.2], gap="medium") if con_detalle else (st.container(), None)       # el panel de detalle solo ocupa lugar cuando hay una fila elegida
+        nota = nota_empate(top)                                                       # nota calculada de la cola: cuántas cajas empatan al inicio y por qué el orden entre ellas no informa
+        if nota:
+            _html(f'<p class="aud-nota">{E._e(nota)}</p>')
         for ident in ("Marca de tiempo", "Objeto"):               # identificadores: texto, sin separador de miles
             if ident in mostrada.columns:
                 mostrada[ident] = mostrada[ident].astype(str)
         cfg = _config_columnas_cola(mostrada)
-        with izq:
-            evento = st.dataframe(mostrada, key="tabla_cola", on_select="rerun", selection_mode="single-row", hide_index=True, width="stretch", row_height=30, height=min(40 + 31 * len(mostrada), 470), column_config=cfg)
+        evento = st.dataframe(mostrada, key="tabla_cola", on_select="rerun", selection_mode="single-row", hide_index=True, width="stretch", row_height=30, height=min(40 + 31 * len(mostrada), 410), column_config=cfg)
         filas = list(evento.selection.rows) if evento is not None and getattr(evento, "selection", None) is not None else []
         col_pos = "Mejor posición" if agrupar else "Posición"
-        if der is not None and filas and filas[0] < len(mostrada):
-            with der:
-                _panel_detalle(ctx, r, int(mostrada.iloc[filas[0]][col_pos]))
-        elif not filas:
-            st.caption("Seleccione una fila de la tabla para ver el detalle de esa caja.")
+        if filas and filas[0] < len(mostrada):
+            _panel_detalle(ctx, r, int(mostrada.iloc[filas[0]][col_pos]))
+        else:
+            _panel_vacio()
         if (mostrada.get("Clase", pd.Series(dtype=str)) == CLASE_ADVERTENCIA).any():
             st.caption("Hay ciclistas en esta lista: en ciclistas la regla es poco confiable y conviene revisarlos con más cuidado.")
         st.download_button("Descargar la cola (CSV)", mostrada.to_csv(index=False).encode("utf-8"), "cola_de_revision.csv", "text/csv", icon=":material/download:")
@@ -257,22 +277,32 @@ def explica(ctx: dict[str, Any]) -> None:
     try:
         art = ctx["artefactos"]()
     except FileNotFoundError:
-        st.error("Falta la solución congelada en data/06_models_ep3 (la crea scripts/ep3/f6_final.py).")
+        st.error("Falta la solución congelada, así que esta página no puede calcular. Avise a quien mantiene la página.")
         return
     from waymo_evaluacion.ep3.inferencia import V16
 
     ref = D["cajas"]
     base = ref[V16].median().to_frame().T
+    pa, pb = int(-art.umbrales["A"]), int(-art.umbrales["B"])                         # puntos A y B (umbrales congelados): 32 y 11
+    escala = sorted(set(ESCALA_PUNTOS) | {pa, pb})
+
+    def rotulo(v: int) -> str:
+        return F.entero(v) + (" (punto B)" if v == pb else " (punto A)" if v == pa else "")
+
+    st.caption("Casos de ejemplo")
+    b1, b2, b3, _ = st.columns([1, 1, 1, 1.5])                                       # los tres ejemplos en una fila
+    for col, nombre in zip((b1, b2, b3), EJEMPLOS_CAJA):
+        col.button(nombre, key=f"ej_{nombre}", on_click=_poner_ejemplo, args=(nombre,), width="stretch")
     izq, der = st.columns([1, 1.5], gap="large")
     with izq:
         st.markdown("#### Parámetros de la caja")
-        st.caption("Casos de ejemplo")
-        for nombre in EJEMPLOS_CAJA:
-            st.button(nombre, key=f"ej_{nombre}", on_click=_poner_ejemplo, args=(nombre,), width="stretch")
-        pts = st.slider("Puntos del LiDAR en la caja", 1, 1000, 60, key="ex_pts")
-        top_pts = st.slider("Puntos del sensor superior", 1, 1000, 50, key="ex_top")
-        dist = st.slider("Distancia al sensor (m)", 1.0, 100.0, 25.0, step=1.0, format="%d", key="ex_dist")      # sin «25.00» con punto decimal: la página usa es-CL
-        clase = st.radio("Clase", ["Peatón", "Ciclista"], horizontal=True, key="ex_clase")
+        top_pts = st.select_slider("Puntos del sensor superior (este control mueve la probabilidad)", options=escala, value=50, key="ex_top", format_func=rotulo)
+        pts = st.select_slider("Puntos del LiDAR en la caja (solo afecta al tipo de caso)", options=escala, value=60, key="ex_pts", format_func=F.entero)
+        dist = st.slider("Distancia al sensor, en m (solo afecta al tipo de caso)", 1.0, 100.0, 25.0, step=1.0, format="%d", key="ex_dist")      # sin «25.00» con punto decimal: la página usa es-CL
+        clase = st.radio("Clase (solo agrega la advertencia de ciclista)", ["Peatón", "Ciclista"], horizontal=True, key="ex_clase")
+        with st.container(border=True):
+            st.markdown("**Cómo se calcula**")
+            st.markdown("\n".join(f"{i}. {x}" for i, x in enumerate(PASOS_DEL_CALCULO, 1)))
     fila = base.copy()
     fila["num_lidar_points"], fila["num_top_lidar_points"], fila["distancia_m"] = pts, top_pts, dist
     fila["densidad_puntos"] = pts / fila["volumen_caja"]
@@ -281,12 +311,11 @@ def explica(ctx: dict[str, Any]) -> None:
     s = float(art.puntuador.puntuar(fila)[0])
     p = float(art.calibrador.calibrar(np.array([s]))[0]) if art.calibrador is not None else float("nan")
     pc = percentil_en_cola(s, ref)
-    with izq:
-        st.caption(f"Puntaje de la regla: {F.decimal(s, 3)} (más alto = más arriba en la cola).")
     with der:
         _html(f'<p class="aud-probabilidad">{F.porcentaje(p)}</p><p class="aud-descripcion">probabilidad estimada de no tener pareja en ninguna cámara</p>')
         st.markdown(f"**{texto_posicion(pc)}**")
-        st.write(explicacion_caja(top_pts, dist, clase == "Ciclista", pc, p))
+        st.write(F.sin_corte(explicacion_caja(top_pts, dist, clase == "Ciclista", pc, p)))
+        st.caption(texto_puntaje(s))
         if clase == "Ciclista":
             c = ctx["ciclistas"]
             _html('<div class="aud-aviso"><strong>Ciclista:</strong> la regla es poco confiable (' + F.decimal(c["ciclista"], 3) + " de los casos encontrados contra " + F.decimal(c["peaton"], 3) +
@@ -296,15 +325,22 @@ def explica(ctx: dict[str, Any]) -> None:
             info = info_tipo_de_caso(tipo_de_caso(fila.copy(), ns), D["clusters"])
             st.markdown(f"**Tipo de caso:** {info['tipo_de_caso']}. En los 41 segmentos, ese tipo de caso tuvo {F.porcentaje(info['tasa'])} de cajas sin pareja "
                         f"(intervalo 95 % por segmentos {F.porcentaje(info['ic_lo'])} a {F.porcentaje(info['ic_hi'])}; {F.entero(info['cajas'])} cajas). Es una descripción (post hoc) y no mejora la predicción de la regla.")
-        valores = np.unique(np.round(np.geomspace(1, 1000, 60)))
+        valores = np.unique(np.concatenate([np.array(escala, dtype=float), np.round(np.geomspace(1, 2000, 70))]))
         dep = curva_dependencia(art.puntuador, fila, "num_top_lidar_points", valores)
         dep["prob"] = art.calibrador.calibrar(dep["score"].to_numpy(dtype=float)) if art.calibrador is not None else np.nan
-        x_enc = alt.X("num_top_lidar_points:Q", scale=alt.Scale(type="log"), title="Puntos del sensor superior (escala logarítmica)", axis=alt.Axis(labelExpr="replace(format(datum.value, ','), ',', '.')"))
+        marcas = [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000]
+        x_enc = alt.X("num_top_lidar_points:Q", scale=alt.Scale(type="symlog", constant=1, domain=[0, 2000]), title="Puntos del sensor superior (escala comprimida)",
+                      axis=alt.Axis(values=marcas, labelExpr="replace(format(datum.value, ','), ',', '.')"))
         y_enc = alt.Y("prob:Q", title="Probabilidad de no tener pareja", axis=alt.Axis(format="%"))
         marca = pd.DataFrame({"num_top_lidar_points": [top_pts], "prob": [p], "t": [f"Selección: {F.entero(top_pts)} puntos → {F.porcentaje(p)}"]})
-        _grafico(alt.layer(alt.Chart(dep).mark_line(strokeWidth=3, color=E.TOKENS["primario"]).encode(x=x_enc, y=y_enc),
-                           alt.Chart(marca).mark_point(size=150, filled=True, color=E.TOKENS["hueco"]).encode(x=x_enc, y=y_enc, tooltip=[alt.Tooltip("t:N", title="")])).properties(height=220))
-        st.caption("Probabilidad estimada según los puntos del sensor superior; las demás variables quedan en la mediana de los datos. Es una ilustración del modelo, no una explicación causal.")
+        reglas = pd.DataFrame({"num_top_lidar_points": [pb, pa], "t": ["Punto B", "Punto A"]})
+        grafico = alt.layer(alt.Chart(dep).mark_line(strokeWidth=3, color=E.TOKENS["primario"]).encode(x=x_enc, y=y_enc),
+                            alt.Chart(reglas).mark_rule(color=GRIS_GRAFICO, strokeWidth=1, strokeDash=[3, 3]).encode(x=x_enc),
+                            alt.Chart(reglas).mark_text(align="left", dx=4, baseline="top", fontSize=11, color=E.TOKENS["texto_suave"]).encode(x=x_enc, y=alt.value(4), text="t:N"),
+                            alt.Chart(marca).mark_point(size=150, filled=True, color=E.TOKENS["hueco"]).encode(x=x_enc, y=y_enc, tooltip=[alt.Tooltip("t:N", title="")]))
+        _grafico(grafico.properties(height=230))
+        st.caption(F.sin_corte(f"Probabilidad estimada según los puntos del sensor superior; las demás variables quedan en la mediana de los datos. Punto A ({F.entero(pa)} puntos o menos): umbral con el que se busca encontrar el 80 % "
+                               f"de las cajas sin pareja. Punto B ({F.entero(pb)} puntos o menos): umbral con el que se revisa el 20 % de las cajas. Es una ilustración del modelo, no una explicación causal."))
 
 
 # ------------------------------------------------------------------------------------------------------------ Auditoría de cámaras
@@ -373,9 +409,10 @@ def _barras_con_ic(df: pd.DataFrame, y: str, titulo_x: str, color: str | None = 
     base = alt.Chart(d).encode(y=alt.Y(f"{y}:N", sort=orden, title=None, axis=alt.Axis(labelLimit=260, labelFontSize=12, labelOverlap=False)))
     veredictos = [v for v in ("mejora", "aporta", "no mejora", "no aporta") if "Veredicto" in d and v in set(d["Veredicto"])]
     col = alt.Color("Veredicto:N", legend=alt.Legend(orient="bottom", title=None), scale=alt.Scale(domain=veredictos, range=[E.TOKENS["primario"] if v in ("mejora", "aporta") else GRIS_GRAFICO for v in veredictos])) if "Veredicto" in d else alt.value(E.TOKENS["primario"])
-    xe = alt.X("Mejora:Q", title=titulo_x, axis=alt.Axis(labelExpr=_eje_decimal(2)))
+    marcas, dec = _marcas_eje(list(d["lo"]) + list(d["hi"]) + list(d["Mejora"]))
+    xe = alt.X("Mejora:Q", title=titulo_x, scale=alt.Scale(domain=[marcas[0], marcas[-1]], nice=False), axis=alt.Axis(values=marcas, labelExpr=_eje_decimal(dec)))
     barras = base.mark_bar(size=16, opacity=0.85).encode(x=xe, color=col, tooltip=[alt.Tooltip(f"{y}:N", title=""), alt.Tooltip("Texto:N", title="Efecto")])
-    ic = base.mark_rule(strokeWidth=2, color=E.TOKENS["texto"]).encode(x=alt.X("lo:Q", title=titulo_x), x2="hi:Q")
+    ic = base.mark_rule(strokeWidth=2, color=E.TOKENS["texto"]).encode(x=alt.X("lo:Q", title=titulo_x, scale=alt.Scale(domain=[marcas[0], marcas[-1]], nice=False)), x2="hi:Q")
     cero = alt.Chart(pd.DataFrame({"x": [0.0]})).mark_rule(color=E.TOKENS["texto_suave"], strokeDash=[3, 3]).encode(x="x:Q")
     return (barras + ic + cero).properties(height=max(150, 46 * len(d) + 30))
 
@@ -385,7 +422,7 @@ def _grafico_validacion(pref: str, datos: dict[str, pd.DataFrame]) -> None:
         st.caption("Cambio de PR-AUC al optimizar los hiperparámetros frente a los valores por defecto (positivo = mejora). Línea negra: intervalo de confianza 95 % por segmentos.")
         _grafico(_barras_con_ic(datos["ie9"], "Modelo", "Cambio de PR-AUC (optimizado − por defecto)"))
     elif pref == "ie10" and "ie10" in datos:
-        d = datos["ie10"].assign(Comparación=lambda t: t["Ensamble"] + " contra " + t["Mejor componente"].str.replace("_", " "))
+        d = datos["ie10"].assign(Comparación=lambda t: t["Ensamble"] + " contra " + t["Mejor componente"].map(F.nombre_componente))
         st.caption("Diferencia de AUC entre cada ensamble y su mejor componente (positivo = el ensamble aporta). Línea negra: intervalo de confianza 95 % por segmentos.")
         _grafico(_barras_con_ic(d, "Comparación", "Diferencia de AUC (ensamble − mejor componente)"))
     elif pref == "ie11" and "ie11" in datos:
@@ -393,28 +430,31 @@ def _grafico_validacion(pref: str, datos: dict[str, pd.DataFrame]) -> None:
         orden = list(d["Candidato"])
         d = d.assign(Texto=lambda t: [f"AUC {F.decimal(a, 3)} (IC {F.decimal(lo, 3)} a {F.decimal(hi, 3)})" for a, lo, hi in zip(t["AUC"], t["lo"], t["hi"])])
         base = alt.Chart(d).encode(y=alt.Y("Candidato:N", sort=orden, title=None, axis=alt.Axis(labelFontSize=12, labelOverlap=False)))
-        capas = [base.mark_rule(strokeWidth=3, color=E.TOKENS["primario"], opacity=0.55).encode(x=alt.X("lo:Q", title="AUC fuera de pliegue", scale=alt.Scale(domain=[0.55, 1]), axis=alt.Axis(labelExpr=_eje_decimal(2))), x2="hi:Q"),
+        capas = [base.mark_rule(strokeWidth=3, color=E.TOKENS["primario"], opacity=0.55).encode(x=alt.X("lo:Q", title="AUC (validación cruzada por segmentos)", scale=alt.Scale(domain=[0.55, 1]), axis=alt.Axis(labelExpr=_eje_decimal(2))), x2="hi:Q"),
                  base.mark_point(size=110, filled=True, color=E.TOKENS["primario"]).encode(x="AUC:Q", tooltip=[alt.Tooltip("Candidato:N", title=""), alt.Tooltip("Texto:N", title="Global")])]
-        if "ie11_pliegues" in datos:
-            pl = datos["ie11_pliegues"].assign(Texto=lambda t: [f"Pliegue {p}: AUC {F.decimal(a, 3)}" for p, a in zip(t["Pliegue"], t["AUC"])])
+        if "ie11_particiones" in datos:
+            pl = datos["ie11_particiones"].assign(Texto=lambda t: [f"Partición {p}: AUC {F.decimal(a, 3)}" for p, a in zip(t["Partición"], t["AUC"])])
             capas.append(alt.Chart(pl).mark_point(size=45, color=GRIS_GRAFICO, shape="diamond", filled=True).encode(y=alt.Y("Candidato:N", sort=orden), x="AUC:Q", tooltip=[alt.Tooltip("Candidato:N", title=""), alt.Tooltip("Texto:N", title="")]))
-        st.caption("Punto azul: AUC fuera de pliegue con su intervalo de confianza 95 % por segmentos. Rombos grises: AUC de cada pliegue (solo los candidatos que trae la copia de la página: Regla top, LR3 y XGB).")
+        st.caption("Punto azul: AUC en validación cruzada por segmentos con su intervalo de confianza 95 %. Rombos grises: AUC de cada partición de la validación cruzada (solo para Regla top, LR3 y XGB).")
         _grafico(alt.layer(*capas).properties(height=max(240, 34 * len(d) + 40)))
     elif pref == "nosup" and "nosup" in datos:
         d = datos["nosup"].assign(Texto=lambda t: [f"{F.porcentaje(v)} (IC {F.porcentaje(lo)} a {F.porcentaje(hi)}); {F.entero(n)} cajas" for v, lo, hi, n in zip(t["Tasa"], t["lo"], t["hi"], t["Cajas"])])
-        base = alt.Chart(d).encode(y=alt.Y("Tipo de caso:N", title=None, axis=alt.Axis(labelFontSize=12)))
+        base = alt.Chart(d).encode(y=alt.Y("Tipo de caso:N", title=None, axis=alt.Axis(labelFontSize=12, labelLimit=260, labelOverlap=False)))
         st.caption("Proporción de cajas sin pareja en cada tipo de caso (k = 2), con intervalo de confianza 95 % por segmentos. Es descriptivo y post hoc.")
-        _grafico((base.mark_bar(size=22, color=E.TOKENS["primario"], opacity=0.85).encode(x=alt.X("Tasa:Q", title="Proporción de cajas sin pareja", axis=alt.Axis(format="%", labelExpr="replace(format(datum.value * 100, '.0f'), '.', ',') + ' %'")),
+        _grafico((base.mark_bar(size=26, color=E.TOKENS["primario"], opacity=0.85).encode(x=alt.X("Tasa:Q", title="Proporción de cajas sin pareja", axis=alt.Axis(format="%", labelExpr="replace(format(datum.value * 100, '.0f'), '.', ',') + ' %'")),
                                                                                          tooltip=[alt.Tooltip("Tipo de caso:N", title=""), alt.Tooltip("Texto:N", title="")])
-                  + base.mark_rule(strokeWidth=2, color=E.TOKENS["texto"]).encode(x="lo:Q", x2="hi:Q")).properties(height=110))
+                  + base.mark_rule(strokeWidth=2, color=E.TOKENS["texto"]).encode(x="lo:Q", x2="hi:Q")).properties(height=alt.Step(70)))
     elif pref == "posthoc" and "brazos" in datos:
         d = datos["brazos"].assign(Texto=lambda t: [F.porcentaje(v) for v in t["Fraccion"]])
-        brazos = list(dict.fromkeys(d["Brazo"]))
+        brazos = list(dict.fromkeys(d["Flujo"]))
         st.caption("Fracción de las cajas que hay que revisar para encontrar el 80 % de las cajas sin pareja (menos es mejor). En muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos.")
-        _grafico(alt.Chart(d).mark_bar().encode(x=alt.X("Candidato:N", title=None, axis=alt.Axis(labelAngle=0, labelFontSize=12)), xOffset=alt.XOffset("Brazo:N", sort=brazos),
-                                                y=alt.Y("Fraccion:Q", title="Fracción de cajas a revisar", axis=alt.Axis(format="%")),
-                                                color=alt.Color("Brazo:N", title=None, sort=brazos, scale=alt.Scale(domain=brazos, range=[GRIS_GRAFICO, "#9DB7D5", E.TOKENS["primario"]]), legend=alt.Legend(orient="bottom")),
-                                                tooltip=[alt.Tooltip("Candidato:N", title=""), alt.Tooltip("Brazo:N", title=""), alt.Tooltip("Texto:N", title="Fracción")]).properties(height=260))
+        barras = alt.Chart(d).mark_bar().encode(x=alt.X("Candidato:N", title=None, axis=alt.Axis(labelAngle=0, labelFontSize=12)), xOffset=alt.XOffset("Flujo:N", sort=brazos),
+                                                y=alt.Y("Fraccion:Q", title="Fracción de cajas a revisar", scale=alt.Scale(domain=[0, 0.6]), axis=alt.Axis(format="%", values=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])),
+                                                color=alt.Color("Flujo:N", title=None, sort=brazos, scale=alt.Scale(domain=brazos, range=[GRIS_GRAFICO, "#9DB7D5", E.TOKENS["primario"]]),
+                                                                legend=alt.Legend(orient="bottom", labelLimit=420, columnPadding=18, symbolType="square")),
+                                                tooltip=[alt.Tooltip("Candidato:N", title=""), alt.Tooltip("Flujo:N", title=""), alt.Tooltip("Texto:N", title="Fracción")])
+        valores = alt.Chart(d).mark_text(dy=-6, fontSize=11, color=E.TOKENS["texto"]).encode(x=alt.X("Candidato:N"), xOffset=alt.XOffset("Flujo:N", sort=brazos), y=alt.Y("Fraccion:Q"), text="Texto:N")
+        _grafico((barras + valores).properties(height=280))
 
 
 def validacion(ctx: dict[str, Any]) -> None:
@@ -437,8 +477,9 @@ def validacion(ctx: dict[str, Any]) -> None:
                                      "O2": t["O2"].map({True: "sí", False: "no"}), "O3": t["O3"].map({True: "sí", False: "no"}), "O4": t["O4"].map({True: "sí", False: "no"}),
                                      "Cumple O1, O3 y O4": t["cumple_O1_O3_O4"].map({True: "sí", False: "no"})})
                 _tabla(crit)
-                st.markdown("**Resultados de la solución elegida (fuera de pliegue)**")
-                _tabla(tabla_resultados_clave(ctx["K"]), column_config={"Detalle": st.column_config.TextColumn("Detalle", width="large")}, alto_max=240)
+                st.markdown("**Resultados de la solución elegida (validación cruzada por segmentos)**")
+                _tabla(tabla_resultados_clave(ctx["K"]).drop(columns="Fuente"), ancho_max=640, alto_max=240)
+                st.caption("Fuente: informe técnico de EP3, sección 12 (cuadro «Modelo escogido») y anexo B (análisis en muestra).")
             if hallados:
                 with st.expander("Ver tabla completa"):
                     for k, v in hallados.items():
@@ -471,7 +512,7 @@ def puntuar(ctx: dict[str, Any]) -> None:
     try:
         art = ctx["artefactos"]()
     except FileNotFoundError:
-        st.error("Falta la solución congelada en data/06_models_ep3 (la crea scripts/ep3/f6_final.py).")
+        st.error("Falta la solución congelada, así que esta página no puede calcular. Avise a quien mantiene la página.")
         return
     st.markdown("#### Archivos de entrada")
     st.table(FORMATO_ARCHIVOS)
@@ -536,7 +577,7 @@ def etica(ctx: dict[str, Any]) -> None:
     encabezado("Ética y límites", DESCRIPCION_PAGINA["Ética y límites"])
     claves = {t.get("titulo", ""): t.get("valor", "") for t in ctx["K"].get("tarjetas", [])}
     auc, recall, cap = claves.get("AUC fuera de fold", ""), claves.get("Recall en el punto A", ""), claves.get("Captura al revisar el 20 %", "")
-    desempeno = (f"Fuera de pliegue: AUC {auc}, recall en el punto A {recall} y {cap} de las cajas sin pareja al revisar el 20 % de las cajas (intervalos en «Validación»). " if auc else "") + \
+    desempeno = (f"En validación cruzada por segmentos: AUC {auc}, recall en el punto A {recall} y {cap} de las cajas sin pareja al revisar el 20 % de las cajas (intervalos en «Validación»). " if auc else "") + \
         "Todas las cifras son en muestra: 41 segmentos, detector ajustado con los mismos datos y sin prueba ciega."
     izq, der = st.columns(2, gap="large")
     with izq:
@@ -582,6 +623,6 @@ def ejecutar(seccion: str) -> None:
     ctx = C.contexto()
     if ctx["falta"] is not None and seccion in NECESITA_DATOS:
         encabezado(seccion, DESCRIPCION_PAGINA.get(seccion, ""))
-        st.error(f"No se encuentran los datos de la página ({ctx['falta']}). Se generan con: python scripts/ep3/f7_preparar_app.py")
+        st.error(f"No se encuentran los datos de la página ({ctx['falta']}). Hay que prepararlos antes de abrir la página (ver el mapa de archivos de EP3).")
         return
     SECCION_FN[seccion](ctx)
