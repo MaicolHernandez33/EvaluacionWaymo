@@ -312,34 +312,34 @@ def texto_esfuerzo_cola(r: dict[str, Any]) -> str:
             f"{F.horas(r['horas'], 1)} con {F.entero(r['segundos'])} s por caja (supuesto).")
 
 
-COLUMNA_FOTOGRAMAS = "Fotogramas en la cola"
-NOTA_FOTOGRAMAS = ("Un mismo objeto (por ejemplo, un peatón que camina) aparece en varios fotogramas y cada fotograma es una caja distinta de la cola. "
-                   "La columna «" + COLUMNA_FOTOGRAMAS + "» cuenta cuántas filas de la cola son del mismo objeto: revisar una ayuda a revisar las otras. No cambia el orden de la cola.")
+COLUMNA_FOTOGRAMAS = "Fotogramas"
+NOTA_FOTOGRAMAS = ("Fotogramas del mismo objeto que hay en la cola: un mismo objeto (por ejemplo, un peatón que camina) aparece en varios fotogramas y cada fotograma es una caja distinta de la cola. "
+                   "Cuenta cuántas filas de la cola son del mismo objeto: revisar una ayuda a revisar las otras. No cambia el orden de la cola.")
 
 
 def tabla_cola(top: pd.DataFrame, cola_total: int, rangos: dict[int, tuple[float, float]], presentacion: bool, max_filas: int = 500) -> pd.DataFrame:
     """Tabla de la cola lista para mostrar (nombres legibles, formato es-CL). En modo presentación no lleva identificadores (ni el segmento).
 
-    Orden de columnas: posición, segmento, cámara, **probabilidad calibrada de no tener pareja** (F20-P4e; reemplaza a «Prioridad», una barra saturada en 100), clase, tipo de caso,
-    puntos, distancia, fotogramas del mismo objeto y, al final, los identificadores. No cambia el orden de las filas ni ninguna cifra. ``cola_total`` se conserva por compatibilidad.
+    Orden de columnas (F21-P1b), pensado para que a 1366 px se vea lo que decide sin desplazar: posición, **probabilidad calibrada de no tener pareja**, puntos del sensor superior, clase,
+    fotogramas del mismo objeto, cámara, tipo de caso, distancia y, al final, el segmento y los identificadores. No cambia el orden de las filas ni ninguna cifra. ``cola_total`` se conserva
+    por compatibilidad.
     """
     t = top.head(max_filas).reset_index(drop=True)
     n = len(t)
     out = pd.DataFrame({"Posición": np.arange(1, n + 1)})
-    if not presentacion:
-        out["Segmento"] = t["seg"].to_numpy()
-    out["Cámara"] = camara_de_azimut(t["az_signed"], rangos).to_numpy() if "az_signed" in t.columns else "—"
     out[COLUMNA_PROBABILIDAD] = t["prob_cal"].map(lambda v: F.porcentaje(v, 1)).to_numpy() if "prob_cal" in t.columns else "—"
+    out["Puntos sensor sup."] = t["num_top_lidar_points"].map(F.entero).to_numpy() if "num_top_lidar_points" in t.columns else "—"
     if "es_ciclista" in t.columns:
         out["Clase"] = np.where(t["es_ciclista"].to_numpy() == 1, CLASE_ADVERTENCIA, CLASE_NORMAL)
-    out["Tipo de caso"] = t["tipo_caso"].to_numpy() if "tipo_caso" in t.columns else "—"
-    out["Puntos sensor sup."] = t["num_top_lidar_points"].map(F.entero).to_numpy() if "num_top_lidar_points" in t.columns else "—"
-    out["Distancia"] = t["distancia_m"].map(lambda v: f"{F.decimal(v, 1)} m").to_numpy() if "distancia_m" in t.columns else "—"
     if "key.laser_object_id" in top.columns and "seg" in top.columns:
         # cuántas filas (fotogramas) de la cola tiene el mismo objeto; se cuenta sobre TODA la cola elegida, no solo sobre las filas que se muestran
         cuenta = top.groupby(["seg", "key.laser_object_id"])["seg"].transform("size").to_numpy()[:max_filas]
         out[COLUMNA_FOTOGRAMAS] = cuenta
+    out["Cámara"] = camara_de_azimut(t["az_signed"], rangos).to_numpy() if "az_signed" in t.columns else "—"
+    out["Tipo de caso"] = t["tipo_caso"].to_numpy() if "tipo_caso" in t.columns else "—"
+    out["Distancia"] = t["distancia_m"].map(lambda v: f"{F.decimal(v, 1)} m").to_numpy() if "distancia_m" in t.columns else "—"
     if not presentacion:
+        out["Segmento"] = t["seg"].to_numpy()
         for col, nombre in (("key.frame_timestamp_micros", "Marca de tiempo"), ("key.laser_object_id", "Identificador de objeto")):
             if col in t.columns:
                 out[nombre] = t[col].to_numpy()
@@ -363,18 +363,52 @@ def tabla_por_objeto(top: pd.DataFrame, presentacion: bool, rangos: dict[int, tu
         if col in t.columns:
             agg[nombre] = (col, fn)
     g = t.groupby(["seg", "key.laser_object_id"], sort=False).agg(**agg).reset_index().sort_values("pos").head(max_filas)
-    out = pd.DataFrame({"Objeto": np.arange(1, len(g) + 1) if presentacion else g["key.laser_object_id"].to_numpy()})
-    if not presentacion:
-        out.insert(0, "Segmento", g["seg"].to_numpy())
-    out["Mejor posición"] = g["pos"].to_numpy()
-    if "az" in g.columns:
-        out["Cámara"] = camara_de_azimut(g["az"].reset_index(drop=True), rangos or {}).to_numpy()
+    out = pd.DataFrame({"Mejor posición": g["pos"].to_numpy()})
     out[COLUMNA_PROBABILIDAD + " máxima"] = g["prob"].map(lambda v: F.porcentaje(v, 1)).to_numpy() if "prob" in g.columns else "—"
     if "ciclista" in g.columns:
         out["Clase"] = np.where(g["ciclista"].to_numpy() == 1, CLASE_ADVERTENCIA, CLASE_NORMAL)
-    out["Tipo de caso"] = g["tipo"].to_numpy() if "tipo" in g.columns else "—"
     out[COLUMNA_FOTOGRAMAS] = g["n"].to_numpy()
+    if "az" in g.columns:
+        out["Cámara"] = camara_de_azimut(g["az"].reset_index(drop=True), rangos or {}).to_numpy()
+    out["Tipo de caso"] = g["tipo"].to_numpy() if "tipo" in g.columns else "—"
+    out["Objeto"] = np.arange(1, len(g) + 1) if presentacion else g["key.laser_object_id"].to_numpy()
+    if not presentacion:
+        out["Segmento"] = g["seg"].to_numpy()
     return out
+
+
+def empate_inicial(top: pd.DataFrame) -> dict[str, Any] | None:
+    """Empate al inicio de la cola (F21-P1a): cuántas de las primeras cajas comparten el mismo puntaje de la regla. ``None`` si no hay empate (menos de 2).
+
+    La cola está ordenada por puntaje descendente, así que los empates del principio son un bloque contiguo. Devuelve el número de cajas, los puntos del sensor superior (si son
+    los mismos) y el rango de la probabilidad calibrada (cada partición de la validación cruzada calibró por separado, por eso puede variar un poco entre las cajas empatadas).
+    """
+    if top.empty or "score" not in top.columns:
+        return None
+    s = top["score"].to_numpy()
+    n = int((s == s[0]).sum())
+    if n < 2:
+        return None
+    g = top.iloc[:n]
+    pts = g["num_top_lidar_points"].unique() if "num_top_lidar_points" in g.columns else []
+    prob = g["prob_cal"] if "prob_cal" in g.columns else None
+    return {"n": n, "toda_la_cola": n == len(top), "puntos": float(pts[0]) if len(pts) == 1 else None, "prob_primera": float(prob.iloc[0]) if prob is not None else None,
+            "prob_min": float(prob.min()) if prob is not None else None, "prob_max": float(prob.max()) if prob is not None else None}
+
+
+def nota_empate(top: pd.DataFrame) -> str | None:
+    """Nota sobre la tabla de la cola: «Las primeras N cajas empatan (0 puntos del sensor superior, 87,8 %); el orden entre ellas no es informativo». Se calcula de la cola; ``None`` si no hay empate."""
+    e = empate_inicial(top)
+    if e is None:
+        return None
+    partes = []
+    if e["puntos"] is not None:
+        partes.append(f"{F.entero(e['puntos'])} puntos del sensor superior")
+    if e["prob_min"] is not None:
+        a, b, p0 = F.porcentaje(e["prob_min"], 1), F.porcentaje(e["prob_max"], 1), F.porcentaje(e["prob_primera"], 1)
+        partes.append(a if a == b else f"{p0} en la primera y de {a} a {b} en el grupo")   # la tabla muestra la de cada caja; el rango dice cuánto varía dentro del empate
+    sujeto = f"Las {F.entero(e['n'])} cajas de la cola empatan" if e["toda_la_cola"] else f"Las primeras {F.entero(e['n'])} cajas empatan"
+    return f"{sujeto} ({'; '.join(partes)}); el orden entre ellas no es informativo." if partes else f"{sujeto}; el orden entre ellas no es informativo."
 
 
 def filtrar_cola(tabla: pd.DataFrame, clases: list[str] | None = None, camaras: list[str] | None = None) -> pd.DataFrame:
@@ -438,7 +472,7 @@ def alertas_resumen(r: dict[str, Any], ciclistas: dict[str, float], perfil: str 
         "celdas": {"clave": "celdas", "titulo": "Celdas marcadas", "texto": f"{F.entero(r['celdas_marcadas'])} celdas (segmento × cámara) en {F.entero(r['segmentos_con_hueco'])} segmentos se atienden aparte de la cola.",
                    "seccion": "Auditoría de cámaras", "tono": "hueco"},
         "ciclistas": {"clave": "ciclistas", "titulo": "Ciclistas: regla poco confiable", "texto": txt_c, "seccion": "Ética y límites", "tono": "aviso"},
-        "validacion": {"clave": "validacion", "titulo": "Validación externa pendiente", "texto": "La validación con segmentos nuevos está preparada y sellada; todavía no se ejecutó. Todas las cifras son en muestra.",
+        "validacion": {"clave": "validacion", "titulo": "Validación externa pendiente", "texto": "La validación con segmentos nuevos está preparada y sellada; todavía no se ejecutó. Todas las cifras salen de los 41 segmentos de desarrollo.",
                        "seccion": "Validación", "tono": "aviso"},
     }
     primera = PERFILES.get(perfil or "", {}).get("alerta")
@@ -489,9 +523,18 @@ def lista_A_detalle(lista_A: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-EJEMPLOS_CAJA = {"Caja cercana y densa": {"pts": 400, "top": 300, "dist": 8.0, "clase": "Peatón"},
-                 "Caja lejana con pocos puntos": {"pts": 8, "top": 6, "dist": 70.0, "clase": "Peatón"},
-                 "Ciclista lejano": {"pts": 25, "top": 20, "dist": 55.0, "clase": "Ciclista"}}
+ESCALA_PUNTOS = [0, 1, 2, 5, 10, 11, 20, 32, 50, 60, 100, 200, 500, 1000, 2000]        # escala no lineal con valores de referencia; incluye 11 y 32 (puntos B y A) y 60 (el valor por defecto de siempre)
+EJEMPLOS_CAJA = {"Caja cercana y densa": {"pts": 500, "top": 200, "dist": 8.0, "clase": "Peatón"},
+                 "Caja lejana con pocos puntos": {"pts": 10, "top": 5, "dist": 70.0, "clase": "Peatón"},
+                 "Ciclista lejano": {"pts": 20, "top": 10, "dist": 55.0, "clase": "Ciclista"}}
+PASOS_DEL_CALCULO = ["La regla ordena las cajas por menos puntos del sensor superior: cuantos menos puntos, más arriba queda la caja en la cola.",
+                     "La calibración convierte ese puntaje en la probabilidad de que la caja no tenga par en ninguna cámara.",
+                     "La posición en la cola es la fracción de las cajas que quedan antes que esta."]
+
+
+def texto_puntaje(puntaje: float) -> str:
+    """Puntaje de la regla sin decimales y sin jerga (F21-P2a): «Puntaje: -50 (menos los puntos del sensor superior)»."""
+    return f"Puntaje: {F.entero(puntaje)} (menos los puntos del sensor superior)"
 
 
 def texto_posicion(percentil: float) -> str:
@@ -525,10 +568,10 @@ def lectura_evidencia(ev: dict[str, pd.DataFrame]) -> dict[str, str]:
     try:
         t = ev["ie11__metricas_de_generalizacion"].set_index("candidato")
         r = t.loc["Regla top"]
-        out["ie11"] = (f"La regla de puntos tiene AUC {F.decimal(r['AUC'], 3)} fuera de pliegue; ningún candidato alcanza el AUC mínimo por pliegue de 0,75 "
-                       f"(el mejor llega a {F.decimal(t['AUC_min_fold'].max(), 3)}), por el pliegue 0.")
+        out["ie11"] = (f"La regla de puntos tiene AUC {F.decimal(r['AUC'], 3)} en validación cruzada por segmentos; ningún candidato alcanza el AUC mínimo por partición de 0,75 "
+                       f"(el mejor llega a {F.decimal(t['AUC_min_fold'].max(), 3)}), por la partición 0.")
     except (KeyError, IndexError):
-        out["ie11"] = "Métricas fuera de pliegue de los candidatos."
+        out["ie11"] = "Métricas de los candidatos en validación cruzada por segmentos."
     try:
         t = ev["ie12__tabla_de_seleccion"]
         n2 = int(t["O2"].astype(bool).sum())
@@ -544,15 +587,20 @@ def lectura_evidencia(ev: dict[str, pd.DataFrame]) -> dict[str, str]:
     try:
         t = ev["posthoc__auc_por_fold_y_brazos"]
         f0 = t[(t["candidato"] == "Regla top") & (t["fold"].astype(str) == "0")].iloc[0]
-        out["posthoc"] = f"Con la celda con hueco fuera, el AUC de la regla en el pliegue 0 pasa de {F.decimal(f0['AUC_A'], 3)} a {F.decimal(f0['AUC_B_celdas_sanas'], 3)} (post hoc, en muestra, no pre-declarado)."
+        out["posthoc"] = f"Con la celda con hueco fuera, el AUC de la regla en la partición 0 pasa de {F.decimal(f0['AUC_A'], 3)} a {F.decimal(f0['AUC_B_celdas_sanas'], 3)} (post hoc, en muestra, no pre-declarado)."
     except (KeyError, IndexError):
         out["posthoc"] = "Todo lo de esta pestaña es post hoc, no pre-declarado."
     return out
 
 
+FLUJO_BRAZO_A = "Solo cola (un paso)"
+FLUJO_BRAZO_B = "Solo celdas sanas, sin auditoría"
+FLUJO_BRAZO_C = "Auditoría + cola (dos pasos)"
+
+
 def datos_validacion(ev: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     """Tablas ya preparadas para el gráfico con que abre cada pestaña de «Validación» (F20-P7). Todo sale de los CSV de ``data/09_app_ep3/evidencia`` (copias de EP3):
-    ``ie9`` de f3_defecto_vs_optimizado, ``ie10`` de f4_ensambles_aporta, ``ie11`` de f5_metricas_candidatos, ``ie11_pliegues`` de f5_auc_por_fold (solo los candidatos que trae la copia),
+    ``ie9`` de f3_defecto_vs_optimizado, ``ie10`` de f4_ensambles_aporta, ``ie11`` de f5_metricas_candidatos, ``ie11_particiones`` de f5_auc_por_fold (solo los candidatos que trae la copia),
     ``nosup`` de f13_clusters_k2 y ``brazos`` de f12_auc_por_fold_brazos (fila global). Las claves faltan si la tabla no está."""
     out: dict[str, pd.DataFrame] = {}
     if "ie9__defecto_vs_optimizado" in ev:
@@ -568,13 +616,13 @@ def datos_validacion(ev: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
         t = ev["posthoc__auc_por_fold_y_brazos"]
         t = t.assign(fold=t["fold"].astype(str))
         pl = t[t["fold"] != "global"]
-        out["ie11_pliegues"] = pd.DataFrame({"Candidato": pl["candidato"], "Pliegue": pl["fold"], "AUC": pl["AUC_A"]})
+        out["ie11_particiones"] = pd.DataFrame({"Candidato": pl["candidato"], "Partición": pl["fold"], "AUC": pl["AUC_A"]})
         g = t[t["fold"] == "global"]
         if not g.empty:
             out["brazos"] = pd.concat([
-                pd.DataFrame({"Candidato": g["candidato"], "Brazo": "A: solo cola (un paso)", "Fraccion": g["Fraccion80_A"]}),
-                pd.DataFrame({"Candidato": g["candidato"], "Brazo": "B: celdas sanas, sin auditoría", "Fraccion": g["Fraccion80_B_celdas_sanas"]}),
-                pd.DataFrame({"Candidato": g["candidato"], "Brazo": "C: auditoría + cola (dos pasos)", "Fraccion": g["Fraccion80_C"]})], ignore_index=True)
+                pd.DataFrame({"Candidato": g["candidato"], "Flujo": FLUJO_BRAZO_A, "Fraccion": g["Fraccion80_A"]}),
+                pd.DataFrame({"Candidato": g["candidato"], "Flujo": FLUJO_BRAZO_B, "Fraccion": g["Fraccion80_B_celdas_sanas"]}),
+                pd.DataFrame({"Candidato": g["candidato"], "Flujo": FLUJO_BRAZO_C, "Fraccion": g["Fraccion80_C"]})], ignore_index=True)
     if "nosup__clusters_k2" in ev:
         t = ev["nosup__clusters_k2"]
         out["nosup"] = pd.DataFrame({"Tipo de caso": t["tipo_de_caso"], "Tasa": t["tasa_sin_camara"], "lo": t["ic_lo"], "hi": t["ic_hi"], "Cajas": t["cajas"]})

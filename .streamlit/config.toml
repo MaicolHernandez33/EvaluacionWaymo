@@ -10,11 +10,21 @@ gatherUsageStats = false
 [client]
 toolbarMode = "minimal"
 
-# Tema (F18-C1): paleta sobria definida en app/estilos.py (TOKENS); tipografia del sistema, sin fuentes externas.
+# Tema (F22): barra lateral de tinta, lienzo claro y cobalto; definido en app/estilos.py (TOKENS); tipografia del sistema, sin fuentes externas.
 [theme]
 base = "light"
-primaryColor = "#1D4E89"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F2F5F9"
-textColor = "#1B2430"
+primaryColor = "#2457D6"
+backgroundColor = "#F6F8FB"
+secondaryBackgroundColor = "#EAEFF6"
+textColor = "#14202F"
 font = "sans serif"
+baseRadius = "0.6rem"
+borderColor = "#D8E0EB"
+showWidgetBorder = true
+
+[theme.sidebar]
+backgroundColor = "#0F1B2D"
+secondaryBackgroundColor = "#1B2D4A"
+textColor = "#E8EEF7"
+primaryColor = "#8DB0FF"
+borderColor = "#2A3E5E"

@@ -25,6 +25,7 @@ PRE = RAIZ / "app/precarga.py"
 CAP = RAIZ / "scripts/ep3/capturar_pagina.py"
 TPU = RAIZ / "tests/ep3/test_pagina_pulido.py"
 TF20 = RAIZ / "tests/ep3/test_pagina_f20.py"
+TF21 = RAIZ / "tests/ep3/test_pagina_f21.py"
 
 
 def segundos(escenarios: list[dict], clave: str) -> str:
@@ -72,6 +73,16 @@ def main() -> None:
     ar20 = json.loads(ruta_f20.read_text(encoding="utf-8")) if ruta_f20.exists() else None
     con20 = [e for e in ar20["escenarios"] if e["escenario"].startswith("con lanzador")] if ar20 else []
     sin20 = [e for e in ar20["escenarios"] if e["escenario"].startswith("sin lanzador")] if ar20 else []
+    ruta_f21 = RAIZ / "data/08_reporting_ep3/pagina_arranque_f21.json"
+    ar21 = json.loads(ruta_f21.read_text(encoding="utf-8")) if ruta_f21.exists() else None
+    con21 = [e for e in ar21["escenarios"] if e["escenario"].startswith("con lanzador")] if ar21 else []
+    sin21 = [e for e in ar21["escenarios"] if e["escenario"].startswith("sin lanzador")] if ar21 else []
+    if con21:
+        aislados = sum(1 for e in con21 + sin21 if not e["secciones_cumplen_3s"])
+        tiempos_f21 = (f"{aislados} de {len(con21) + len(sin21)} arranques salieron lentos de forma aislada (con todas las páginas lentas a la vez; carga puntual del equipo, hipótesis; ver el reporte de F21); el resto: con el lanzador, la primera visita a «Explica una caja» tarda {segundos([e for e in con21 if e['secciones_cumplen_3s']], 'primera_visita_explica_s')} s y la página más lenta {max(e['maximo_secciones_s'] for e in con21 if e['secciones_cumplen_3s']):.1f} s después; "
+                       f"sin el lanzador, la primera visita tarda {segundos(sin21, 'primera_visita_explica_s')} s".replace(".", ","))
+    else:
+        tiempos_f21 = "medición pendiente (`scripts/ep3/f19_medir_arranque.py`)"
     tiempos_f20 = (f"con el lanzador, la primera visita a «Explica una caja» tarda {segundos(con20, 'primera_visita_explica_s')} s y ninguna página tarda más de {max(e['maximo_secciones_s'] for e in con20):.1f} s después; sin el lanzador, la primera visita tarda {segundos(sin20, 'primera_visita_explica_s')} s".replace(".", ",")
                    if con20 and sin20 else "sin medición (correr scripts/ep3/f19_medir_arranque.py)")
     md = f"""# Pendientes de la página: estado tras el rediseño (F18-C, F19-B y F20)
@@ -112,7 +123,7 @@ def main() -> None:
 
 ## f) Aviso de ciclistas: resuelto
 - La regla es poco confiable para ciclistas: {ci['recall_A']:.3f} contra {pe['recall_A']:.3f} en peatones, con {int(ci['positivos'])} positivos en {int(ci['segmentos'])} segmentos (`f12_equidad.csv`).
-- Cola de revisión: columna «Clase» con la advertencia ({ref(LOG, "CLASE_ADVERTENCIA = ")}) y un aviso bajo la tabla si hay ciclistas ({ref(SEC, "Hay ciclistas en esta lista")}). Explica una caja: selector «Clase» y advertencia con las cifras ({ref(SEC, 'clase = st.radio("Clase"')}). Prueba: `test_tabla_de_la_cola_oculta_identificadores_y_avisa_de_ciclistas`.
+- Cola de revisión: columna «Clase» con la advertencia ({ref(LOG, "CLASE_ADVERTENCIA = ")}) y un aviso bajo la tabla si hay ciclistas ({ref(SEC, "Hay ciclistas en esta lista")}). Explica una caja: selector «Clase» y advertencia con las cifras ({ref(SEC, 'clase = st.radio("Clase (solo agrega')}). Prueba: `test_tabla_de_la_cola_oculta_identificadores_y_avisa_de_ciclistas`.
 
 ## g) F19-B: pulido de la página (B1 a B10)
 *Las cifras de la página no cambiaron: solo presentación, idioma y uso. Cada ítem tiene su prueba en `tests/ep3/test_pagina_pulido.py` (y en `test_pagina_rediseno.py`).*
@@ -161,13 +172,32 @@ def main() -> None:
 
 **Limitaciones y pendientes de F20 (con su motivo):**
 1. **Prueba con personas de cada rol y en otros equipos y navegadores** (motivo: requiere personas y equipos). Solo se verificó con pruebas automáticas, `AppTest` y capturas a 1366 y 1920 px.
-2. **Validación, pestaña Generalización:** el AUC por pliegue solo trae 3 candidatos (Regla top, LR3 y XGB), porque la copia de la página (`data/09_app_ep3/evidencia/posthoc__auc_por_fold_y_brazos.csv`) solo los incluye; `f5_auc_por_fold.csv` tiene los 11. Ampliarla exige copiar ese CSV con `scripts/ep3/f7_preparar_app.py`, y `data/09_app_ep3` no está entre las carpetas donde F20 podía escribir. Una prueba comprueba que los 3 candidatos coinciden con `f5_auc_por_fold.csv`.
+2. **Validación, pestaña Generalización:** el AUC por partición solo trae 3 candidatos (Regla top, LR3 y XGB), porque la copia de la página (`data/09_app_ep3/evidencia/posthoc__auc_por_fold_y_brazos.csv`) solo los incluye; `f5_auc_por_fold.csv` tiene los 11. Ampliarla exige copiar ese CSV con `scripts/ep3/f7_preparar_app.py`, y `data/09_app_ep3` no está entre las carpetas donde F20 podía escribir. Una prueba comprueba que los 3 candidatos coinciden con `f5_auc_por_fold.csv`.
 3. **CSS sobre atributos internos de Streamlit 1.65** (`data-testid` del cargador, de la barra lateral y de la tabla, y la clase `st-key-chip_estado` del chip): si una versión futura los cambia, la página sigue funcionando pero pierde ese estilo (el cargador volvería al inglés y el chip se vería como un botón normal).
 4. **Selección de fila:** depende de `st.dataframe(on_select="rerun")` de Streamlit 1.65; las pruebas simulan la selección escribiendo `st.session_state["tabla_cola"]` (AppTest no puede hacer clic en una tabla); el clic real se verificó en las capturas.
 5. **Ejemplo de «Puntuar datos nuevos»:** se reconstruye desde las variables derivadas de `cajas_oof` (no son datos crudos de Waymo) y no trae archivo de asociación (no se puede reconstruir a qué cámara pertenece cada caja sin inventarlo), así que no hay auditoría de cámaras en el ejemplo.
 6. **Errores 404 internos de Streamlit en subrutas** (`/cola/_stcore/health`, `/cola/_stcore/host-config`): Streamlit los pide relativos a la subruta y se resuelve solo; la captura los cuenta aparte (`404_internos_de_streamlit`) y no son errores de la página.
 7. **Idioma de los menús de los gráficos y de los mensajes del navegador:** los controla el navegador; los textos y cifras de la página sí están en es-CL.
 8. **Nombre «Inicio» y «Evidencia»:** ya no existen (ahora «Resumen» y «Validación»); los documentos históricos de F18 y F19 (`REPORTE_F18.md`, `REPORTE_F19B.md`) conservan los nombres de su fecha.
+
+## i) F21: última ronda de pulido (P1 a P7)
+*Las cifras de la página no cambiaron (regresión contra `pagina_numeros_antes.json`: `test_las_cifras_no_cambian_salvo_el_redondeo_unificado` en `tests/ep3/test_pagina_rediseno.py`); cambiaron disposición, textos y formato. Pruebas en `tests/ep3/test_pagina_f21.py`. Detalle de las dos pasadas de diseño: `auditoria_diseno_pagina.md`.*
+
+| Ítem | Estado | Dónde |
+|---|---|---|
+| P1 Cola: nota del empate calculada, orden de columnas, panel de detalle debajo de la tabla | **Hecho**: nueve columnas visibles a 1366 px sin desplazamiento; el panel va debajo porque a la derecha dejaba la tabla en unos 700 px | {ref(LOG, "def nota_empate")}, {ref(SEC, "def _panel_detalle")}, {ref(SEC, "def _config_columnas_cola")} |
+| P2 Explica: puntaje sin «-50,000», controles que dicen qué mueven, escala no lineal con los puntos A y B, «Cómo se calcula», ejemplos en una fila | **Hecho**: solo el control del sensor superior mueve la probabilidad (se verificó) | {ref(SEC, "def explica")}, {ref(LOG, "ESCALA_PUNTOS = ")}, {ref(LOG, "def texto_puntaje")} |
+| P3 Resumen: chip alineado, enlaces de alertas en su fila, nota sin archivos y popover «Fuente», «en muestra» a lo más dos veces | **Hecho** (medido con el DOM en las capturas) | {ref(SEC, "def resumen")}, {ref(EST, "st-key-alerta_")} |
+| P4 Redacción: «En validación cruzada por segmentos» en lugar de «Fuera de pliegue»; sin archivos, «pliegue», «fold», «OOF» ni «brazo A/B/C» en pantalla | **Hecho** (una prueba recorre las ocho páginas) | {ref(FMT, "def traducir_folds")}, {ref(TF21, "def test_ninguna_pagina_muestra_terminos_internos")} |
+| P5 Validación: seis pestañas revisadas con captura | **Hecho** (marcas del eje, nombres de componentes, tablas sin archivos, leyendas completas) | {ref(SEC, "def _grafico_validacion")}, {ref(SEC, "def _marcas_eje")} |
+| P6 Capturas (8 páginas, cola sin selección, 6 pestañas, presentación; 1366 y 1920 px) y dos pasadas de corrección | **Hecho** | {ref(CAP, "PESTANAS_VALIDACION")}, `auditoria_diseno_pagina.md` |
+| P7 Pruebas, regresión de cifras y tiempos | **Hecho**: {tiempos_f21} | {ref(TF21, "def test_la_nota_del_empate_se_calcula_de_la_cola_y_desaparece_sin_empate")}, `data/08_reporting_ep3/pagina_arranque_f21.json` |
+
+**Pendientes y límites de F21 (con su motivo):**
+1. **Un «%» se separa de su número solo en los textos que no pasan por `estilos._e` ni por `formato.sin_corte`** (motivo: Streamlit no permite un espacio de no separación global; se aplicó donde las capturas mostraron el corte: Ética, Explica y los textos HTML). Una cola o una pregunta frecuente muy larga todavía podría partirse.
+2. **El mapa de la Auditoría mantiene un contenedor de 560 px con desplazamiento** (41 segmentos × 20 px no caben): es un diseño de F20, no un defecto nuevo.
+3. **Los identificadores («Marca de tiempo», «Identificador de objeto») quedan a la derecha de «Segmento» y a 1366 px requieren desplazamiento horizontal**: son datos de trabajo, no de lectura; el modo presentación los oculta.
+4. **Tiempos medidos con un navegador sin interfaz en este equipo** (motivo: no hay otros equipos ni personas); las pruebas con una persona de cada rol siguen pendientes (límite 1 de F20).
 
 ## Hallazgos nuevos
 1. **Doble redondeo en la evidencia:** `f7_preparar_app.py` copiaba las tablas de evidencia con 4 decimales y la página las volvía a redondear a 3 (p. ej. recall de ciclistas 0,4435 → «0,444» en vez de 0,443). Corregido: se copian con 8 decimales (el resto de `data/09_app_ep3` quedó idéntico).

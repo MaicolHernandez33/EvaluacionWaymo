@@ -1,6 +1,6 @@
 # Preguntas cruzadas con respuesta, cifra y fuente
 
-*Generado por `scripts/ep3/generar_docs_ep3.py`. 77 preguntas; cada cifra sale del archivo indicado (carpeta `data/08_reporting_ep3` salvo que se diga otra). Las referencias a secciones corresponden a `informe_tecnico_EP3.md`.*
+*Generado por `scripts/ep3/generar_docs_ep3.py`. 79 preguntas; cada cifra sale del archivo indicado (carpeta `data/08_reporting_ep3` salvo que se diga otra). Las referencias a secciones corresponden a `informe_tecnico_EP3.md`.*
 
 **1. ¿Qué problema resuelve el proyecto?**
 - Respuesta: Ayuda a una persona a decidir qué cajas 3D de peatones y ciclistas probablemente no tienen su pareja 2D de cámara, para revisarlas primero.
@@ -103,7 +103,7 @@
 - Fuente: `f5_metricas_candidatos.csv`
 
 **21. ¿Qué es la Fracción para 80 %?**
-- Respuesta: La fracción de cajas que hay que revisar para encontrar el 80 % de los positivos.
+- Respuesta: La fracción de cajas que hay que revisar para encontrar el 80 % de los positivos. Nota: el conteo observado da 44,6 % y la curva guardada (interpolada) da 44,7 %; es la misma cantidad con dos métodos y el texto cita el conteo.
 - Cifra: 44,6 % en un paso; 29,6 % en dos pasos (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos)
 - Fuente: `f5_brazoC.csv`
 
@@ -193,8 +193,8 @@
 - Fuente: `informe_tecnico_EP3.md, sección 17`
 
 **39. ¿Dónde está el Machine Learning si la solución final es una regla?**
-- Respuesta: El ML son los 11 candidatos entrenados y comparados con búsqueda anidada y validación por segmento (LR, RF, HGB, XGBoost, LightGBM, cuatro ensambles, la regla y una LR de 3 variables), y ninguno la supera de forma distinguible; además el ML aporta la calibración Platt (una regresión logística) y el análisis no supervisado. El detector de huecos **no es ML**: son percentiles, una mediana y un umbral (estadística descriptiva). Concluir que una regla basta es un resultado del aprendizaje automático, no su ausencia.
-- Cifra: 11 candidatos; AUC regla 0,823 contra el mejor modelo 0,808
+- Respuesta: El ML son los 11 candidatos entrenados y comparados con búsqueda anidada y validación por segmento (LR, RF, HGB, XGBoost, LightGBM, cuatro ensambles, la regla y una LR de 3 variables), y ninguno la supera de forma distinguible; además el ML aporta la calibración Platt (una regresión logística) y el análisis no supervisado. El detector de huecos **no es ML**: son percentiles, una mediana y un umbral (estadística descriptiva). Concluir que una regla basta es un resultado del aprendizaje automático, no su ausencia. En cifras: el mejor modelo entrenado sin la regla es LR3 con 0,808; E2, que la incluye como componente, 0,824; la regla sola, 0,823.
+- Cifra: 11 candidatos; AUC regla 0,823; mejor modelo sin la regla: LR3 0,808; E2 (la incluye) 0,824
 - Fuente: `f5_metricas_candidatos.csv, f6_tabla_seleccion.csv`
 
 **40. ¿Por qué no elegir E2 si tiene mejor PR-AUC?**
@@ -303,7 +303,7 @@
 - Fuente: `f18_seleccion_motivos.csv, f18_seleccion_rendimiento.csv, docs/seleccion_segmentos/registro_verificacion_ep2.csv`
 
 **61. ¿Por qué recall objetivo 0,80?**
-- Respuesta: Es una decisión heredada de EP2 (punto A), no validada con el negocio. La curva guardada da, con un paso, 28,0 %, 44,7 % y 68,4 % de las cajas para encontrar 70 %, 80 % y 90 % de las sin pareja; con dos pasos (en muestra) 19,8 %, 30,4 % y 48,5 % de la cola de celdas sanas.
+- Respuesta: Es una decisión heredada de EP2 (punto A), no validada con el negocio. La curva guardada da, con un paso, 28,0 %, 44,7 % y 68,4 % de las cajas para encontrar 70 %, 80 % y 90 % de las sin pareja; con dos pasos (en muestra) 19,8 %, 30,4 % y 48,5 % de la cola de celdas sanas. Nota: el 80 % da 44,7 % en la curva guardada y 44,6 % en el conteo observado (la curva se interpola entre puntos).
 - Cifra: fracción para 70/80/90 %: 28 %/45 %/68 % (un paso)
 - Fuente: `data/09_app_ep3/curva_cola.csv`
 
@@ -363,14 +363,14 @@
 - Fuente: `GUIA_VALIDACION_EXTERNA.md (sección 6), src/waymo_evaluacion/ep3/congelado.py, manifest_alternativas.json, plan_v3_desviaciones.md (DEV-4)`
 
 **73. ¿Cómo se garantiza el sellado de la validación externa?**
-- Respuesta: Con cuatro candados. (1) El orden de los candidatos nuevos queda fijado en `plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`) y el notebook 00b exige y verifica ese plan. (2) `evaluar_sellado.py congelar` guarda los sha256 de la lista de segmentos y de la solución v3 y de las alternativas **antes** de abrir los datos, y `copiar_sello_a_artefactos.py` los copia a `artefactos_ep3/`. (3) Commit y push previos, que hace la persona (los scripts nunca tocan git): el sello queda en el historial antes de la evaluación. (4) `evaluar` toma un candado de una sola evaluación y lo hace solo cuando el cálculo terminó; no se puede repetir con otros parámetros. Cualquier cambio posterior de código se declara como desviación con fecha y motivo.
-- Cifra: 1 evaluación; 5 archivos de la solución v3 con sha256
+- Respuesta: Con cuatro candados. (1) El orden de los candidatos nuevos queda fijado en `plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`) y el notebook 00b exige y verifica ese plan. (2) `evaluar_sellado.py congelar` guarda los sha256 de la lista de segmentos y de la solución v3 y de las alternativas **antes** de abrir los datos, y `copiar_sello_a_artefactos.py` los copia a `artefactos_ep3/`. (3) Hacemos commit y push antes de evaluar (los scripts nunca tocan git): el sello queda en el historial antes de la evaluación. (4) `evaluar` toma un candado de una sola evaluación y lo hace solo cuando el cálculo terminó; no se puede repetir con otros parámetros. Cualquier cambio posterior de código se declara como desviación con fecha y motivo.
+- Cifra: 1 evaluación; 3 archivos con sha256 en el manifest; la verificación incluye además el plan v3 (2 archivos): 5 de 5
 - Fuente: `GUIA_VALIDACION_EXTERNA.md, docs/ep3/plan_seleccion_ep3.sha256, scripts/ep3/evaluar_sellado.py, data/06_models_ep3/manifest_v3.json`
 
 **74. ¿Qué pasa si la validación externa no encuentra huecos? (caso A; estimación gruesa, post hoc)**
-- Respuesta: Es el caso A: C es igual a A porque no hay celdas que auditar. **No refuta ni confirma el detector**: pudo no haber huecos. Con unas 70 celdas elegibles (≈ 26 segmentos × 5 cámaras × la fracción de celdas con ≥ 100 cajas en desarrollo, 111 de 205) y una tasa de 2 de 111 (1,8 %) en desarrollo, se esperarían ≈ 1,3 celdas marcadas, y la probabilidad de no marcar ninguna es del orden del 27 % (estimación gruesa tipo Poisson, exp(−1,3); post hoc, no pre-declarada). Por eso un resultado sin huecos es plausible y se interpreta con cautela; lo informativo seguiría siendo el desempeño de la regla fuera de muestra.
-- Cifra: ≈ 1,3 celdas marcadas esperadas; probabilidad de ninguna ≈ 27 %
-- Fuente: `GUIA_VALIDACION_EXTERNA.md (sección 7, caso A), plan_seleccion_ep3.json, f12_resumen.json`
+- Respuesta: Es el caso A: C es igual a A porque no hay celdas que auditar. **No refuta ni confirma el detector**: pudo no haber huecos. Dos estimaciones gruesas, ambas post hoc y no pre-declaradas. (1) Por celda: con unas 70 celdas elegibles (≈ 26 segmentos × 5 cámaras × la fracción de celdas con ≥ 100 cajas en desarrollo, 111 de 205) y una tasa de 2 de 111 (1,8 %) en desarrollo, se esperarían ≈ 1,3 celdas marcadas y la probabilidad de no marcar ninguna es del orden del 27 % (Poisson, exp(−1,3)). (2) Por concentración: los 2 huecos están en 2 de los 7 segmentos de día de San Francisco de desarrollo; con 8 segmentos nuevos de ese estrato, la probabilidad de que ninguno tenga hueco es (5/7)^8 ≈ 7 %. Rango: entre ≈ 7 % y ≈ 27 % de no ver ningún hueco (post hoc). Las dos estimaciones salen de los mismos datos con que se ajustó el detector, así que son optimistas: la tasa real de huecos probablemente sea menor y la probabilidad de no ver ninguno, mayor. Un resultado sin huecos es plausible y se interpreta con cautela; lo informativo seguiría siendo el desempeño de la regla fuera de muestra.
+- Cifra: ≈ 1,3 celdas marcadas esperadas; probabilidad de ninguna entre ≈ 7 % (concentración en San Francisco de día) y ≈ 27 % (por celda)
+- Fuente: `GUIA_VALIDACION_EXTERNA.md (sección 7, caso A), plan_seleccion_ep3.json, f12_resumen.json, data/09_app_ep3 (cajas_oof.parquet, lista_A.csv)`
 
 **75. ¿Por qué se congelaron LR3 y XGBoost si la solución es la regla? (DEV-4)**
 - Respuesta: Porque «solución contra regla» da 0 por construcción y no informa. Se congelaron antes de abrir datos (LR3 y XGBoost entrenadas con los 41 segmentos; XGBoost con la configuración más repetida entre los 5 folds, 2 de 5) para poder preguntar si algo más complejo mejora fuera de muestra. Son 4 comparaciones (diferencia de AUC y de fracción para el 80 %, para cada alternativa): un «gana» aislado es **exploratorio** (post hoc, sin corrección por comparaciones múltiples), no cambia la solución elegida y se usaría solo para decidir una validación nueva.
@@ -386,3 +386,13 @@
 - Respuesta: Porque lo robusto es que ordenar la cola con la regla reduce el tiempo frente a revisar sin orden (de ≈ 358 h a ≈ 200 h, con 20 s por caja: supuesto), con un intervalo de captura al 20 % que queda lejos del azar (0,533 a 0,723 contra 0,20). El flujo en dos pasos (≈ 132 h) sale de 2 celdas y de parámetros ajustados con los mismos datos, con una diferencia pareada cuyo IC incluye 0 (-0,490 a 0,000): va como segunda barra rotulada «en muestra».
 - Cifra: ≈ 358 h sin orden; ≈ 200 h un paso; ≈ 132 h dos pasos (en muestra)
 - Fuente: `f6_modelo_escogido.csv, f5_brazoC.csv, f12_diferencia_C_menos_A.csv`
+
+**78. ¿Por qué las primeras cajas de la cola tienen la misma probabilidad? (F21)**
+- Respuesta: Porque la regla ordena solo por «menos puntos del sensor superior» y 4.757 cajas tienen 0 puntos: la regla no las distingue, empatan en el puntaje y reciben una probabilidad calibrada casi igual (de 80,2 % a 90,4 %: cada partición de la validación cruzada calibró por separado). En esas cajas, 90,5 % no tiene pareja. El orden dentro del empate no es informativo y la página lo dice sobre la tabla. No es un defecto de la tabla: es lo que la regla sabe. Los modelos que usan otras variables (distancia, tamaño, cámara) no superaron a la regla en AUC, así que no hay evidencia de que desempatar con ellas mejore. Para la persona que revisa no cambia el trabajo: se atiende por objeto y por segmento, y todas las cajas del empate quedan dentro de lo que se revisa antes que el resto.
+- Cifra: 4.757 cajas con 0 puntos; 90,5 % sin pareja; probabilidad calibrada de 80,2 % a 90,4 %
+- Fuente: `f12_eda_calidad_resumen.json, data/09_app_ep3/cajas_oof.parquet (num_top_lidar_points, prob_cal), app_logica.py (nota_empate)`
+
+**79. ¿Cuál es el valor de negocio en una frase? (en muestra)**
+- Respuesta: Con la cola ordenada por la regla, encontrar el 80 % de las cajas sin pareja exige revisar ≈ 45 % de las cajas en vez del 80 % del total al azar: unas 200 h en lugar de 358 h con 20 s por caja (supuesto, no medido); con auditoría previa de las celdas marcadas, ≈ 132 h. Rótulo: en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos; la diferencia entre uno y dos pasos sale de 2 celdas y no se distingue de 0.
+- Cifra: ≈ 358 h sin orden; ≈ 200 h un paso; ≈ 132 h dos pasos (en muestra)
+- Fuente: `f6_modelo_escogido.csv, f5_metricas_candidatos.csv, f12_diferencia_C_menos_A.csv`

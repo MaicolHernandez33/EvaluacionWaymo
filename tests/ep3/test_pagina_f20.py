@@ -109,14 +109,16 @@ def test_el_css_cumple_el_sistema_visual_de_la_consola() -> None:
     import estilos as E
 
     css = E.css(False)
-    assert "Segoe UI" in css and "tabular-nums" in css and "border-radius: var(--radio)" in css and "--radio: 6px" in css
-    assert "box-shadow" not in css and "border-top: 4px" not in css and "999px" not in css and "border-top-color" not in css          # sin sombras, bordes superiores de color ni píldoras
-    assert "font-size: 1.5rem" in css and E.TAMANO_TITULO == E.TAMANO_METRICA == "1.5rem"
+    # F22 (DEC-82): el sistema visual pasó de «consola sobria» a «mesa de luz de sensores»: radio de 10 px, sombra suave en lo elevado y tarjetas blancas; siguen sin bordes superiores de color ni píldoras
+    assert "Segoe UI" in css and "tabular-nums" in css and "border-radius: var(--radio)" in css and "--radio: 10px" in css
+    assert "box-shadow: var(--sombra)" in css and "border-top: 4px" not in css and "999px" not in css and "border-top-color" not in css
+    assert "font-size: 1.65rem" in css and E.TAMANO_TITULO == "1.65rem" and E.TAMANO_METRICA == "1.75rem"
     assert ":focus-visible" in css and ":hover" in css and "stSidebarNavLink" in css                                                      # estados hover y foco visibles
     assert "repeat(2, 1fr)" in css and "aud-metricas.pres" in css                                                                         # 2 x 2 en modo presentación: nunca una tarjeta huérfana
     assert "--escala: 1.18" in E.css(True) and "--escala: 1;" in css
     assert not re.search(r"https?://|@import|url\(", css)
-    assert "acento" not in E.TOKENS and set(E.TOKENS) >= {"primario", "hueco", "aviso_fondo"}                                                  # un solo acento (azul); rojo = hueco; ámbar = «en muestra»
+    assert "@" not in re.sub(r"@(keyframes|media)", "", css)                                                                               # ningún marcador @token@ quedó sin reemplazar
+    assert set(E.TOKENS) >= {"primario", "hueco", "aviso_fondo", "sano", "tinta", "tarjeta"}                                                  # cobalto = acento; verde azulado = sano; rojo = hueco; ámbar = «en muestra»
     svg = E.wordmark("v")
     assert svg.startswith("<svg") and "http" not in svg.replace(E.SVG_NS, "") and "<image" not in svg
 
@@ -205,16 +207,16 @@ def test_la_pagina_de_cola_muestra_ambos_flujos_la_barra_en_una_fila_y_las_pesta
 
 def test_seleccionar_una_fila_abre_el_panel_de_detalle(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Cola de revisión")
-    assert "Seleccione una fila" in textos(at) and "Caja en la posición" not in textos(at)
+    assert "Seleccione una fila" in textos(at) and "Detalle de la caja en la posición" not in textos(at)
     at.session_state["tabla_cola"] = {"selection": {"rows": [2], "columns": [], "cells": []}}
     at.run()
     t = textos(at)
-    assert not at.exception and "Caja en la posición 3" in t and "probabilidad calibrada de no tener pareja" in t and "Posición en la cola:" in t
+    assert not at.exception and "Detalle de la caja en la posición 3" in t and "probabilidad calibrada de no tener pareja" in t and "Posición en la cola:" in t
     assert "segmento aaaaaaaaaaaa" in t or "segmento bbbbbbbbbbbb" in t or "segmento cccccccccccc" in t
     at.sidebar.toggle[0].set_value(True).run()                                                                    # modo presentación: la tabla cambia de columnas y Streamlit suelta la selección
     at.session_state["tabla_cola"] = {"selection": {"rows": [2], "columns": [], "cells": []}}
     at.run()
-    assert "Caja en la posición 3" in textos(at) and "segmento aaaaaaaaaaaa" not in textos(at)                   # el panel no muestra el segmento
+    assert "Detalle de la caja en la posición 3" in textos(at) and "segmento aaaaaaaaaaaa" not in textos(at)                   # el panel no muestra el segmento
 
 
 def test_el_detalle_usa_la_logica_de_explica_una_caja_y_el_significado_exacto_de_la_posicion(tmp_path: Path) -> None:
@@ -267,10 +269,10 @@ def test_los_encabezados_de_la_tabla_de_la_cola_no_se_cortan() -> None:
                         "es_ciclista": [1, 0, 0], "tipo_caso": ["lejanos y poco densos"] * 3, "key.laser_object_id": ["a", "b", "a"], "key.frame_timestamp_micros": [1, 2, 3]})
     t = tabla_cola(top, 3, {1: (-20.0, 20.0)}, False)
     anchos = F.anchos_columnas(t)
-    assert list(t.columns)[:4] == ["Posición", "Segmento", "Cámara", "Prob. sin pareja"] and "Prioridad" not in t.columns
+    assert list(t.columns)[:9] == ["Posición", "Prob. sin pareja", "Puntos sensor sup.", "Clase", COLUMNA_FOTOGRAMAS, "Cámara", "Tipo de caso", "Distancia", "Segmento"] and "Prioridad" not in t.columns
     for c, w in anchos.items():
         assert w >= len(c) * F.PX_POR_CARACTER + 10, (c, w)                                                    # el ancho calculado siempre cubre el encabezado completo
-    assert anchos["Posición"] >= 70 and anchos[COLUMNA_FOTOGRAMAS] >= 150 and "Posició" not in " ".join(t.columns).replace("Posición", "")
+    assert anchos["Posición"] >= 70 and anchos[COLUMNA_FOTOGRAMAS] >= len(COLUMNA_FOTOGRAMAS) * F.PX_POR_CARACTER and "Posició" not in " ".join(t.columns).replace("Posición", "")
     assert F.anchos_columnas(pd.DataFrame({"a": []}))["a"] >= 56
 
 
@@ -300,11 +302,11 @@ def test_la_auditoria_tiene_dos_columnas_una_leyenda_y_la_lista_a_a_la_derecha(e
 # ------------------------------------------------------------------------------------------------------------ P6: Explica una caja
 def test_los_ejemplos_de_un_clic_cambian_los_controles_y_la_probabilidad(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Explica una caja")
-    assert [b.label for b in at.button] == list(EJEMPLOS_CAJA) and (at.slider[0].value, at.slider[1].value, at.slider[2].value) == (60, 50, 25.0)       # valores por defecto de siempre
+    assert [b.label for b in at.button] == list(EJEMPLOS_CAJA) and (at.select_slider[0].value, at.select_slider[1].value, at.slider[0].value) == (50, 60, 25.0)       # valores por defecto de siempre
     probs = {}
     for nombre, e in EJEMPLOS_CAJA.items():
         next(b for b in at.button if b.label == nombre).click().run()
-        assert not at.exception and (at.slider[0].value, at.slider[1].value, at.slider[2].value, at.radio[0].value) == (e["pts"], e["top"], e["dist"], e["clase"])
+        assert not at.exception and (at.select_slider[1].value, at.select_slider[0].value, at.slider[0].value, at.radio[0].value) == (e["pts"], e["top"], e["dist"], e["clase"])
         m = next(x.value for x in at.markdown if 'class="aud-probabilidad"' in x.value)
         probs[nombre] = float(re.search(r">([\d,]+)\s?%", m).group(1).replace(",", "."))
         assert "Posición en la cola:" in textos(at).replace("\xa0", " ") and "entre el" not in textos(at)
@@ -317,7 +319,7 @@ def test_los_ejemplos_de_un_clic_cambian_los_controles_y_la_probabilidad(entorno
 def test_los_graficos_de_validacion_se_leen_de_los_csv_de_origen() -> None:
     ev = cargar_datos(REAL)["evidencia"]
     d = datos_validacion(ev)
-    assert set(d) == {"ie9", "ie10", "ie11", "ie11_pliegues", "brazos", "nosup"}
+    assert set(d) == {"ie9", "ie10", "ie11", "ie11_particiones", "brazos", "nosup"}
     f3 = pd.read_csv(REP / "f3_defecto_vs_optimizado.csv")
     assert d["ie9"]["Mejora"].tolist() == pytest.approx(f3["dif_PR-AUC"].tolist(), abs=1e-6) and d["ie9"]["lo"].tolist() == pytest.approx(f3["dif_PR-AUC_lo"].tolist(), abs=1e-6)
     f4 = pd.read_csv(REP / "f4_ensambles_aporta.csv")
@@ -325,10 +327,10 @@ def test_los_graficos_de_validacion_se_leen_de_los_csv_de_origen() -> None:
     f5 = pd.read_csv(REP / "f5_metricas_candidatos.csv").set_index("candidato")
     assert d["ie11"].set_index("Candidato")["AUC"].to_dict() == pytest.approx(f5["AUC"].to_dict(), abs=1e-6) and d["ie11"].set_index("Candidato")["lo"].to_dict() == pytest.approx(f5["AUC_lo"].to_dict(), abs=1e-6)
     fp = pd.read_csv(REP / "f5_auc_por_fold.csv")
-    pl = d["ie11_pliegues"]
+    pl = d["ie11_particiones"]
     for c in pl["Candidato"].unique():                                                                                   # la copia de la página trae 3 candidatos: coinciden con f5_auc_por_fold.csv
         esperado = fp[fp["candidato"] == c].set_index(fp[fp["candidato"] == c]["fold"].astype(str))["AUC"]
-        assert pl[pl["Candidato"] == c].set_index("Pliegue")["AUC"].to_dict() == pytest.approx(esperado.to_dict(), abs=1e-6)
+        assert pl[pl["Candidato"] == c].set_index("Partición")["AUC"].to_dict() == pytest.approx(esperado.to_dict(), abs=1e-6)
     assert sorted(pl["Candidato"].unique()) == ["LR3", "Regla top", "XGB"] and len(d["brazos"]) == 9 and len(d["nosup"]) == 2
     assert d["brazos"]["Fraccion"].between(0, 1).all() and d["nosup"]["Tasa"].between(0, 1).all()
 
@@ -340,12 +342,12 @@ def test_validacion_abre_cada_pestana_con_un_grafico_sin_folds_en_ingles_ni_colu
     assert len(at.get("vega_lite_chart")) == 5                                                                       # una pestaña por tema, cada una con UN gráfico (Selección abre con la tabla O1 a O4)
     assert sum(1 for e in at.expander if e.label == "Ver tabla completa") == 6
     columnas = [c for d in at.dataframe for c in d.value.columns]
-    assert not [c for c in columnas if re.search(r"\bfolds?\b", c, re.I)] and "Pliegue" in columnas and "Pliegues en el mínimo" in columnas
-    assert "Folds" not in textos(at) and "fuera de fold" not in textos(at).lower()
+    assert not [c for c in columnas if re.search(r"\bfolds?\b|\bpliegues?\b", c, re.I)] and "Partición" in columnas and "Particiones en el mínimo" in columnas
+    assert "Folds" not in textos(at) and "fuera de fold" not in textos(at).lower() and "pliegue" not in textos(at).lower()
     assert not [c for c in columnas if "_" in c]                                                                           # sin snake_case
     selec = next(d for d in at.dataframe if "O4" in d.value.columns).value
     assert selec["O4"].eq("no").all() and selec["O2"].eq("no").all() and len(selec) == 11                                  # nadie cumple O2 ni O4 (como en el informe)
-    assert F.traducir_folds("AUC fuera de fold; Folds en el máximo") == "AUC fuera de pliegue; Pliegues en el máximo"
+    assert F.traducir_folds("AUC fuera de fold; Folds en el máximo") == "AUC en validación cruzada por segmentos; Particiones en el máximo"
 
 
 # ------------------------------------------------------------------------------------------------------------ P8: Puntuar datos nuevos
@@ -402,7 +404,7 @@ def test_ayuda_tiene_el_flujo_en_una_linea_el_glosario_en_tabla_y_preguntas_en_a
 
 
 # ------------------------------------------------------------------------------------------------------------ P10: redacción
-FRASES_PROHIBIDAS = ["Empiece por aquí", "Cómo funciona", "la página se lo dice", "Mueva los controles", "vea qué pasa", "¿Qué significa?", "Primeros pasos", "Resultados técnicos", "Pase el cursor"]
+FRASES_PROHIBIDAS = ["Empiece por aquí", "Cómo funciona", "la página se lo dice", "Mueva los controles", "vea qué pasa", "¿Qué significa?", "Primeros pasos", "Resultados técnicos", "Pase el cursor", "Fuera de pliegue"]
 FRASE_UNICA = "Nada se guarda ni se envía"
 
 
@@ -490,4 +492,4 @@ def test_las_capturas_registradas_estan_completas() -> None:
     assert etica and all(x["estado_final"]["cuentas"] == [6] for x in etica)                                          # los 6 bloques de la ficha, no 1
     carpeta = R / "images/ep3/pagina"
     for ancho in (1366, 1920):
-        assert len(list(carpeta.glob(f"*_{ancho}.png"))) == 9 and all(p.stat().st_size > 20_000 for p in carpeta.glob(f"*_{ancho}.png"))
+        assert len(list(carpeta.glob(f"*_{ancho}.png"))) == 15 and all(p.stat().st_size > 20_000 for p in carpeta.glob(f"*_{ancho}.png"))

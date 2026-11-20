@@ -368,7 +368,7 @@ def informe(N: dict) -> str:
 
 {tabla_md(t_eda)}
 
-**Calidad de datos** (`f12_eda_calidad.csv`, `f12_eda_calidad_resumen.json`): nulos en las 16 variables: {N['calres']['nulos_total']}; llaves duplicadas (segmento, marca de tiempo, objeto): {N['calres']['duplicados_por_llave_principal']}; cajas con 0 puntos LiDAR: {mi(N['calres']['cajas_con_0_puntos_lidar'])} ({p(N['calres']['pct_cajas_con_0_puntos_lidar'])}); con 0 puntos del sensor superior: {mi(N['calres']['cajas_con_0_puntos_top'])} ({p(N['calres']['pct_cajas_con_0_puntos_top'])}), de las cuales {p(N['calres']['tasa_sin_camara_en_cajas_con_0_puntos_top'])} no tienen pareja. Atípicos fuera de 1,5 IQR: los más altos son `densidad_puntos` ({p(calq.set_index('variable').loc['densidad_puntos', 'pct_atipicos'])}), `num_lidar_points` ({p(calq.set_index('variable').loc['num_lidar_points', 'pct_atipicos'])}) y `num_top_lidar_points` ({p(calq.set_index('variable').loc['num_top_lidar_points', 'pct_atipicos'])}): son cajas muy cercanas con muchísimos puntos, no errores; no se eliminaron.
+**Calidad de datos** (`f12_eda_calidad.csv`, `f12_eda_calidad_resumen.json`): nulos en las 16 variables: {N['calres']['nulos_total']}; llaves duplicadas (segmento, marca de tiempo, objeto): {N['calres']['duplicados_por_llave_principal']}; cajas con 0 puntos LiDAR: {mi(N['calres']['cajas_con_0_puntos_lidar'])} ({p(N['calres']['pct_cajas_con_0_puntos_lidar'])}); con 0 puntos del sensor superior: {mi(N['calres']['cajas_con_0_puntos_top'])} ({p(N['calres']['pct_cajas_con_0_puntos_top'])}), de las cuales {p(N['calres']['tasa_sin_camara_en_cajas_con_0_puntos_top'])} no tienen pareja. En la cola de revisión esas cajas empatan en el puntaje de la regla y reciben la misma probabilidad calibrada: el orden entre ellas no es informativo y la página lo avisa sobre la tabla; la persona atiende por objeto y por segmento. Atípicos fuera de 1,5 IQR: los más altos son `densidad_puntos` ({p(calq.set_index('variable').loc['densidad_puntos', 'pct_atipicos'])}), `num_lidar_points` ({p(calq.set_index('variable').loc['num_lidar_points', 'pct_atipicos'])}) y `num_top_lidar_points` ({p(calq.set_index('variable').loc['num_top_lidar_points', 'pct_atipicos'])}): son cajas muy cercanas con muchísimos puntos, no errores; no se eliminaron.
 
 ![Calidad de datos](../../images/ep3/12_eda_calidad.png)
 
@@ -707,6 +707,44 @@ def _de_cada_100(x) -> str:
 TECNICOS = ("Datos y plan", "Filtro 1", "IE9 e IE10", "IE11 e IE12", "No supervisado")      # bloques tecnicos: 105 a 135 palabras por minuto de habla natural (F20-D4)
 
 
+def demo_pasos(N: dict) -> list[dict]:
+    """Los seis pasos del recorrido corto de la demo (95 s): una sola fuente para el bloque «Demo de la página» del guion y para la tabla «Recorrido corto» de la guía (F21-D1).
+
+    Cada paso trae sus segundos, qué hacer, qué decir y qué se ve. La suma es 95 s; el texto de cada paso cabe en su tiempo a 140 palabras por minuto como máximo.
+    """
+    pg = N["pag"]
+    eq = N["f12eq"]
+    eqi = eq[eq["celdas_con_hueco"] == "incluidas"].set_index(["variable", "grupo"])
+    h = {"azar": c(pg["horas_sin_orden"], 0), "uno": c(N["h_A"], 0), "dos": c(pg["horas_dos_pasos"], 0)}
+    pasos = [
+        {"seg": 15, "titulo": "Resumen y chip", "hacer": "Resumen, rol «Analista de revisión»; señalar las tres barras y abrir el chip «Datos de desarrollo · sin validación externa»",
+         "decir": f"En el Resumen, tres barras: sin orden, unas {h['azar']} horas para encontrar el 80 %; solo con la cola, unas {h['uno']}; con auditoría previa, unas {h['dos']}, en muestra, con 20 segundos por caja.",
+         "ver": f"{mi(N['n'])} cajas, {p(N['prev'])} sin pareja, 2 celdas marcadas; barras de horas (20 s por caja: supuesto); texto completo de «en muestra»"},
+        {"seg": 25, "titulo": "Cola con ambos flujos", "hacer": "Cola de revisión: «Todos», flujo «Auditoría + cola (dos pasos, en muestra)», presupuesto 20 % (parte ahí)",
+         "decir": f"En la cola, con todos los segmentos y el 20 %, con auditoría previa se encuentran unas {_de_cada_100(pg['recall_proceso'])} cajas sin pareja, en muestra, y solo con la cola unas {_de_cada_100(pg['recall_A'])}: "
+                  f"{mi(pg['cajas_a_revisar'])} cajas y {c(pg['horas'], 1)} horas. Las primeras filas empatan porque todas tienen 0 puntos del sensor superior.",
+         "ver": f"frase con ambos flujos; {mi(pg['cajas_a_revisar'])} cajas, {c(pg['horas'], 1)} h con 20 s por caja; la tabla abre con las cajas de 0 puntos"},
+        {"seg": 15, "titulo": "Selección de una fila y nota del empate", "hacer": "Pestaña «Cola de cajas»; seleccionar la primera fila; leer la nota sobre la tabla",
+         "decir": "Selecciono una fila y se abre su detalle: la probabilidad calibrada, la posición en la cola y el tipo de caso. La nota sobre la tabla lo confirma: el orden entre las empatadas no informa.",
+         "ver": "panel de detalle debajo de la tabla; nota «Las primeras N cajas empatan (0 puntos del sensor superior…); el orden entre ellas no es informativo»"},
+        {"seg": 15, "titulo": "Auditoría", "hacer": "Auditoría de cámaras: señalar el contorno rojo con X",
+         "decir": "En la auditoría de cámaras vemos las dos celdas marcadas: no sabemos si faltan etiquetas o faltan datos.",
+         "ver": "mapa de calor (gris rayado = sin datos suficientes, no es 0 %); Lista A con «Acción sugerida» y «Cajas afectadas»"},
+        {"seg": 15, "titulo": "Explica con «Ciclista lejano»", "hacer": "Explica una caja: botón «Ciclista lejano»",
+         "decir": "En «Explica una caja» uso el ejemplo «Ciclista lejano»: pocos puntos y lejos, arriba en la cola, y la página advierte que en ciclistas la regla es poco confiable.",
+         "ver": f"probabilidad estimada, posición en la cola, tipo de caso, gráfico con los puntos A y B; advertencia ({c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones)"},
+        {"seg": 10, "titulo": "Validación", "hacer": "Validación: recorrer las seis pestañas",
+         "decir": "Cierro en Validación, con un gráfico por tema y la tabla completa dentro de cada pestaña.",
+         "ver": "mejora de PR-AUC, diferencia de AUC, AUC por candidato, criterios O1 a O4, grupos descriptivos y el análisis en muestra"},
+    ]
+    assert sum(x["seg"] for x in pasos) == 95
+    for x in pasos:                                                                                   # cada paso cabe en su tiempo: a lo más 140 palabras por minuto
+        w = len(x["decir"].replace("**", "").split())
+        assert w / x["seg"] * 60 <= 140, (x["titulo"], w, x["seg"], round(w / x["seg"] * 60))
+        x["palabras"] = w
+    return pasos
+
+
 def guion(N: dict) -> str:
     esc, f12, glob = N["esc"], N["f12"], N["glob"]
     f13, f4, f3, f5 = N["f13"], N["f4"], N["f3"], N["f5"]
@@ -745,12 +783,8 @@ def guion(N: dict) -> str:
          "Página: Validación, pestañas Generalización y Selección (cuadro O1 a O4)"),
         (25, "No supervisado", f"Los grupos describen, no predicen. Con k igual a 2, los lejanos y poco densos tienen {p(k2.iloc[-1]['tasa_sin_camara'], 0)} sin pareja y los cercanos y densos {p(k2.iloc[0]['tasa_sin_camara'], 0)}. "
          f"Agregarlos a la regla cambia el AUC en {c(ap.loc[2, 'dif_AUC'], 4)}, con intervalo que incluye cero. Es post hoc: son una partición cómoda, no grupos naturales.", "Página: Validación, pestaña No supervisado"),
-        (95, "Demo de la página", f"Veamos la página, siguiendo la guía de demo. En el Resumen, tres barras: revisando sin orden, unas {h['azar']} horas para encontrar el 80 %; solo ordenando la cola, unas {h['uno']}; y con auditoría previa, unas {h['dos']}, en muestra, con 20 segundos por caja. "
-         f"En la cola de revisión, con todos los segmentos y el 20 % de la cola, con auditoría previa se encuentran unas {_de_cada_100(pg['recall_proceso'])} cajas sin pareja, en muestra, y solo con la cola unas {_de_cada_100(pg['recall_A'])}: {mi(pg['cajas_a_revisar'])} cajas y {c(pg['horas'], 1)} horas. "
-         "Selecciono una fila de la tabla y se abre su detalle: la probabilidad calibrada, la posición en la cola y el tipo de caso. En la auditoría vemos las dos celdas marcadas. "
-         "En «Explica una caja» uso un ejemplo de un clic, el ciclista lejano, y la página advierte que la regla es poco confiable. Cierro en Validación, con un gráfico por tema.",
-         "1) Rol «Analista de revisión». 2) Resumen: métricas, tres barras y chip. 3) Cola de revisión: «Todos», flujo de dos pasos, 20 %; leer la frase con ambos flujos; seleccionar una fila en «Cola de cajas». 4) Auditoría de cámaras. "
-         "5) Explica una caja: botón «Ciclista lejano». 6) Validación. (Recorrido completo: `pagina_guia_demo.md`)"),
+        (95, "Demo de la página", "Veamos la página, siguiendo el recorrido corto de la guía de demo. " + " ".join(x["decir"] for x in demo_pasos(N)),
+         "Recorrido corto de `pagina_guia_demo.md` (6 pasos): " + "; ".join(f"{i}) {x['titulo']} ({x['seg']} s)" for i, x in enumerate(demo_pasos(N), 1)) + ". Rol «Analista de revisión». (Recorrido extendido de respaldo: `pagina_guia_demo.md`)"),
         (60, "Lo que sabemos, lo que no sabemos y cómo lo vamos a saber", f"**Lo que sabemos:** una regla simple ordena bien, AUC {c(esc['AUC'])}, y revisando el 20 % de la cola se encuentran unas {_de_cada_100(pg['recall_proceso'])} cajas sin pareja con auditoría previa, en muestra, y unas {_de_cada_100(pg['recall_A'])} solo con la cola. "
          f"**Lo que no sabemos:** si el detector y la ganancia de dos pasos se sostienen fuera de muestra: sale de 2 celdas y casi por construcción el flujo en dos pasos no es peor. Tampoco por qué hay huecos, ni cómo anda la regla en ciclistas: {c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones. "
          "**Cómo lo vamos a saber:** con la validación externa sellada, una sola vez, con segmentos nuevos y con el plan y el modelo congelados antes.", "Informe, secciones 14 y 17; `GUIA_VALIDACION_EXTERNA.md`"),
@@ -795,16 +829,31 @@ def guia_demo(N: dict) -> str:
     pg, esc = N["pag"], N["esc"]
     eq = N["f12eq"]
     eqi = eq[eq["celdas_con_hueco"] == "incluidas"].set_index(["variable", "grupo"])
-    return f"""# Guía de la demo de la página (recorrido exacto)
+    pasos = demo_pasos(N)
+    t_ini, filas_corto = 0, []
+    for i, x in enumerate(pasos, 1):
+        filas_corto.append(f"| {i} | {t_ini // 60}:{t_ini % 60:02d} a {(t_ini + x['seg']) // 60}:{(t_ini + x['seg']) % 60:02d} ({x['seg']} s) | **{x['titulo']}** | {x['hacer']} | «{x['decir']}» | {x['ver']} | {x['palabras']} |")
+        t_ini += x["seg"]
+    corto = "\n".join(filas_corto)
+    return f"""# Guía de la demo de la página
 
-*Generada por `scripts/ep3/generar_docs_ep3.py`; coherente con `guion_presentacion.md` (bloque «Demo de la página», 1:35). Las cifras salen de `data/09_app_ep3` con la misma lógica que la página (`app_logica.py`) y de `data/08_reporting_ep3`. Todas son en muestra: {EN_MUESTRA}.*
+*Generada por `scripts/ep3/generar_docs_ep3.py`; el «Recorrido corto» sale de la misma fuente (`demo_pasos`) que el bloque «Demo de la página» de `guion_presentacion.md` (1:35), así que dicen lo mismo. Las cifras salen de `data/09_app_ep3` con la misma lógica que la página (`app_logica.py`) y de `data/08_reporting_ep3`. Todas son en muestra: {EN_MUESTRA}.*
 
 ## Antes de empezar
 1. Abrir con `scripts\\ep3\\arrancar_app.bat` (usa `app\\lanzar.py`, que carga la solución congelada y los datos antes de aceptar visitas: espere unos 3 s; se abre en http://localhost:8501 y solo es accesible desde este equipo).
 2. Rol «Analista de revisión» (al pie de la barra lateral); modo presentación **apagado** al principio.
 3. Tener a mano «Ayuda y glosario» por si preguntan un término.
 
-## Recorrido ({len(SECCIONES_PAGINA)} secciones; cada paso con sus clics y qué decir)
+## Recorrido corto (95 s, 6 pasos)
+Es el que se hace en la presentación: los seis pasos del bloque «Demo de la página» del guion, con su tiempo. Total {sum(x['seg'] for x in pasos)} s; {sum(x['palabras'] for x in pasos)} palabras ({sum(x['palabras'] for x in pasos) / sum(x['seg'] for x in pasos) * 60:.0f} por minuto; ningún paso supera 140).
+
+| # | Tiempo | Paso | Qué hacer (clics) | Qué decir | Qué se ve | Palabras |
+|---|---|---|---|---|---|---|
+{corto}
+
+## Recorrido extendido (respaldo; {len(SECCIONES_PAGINA)} secciones, cada paso con sus clics y qué decir)
+Para una demo más larga o si preguntan por algo que el recorrido corto no toca.
+
 | # | Qué hacer (clics) | Qué decir | Qué se ve |
 |---|---|---|---|
 | 1 | **Resumen.** Señalar las 4 métricas y abrir el chip «Datos de desarrollo · sin validación externa» | «Esto es en muestra: el detector se ajustó con los mismos datos y aún no hay prueba ciega.» | {mi(N['n'])} cajas, {p(N['prev'])} sin pareja, 2 celdas marcadas, 41 segmentos |
@@ -813,11 +862,11 @@ def guia_demo(N: dict) -> str:
 | 4 | Cambiar el flujo a «Solo cola (un paso)» y volver | «Con un paso se ordenan todas las cajas, sin auditoría previa.» | cajas a revisar y horas del flujo elegido |
 | 5 | Modo «Meta» con 80 %; «Volver al 20 %» | «Si quiero encontrar el 80 %, la página dice cuánto revisar.» | porcentaje de la cola para la meta (curva guardada) |
 | 6 | Abrir «Supuestos y confiabilidad» | «El intervalo es ancho (41 segmentos) y la ganancia de dos pasos sale de 2 celdas.» | segundos por caja editables, intervalos, texto de «en muestra» |
-| 7 | Pestaña «Curva de cobertura», luego «Cola de cajas»; **seleccionar una fila** | «Cada fila abre su detalle: probabilidad calibrada, posición y tipo de caso.» | curva con intervalo sombreado; tabla con panel de detalle a la derecha |
+| 7 | Pestaña «Curva de cobertura», luego «Cola de cajas»; **seleccionar una fila** | «Cada fila abre su detalle: probabilidad calibrada, posición y tipo de caso. Las primeras filas empatan: todas tienen 0 puntos del sensor superior y el orden entre ellas no informa.» | curva con intervalo sombreado; nota del empate sobre la tabla (calculada de la cola) y panel de detalle debajo, a todo el ancho |
 | 8 | Activar «Agrupar por objeto» y filtrar la clase «Ciclista: poco confiable» | «Es solo una vista: el número de cajas a revisar no cambia. En ciclistas la regla es poco confiable.» | una fila por objeto con «Fotogramas en la cola»; «Filtrado: N cajas» |
 | 9 | **Auditoría de cámaras.** Señalar el contorno rojo con X | «Dos celdas marcadas; no sabemos si es falta de etiquetas o de datos.» | mapa de calor (gris rayado = sin datos suficientes, no es 0 %), Lista A con «Acción sugerida» y «Cajas afectadas» |
-| 10 | **Explica una caja.** Botón «Ciclista lejano» | «Pocos puntos y lejos: arriba en la cola. En ciclistas, advertencia: {c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones.» | probabilidad estimada, posición en la cola, tipo de caso, gráfico |
-| 11 | **Validación.** Recorrer las pestañas | «Un gráfico por tema, leído de los CSV del informe; la tabla completa está en cada pestaña.» | mejora de PR-AUC, diferencia de AUC, AUC por candidato, criterios O1 a O4 |
+| 10 | **Explica una caja.** Botón «Ciclista lejano» | «Pocos puntos y lejos: arriba en la cola. En ciclistas, advertencia: {c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones.» | probabilidad estimada, posición en la cola, tipo de caso, gráfico con los puntos A y B; solo el control del sensor superior mueve la probabilidad |
+| 11 | **Validación.** Recorrer las seis pestañas | «Un gráfico por tema, con los resultados guardados de EP3; la tabla completa está en cada pestaña.» | mejora de PR-AUC, diferencia de AUC, AUC por candidato, criterios O1 a O4, grupos descriptivos, análisis en muestra |
 | 12 | Activar el **modo presentación** | «Se ocultan los identificadores y se agranda la letra.» | métricas 2 x 2, tabla sin identificadores |
 | 13 | **Puntuar datos nuevos** (solo mostrar) y «Usar un segmento de desarrollo de ejemplo» | «Todo en memoria; el ejemplo se reconstruye de los datos derivados, no son datos crudos de Waymo.» | formato de los archivos como tabla; listas A y B del ejemplo |
 
@@ -856,6 +905,9 @@ def preguntas(N: dict) -> str:
     ptv = lambda v, tr: ptt[(ptt["variante"] == v) & (ptt["tramo"] == tr)].iloc[0]["tasa"]  # noqa: E731
     br = N["base_rules"]
     eqx = eq[eq["celdas_con_hueco"] == "excluidas"].set_index(["variable", "grupo"])
+    sin_regla = ["LR3", "LR", "RF", "HGB", "XGB", "LGBM", "E1", "E3", "E4"]                       # candidatos entrenados que no incluyen la regla como componente (E2 sí)
+    mejor_sin_regla = str(f5.loc[sin_regla, "AUC"].idxmax())
+    assert mejor_sin_regla == "LR3", mejor_sin_regla
     Q = [
         ("¿Qué problema resuelve el proyecto?", "Ayuda a una persona a decidir qué cajas 3D de peatones y ciclistas probablemente no tienen su pareja 2D de cámara, para revisarlas primero.", f"{mi(N['n'])} cajas en la población principal; {p(N['prev'])} sin pareja", "f1_resumen.json"),
         ("¿Qué es `sin_camara`?", "Es 1 si la caja 3D no tiene par en ninguna de las 5 cámaras. Es el target.", f"{mi(N['pos'])} positivos", "f1_resumen.json"),
@@ -877,7 +929,7 @@ def preguntas(N: dict) -> str:
         ("¿Por qué no ayuda promediar modelos?", "Todos usan la misma señal (los puntos LiDAR) y se equivocan juntos.", f"E2 contra regla: {c(f4.loc['E2', 'dif_AUC'])}", "f4_ensambles_aporta.csv"),
         ("¿Qué mide el AUC y qué la PR-AUC?", "El AUC es la probabilidad de que una caja sin pareja puntúe más alto que una con pareja; la PR-AUC pondera la precisión cuando los positivos son una minoría.", f"AUC {c(esc['AUC'])}, PR-AUC {c(esc['PR-AUC'])}", "f6_modelo_escogido.csv"),
         ("¿Qué es la Captura@20 %?", "La fracción de positivos que aparece en el 20 % de cajas mejor ordenadas.", f"{p(esc['Captura@20'])} (al azar 20 %)", "f5_metricas_candidatos.csv"),
-        ("¿Qué es la Fracción para 80 %?", "La fracción de cajas que hay que revisar para encontrar el 80 % de los positivos.", f"{p(esc['Fraccion_80'])} en un paso; {p(esc['Fraccion_80_C'])} en dos pasos ({EN_MUESTRA})", "f5_brazoC.csv"),
+        ("¿Qué es la Fracción para 80 %?", f"La fracción de cajas que hay que revisar para encontrar el 80 % de los positivos. Nota: el conteo observado da {p(esc['Fraccion_80'])} y la curva guardada (interpolada) da {p(inv[nA][0.80])}; es la misma cantidad con dos métodos y el texto cita el conteo.", f"{p(esc['Fraccion_80'])} en un paso; {p(esc['Fraccion_80_C'])} en dos pasos ({EN_MUESTRA})", "f5_brazoC.csv"),
         ("¿Qué son los puntos A y B?", "A: umbral que busca recall 0,80, fijado con scores internos de entrenamiento. B: umbral que revisa el 20 % de las cajas.", f"recall A {c(esc['recall_A'])}; recall B {c(esc['recall_B'])}", "f5_metricas_candidatos.csv"),
         ("¿Está calibrada la probabilidad?", "Con Platt, el ECE queda bajo 0,05 en la regla.", f"ECE {c(esc['ECE_cal'])}, Brier {c(esc['Brier_cal'])}", "f5_metricas_candidatos.csv"),
         ("¿Es estable la solución?", "Por segmento sí (mediana alta); por fold no cumple el criterio de 0,75 en ningún candidato, por el fold 0.", f"mediana por segmento {c(esc['AUC_mediana_segmento'])}; mínimo por fold {c(esc['AUC_min_fold'])}", "f5_metricas_candidatos.csv"),
@@ -896,7 +948,8 @@ def preguntas(N: dict) -> str:
         ("¿Qué son accuracy y F1 aquí?", "Solo referencia en el cuadro «Modelo escogido»; no deciden nada.", f"F1 en A {c(esc['F1_A'])}; accuracy en A {c(esc['accuracy_A'])}", "f6_modelo_escogido.csv"),
         ("¿Qué falta?", "Validación externa con segmentos nuevos (sellada), probar Docker y medir el tiempo real de revisión.", "-", "informe_tecnico_EP3.md, sección 17"),
         # ---- nuevas (fase 14)
-        ("¿Dónde está el Machine Learning si la solución final es una regla?", "El ML son los 11 candidatos entrenados y comparados con búsqueda anidada y validación por segmento (LR, RF, HGB, XGBoost, LightGBM, cuatro ensambles, la regla y una LR de 3 variables), y ninguno la supera de forma distinguible; además el ML aporta la calibración Platt (una regresión logística) y el análisis no supervisado. El detector de huecos **no es ML**: son percentiles, una mediana y un umbral (estadística descriptiva). Concluir que una regla basta es un resultado del aprendizaje automático, no su ausencia.", f"11 candidatos; AUC regla {c(f5.loc['Regla top', 'AUC'])} contra el mejor modelo {c(f5.loc[['LR3', 'LR', 'RF', 'HGB', 'XGB', 'LGBM', 'E1', 'E3', 'E4'], 'AUC'].max())}", "f5_metricas_candidatos.csv, f6_tabla_seleccion.csv"),
+        ("¿Dónde está el Machine Learning si la solución final es una regla?", "El ML son los 11 candidatos entrenados y comparados con búsqueda anidada y validación por segmento (LR, RF, HGB, XGBoost, LightGBM, cuatro ensambles, la regla y una LR de 3 variables), y ninguno la supera de forma distinguible; además el ML aporta la calibración Platt (una regresión logística) y el análisis no supervisado. El detector de huecos **no es ML**: son percentiles, una mediana y un umbral (estadística descriptiva). Concluir que una regla basta es un resultado del aprendizaje automático, no su ausencia. "
+         f"En cifras: el mejor modelo entrenado sin la regla es {mejor_sin_regla} con {c(f5.loc[mejor_sin_regla, 'AUC'])}; E2, que la incluye como componente, {c(f5.loc['E2', 'AUC'])}; la regla sola, {c(f5.loc['Regla top', 'AUC'])}.", f"11 candidatos; AUC regla {c(f5.loc['Regla top', 'AUC'])}; mejor modelo sin la regla: {mejor_sin_regla} {c(f5.loc[mejor_sin_regla, 'AUC'])}; E2 (la incluye) {c(f5.loc['E2', 'AUC'])}", "f5_metricas_candidatos.csv, f6_tabla_seleccion.csv"),
         ("¿Por qué no elegir E2 si tiene mejor PR-AUC?", f"Porque la diferencia no es distinguible y E2 contiene a la regla: AUC {c(N['e2']['auc'])} contra {c(f5.loc['Regla top', 'AUC'])}, PR-AUC {c(N['e2']['pr'])} contra {c(f5.loc['Regla top', 'PR-AUC'])}, Fracción 80 % {c(N['e2']['fr'])} contra {c(f5.loc['Regla top', 'Fraccion_80'])} (IC de la diferencia {c(N['e2']['lo'])} a {c(N['e2']['hi'])}). Además su ECE es {c(N['e2']['ece'])} (> 0,05). El plan manda elegir el más simple dentro de 0,010 de AUC.", f"dif. AUC {c(f4.loc['E2', 'dif_AUC'])}", "f6_tabla_seleccion.csv, f4_ensambles_aporta.csv"),
         ("¿Por qué RF empeora al optimizar?", "No lo sabemos: es una hipótesis (no verificada) que la búsqueda interna, con 30 configuraciones y 41 segmentos, elige configuraciones que se ajustan a particularidades de los segmentos de entrenamiento y no se sostienen en el fold de validación. LR también empeora, con otra posible causa (el criterio interno puede preferir variables y regularización distintas).", f"RF dif. PR-AUC {c(f3.loc['RF', 'dif_PR-AUC'])} (IC {c(f3.loc['RF', 'dif_PR-AUC_lo'])} a {c(f3.loc['RF', 'dif_PR-AUC_hi'])}); LR {c(f3.loc['LR', 'dif_PR-AUC'])}", "f3_defecto_vs_optimizado.csv"),
         ("¿Por qué 1 repetición de la CV externa?", "Porque Random Forest tarda 45 a 100 s por ajuste y el plan completo (3 repeticiones x 40 configuraciones) proyectaba unas 5 horas, sobre el límite de 4. Consecuencia: los IC reflejan una sola partición de segmentos en folds.", "DEV-1", "plan_v3_desviaciones.md"),
@@ -920,7 +973,7 @@ def preguntas(N: dict) -> str:
         ("¿Por qué la tasa de sin_camara sube de 51–100 a más de 100 puntos? (post hoc)", f"Por las celdas con hueco: en el tramo > 100 hay {mi(ptr['tramo_mayor_100']['cajas_en_celdas_con_hueco'])} cajas de esas celdas con tasa {p(ptr['tramo_mayor_100']['tasa_en_celdas_con_hueco'])}. Con todas las cajas la tasa pasa de {p(ptr['tramo_51_100']['tasa'])} a {p(ptr['tramo_mayor_100']['tasa'])}; sin esas celdas va de {p(ptr['tramo_51_100']['tasa_sin_hueco'])} a {p(ptr['tramo_mayor_100']['tasa_sin_hueco'])} (decreciente). Hipótesis, no verificada: son cajas con muchos puntos cuya cámara no tiene etiquetas.", f"{p(ptr['tramo_mayor_100']['tasa'])} con hueco; {p(ptr['tramo_mayor_100']['tasa_sin_hueco'])} sin hueco", "f12_eda_puntos_top_sin_huecos.csv, f12_eda_puntos_top_resumen.json"),
         ("¿Qué significa «30 de 30» en el detector? ¿Es sensibilidad?", "No. Los 2 huecos de referencia los define el mismo detector con los parámetros de EP2, así que no hay verdad externa: «30 de 30» mide la estabilidad del conjunto marcado frente a los parámetros, no sensibilidad ni especificidad, y las celdas marcadas de más no son «falsas alarmas» comprobadas. Con segmentos nuevos se medirá la tasa de celdas marcadas y su estabilidad (DEV-3).", f"{f12['detector_combinaciones_que_detectan_los_2']} de {f12['detector_combinaciones']} combinaciones", "f12_sensibilidad_detector.csv, plan_v3_desviaciones.md (DEV-3)"),
         ("¿La selección de segmentos introdujo un sesgo?", f"Sí, a escala de segmento: EP2 evaluó {sres['evaluados']} candidatos y descartó {sres['descartados']} ({mi(smot.loc['asociación vacía', 'segmentos'])} por asociación vacía, {mi(smot.loc['etiquetado ralo', 'segmentos'])} por etiquetado ralo, {mi(smot.loc['pocas asociaciones', 'segmentos'])} por pocas asociaciones); el rendimiento fue de {p(srend.loc[('momento_del_dia', 'Day'), 'rendimiento'], 0)} de día y {p(srend.loc[('momento_del_dia', 'Night'), 'rendimiento'], 0)} de noche. La causa (etiquetado o publicación) es desconocida y el detector solo se evaluó con etiquetado denso. Recomendación: un filtro 1 a nivel segmento (sin ML).", f"{sres['descartados']} de {sres['evaluados']} descartados", "f18_seleccion_motivos.csv, f18_seleccion_rendimiento.csv, docs/seleccion_segmentos/registro_verificacion_ep2.csv"),
-        ("¿Por qué recall objetivo 0,80?", f"Es una decisión heredada de EP2 (punto A), no validada con el negocio. La curva guardada da, con un paso, {p(inv[nA][0.70])}, {p(inv[nA][0.80])} y {p(inv[nA][0.90])} de las cajas para encontrar 70 %, 80 % y 90 % de las sin pareja; con dos pasos (en muestra) {p(inv[nC][0.70])}, {p(inv[nC][0.80])} y {p(inv[nC][0.90])} de la cola de celdas sanas.", f"fracción para 70/80/90 %: {p(inv[nA][0.70], 0)}/{p(inv[nA][0.80], 0)}/{p(inv[nA][0.90], 0)} (un paso)", "data/09_app_ep3/curva_cola.csv"),
+        ("¿Por qué recall objetivo 0,80?", f"Es una decisión heredada de EP2 (punto A), no validada con el negocio. La curva guardada da, con un paso, {p(inv[nA][0.70])}, {p(inv[nA][0.80])} y {p(inv[nA][0.90])} de las cajas para encontrar 70 %, 80 % y 90 % de las sin pareja; con dos pasos (en muestra) {p(inv[nC][0.70])}, {p(inv[nC][0.80])} y {p(inv[nC][0.90])} de la cola de celdas sanas. Nota: el 80 % da {p(inv[nA][0.80])} en la curva guardada y {p(esc['Fraccion_80'])} en el conteo observado (la curva se interpola entre puntos).", f"fracción para 70/80/90 %: {p(inv[nA][0.70], 0)}/{p(inv[nA][0.80], 0)}/{p(inv[nA][0.90], 0)} (un paso)", "data/09_app_ep3/curva_cola.csv"),
         ("¿Qué es la calibración de Platt?", f"Una regresión logística de una variable que convierte el puntaje de la regla en una probabilidad de no tener pareja. Se ajusta con puntajes internos del conjunto de entrenamiento de cada fold (DEC-7), no con el fold de validación. Resultado: ECE {c(f5.loc['Regla top', 'ECE_cal'])} (<= 0,05). No cambia el orden dentro de un fold.", f"ECE {c(f5.loc['Regla top', 'ECE_cal'])}", "f5_metricas_candidatos.csv, f5_calibracion_bins.csv"),
         ("¿Cómo se evitó la fuga de datos?", f"Los folds se arman por segmento (ningún segmento en más de un fold: {N['f1']['folds']['fold_s42']['segmentos_en_mas_de_un_fold']}), la búsqueda de hiperparámetros es anidada (CV interna dentro del entrenamiento) y los umbrales y el calibrador se fijan con puntajes internos. Límites honestos: los parámetros del detector se ajustaron con los mismos 41 segmentos y los 8 de test de EP2 ya se habían mirado; por eso lo del brazo C es en muestra.", "folds por segmento; búsqueda anidada", "f1_resumen.json, plan_v3.md (P1)"),
         ("¿Qué es el bootstrap por segmentos?", "Se remuestrean segmentos completos con reemplazo (1.000 réplicas, semilla 42), se recalcula la métrica en cada réplica y el IC 95 % es el percentil 2,5 a 97,5. Respeta que las cajas de un segmento se parecen entre sí. Con 41 segmentos los IC son anchos.", "1.000 réplicas", "plan_v3.md (P1), metricas.py"),
@@ -940,6 +993,18 @@ def preguntas(N: dict) -> str:
     p0 = float(np.exp(-lam))                                        # estimacion gruesa tipo Poisson de no marcar ninguna
     seg247 = next(x for x in ptr["top3_segmentos_positivos_mayor_100_sin_hueco"] if x["seg"] == "247562357599")
     ESTRATOS = sp["candidatos_por_estrato"]
+    man = json.loads((MOD / "manifest_v3.json").read_text(encoding="utf-8"))              # manifest_v3.json: sha256 de la solución v3 (3 archivos) y del plan v3 (2)
+    n_sha_manifest, n_sha_plan = len(man["sha256"]), len(man["plan_v3_sha256"])
+    seg_ub = pd.read_parquet(APP / "cajas_oof.parquet", columns=["seg", "ubicacion", "momento"]).drop_duplicates()
+    seg_huecos = set(pd.read_csv(APP / "lista_A.csv", dtype={"segmento": str})["segmento"])
+    sf_dia = seg_ub[(seg_ub["ubicacion"] == "location_sf") & (seg_ub["momento"] == "Day")]
+    n_sf_dia, n_sf_dia_hueco = len(sf_dia), int(sf_dia["seg"].isin(seg_huecos).sum())
+    cuota_sf_dia = int(sp["cuotas_utiles"]["Day / location_sf"])
+    cj = pd.read_parquet(APP / "cajas_oof.parquet", columns=["num_top_lidar_points", "sin_camara", "prob_cal"])
+    g0 = cj[cj["num_top_lidar_points"] == 0]
+    assert len(g0) == N["calres"]["cajas_con_0_puntos_top"] and abs(float(g0["sin_camara"].mean()) - N["calres"]["tasa_sin_camara_en_cajas_con_0_puntos_top"]) < 1e-9   # misma cifra que la calidad de datos del informe (§4)
+    emp = {"n_cajas": len(g0), "pct_sin_pareja": float(g0["sin_camara"].mean()), "prob_sin_pareja": float(g0["prob_cal"].median()), "prob_min": float(g0["prob_cal"].min()), "prob_max": float(g0["prob_cal"].max())}
+    p_sf = (1 - n_sf_dia_hueco / n_sf_dia) ** cuota_sf_dia                                    # P(ninguno de los segmentos nuevos de San Francisco de día tiene hueco), con la tasa de desarrollo
     Q += [
         ("¿Qué pasa con la celda `247562357599|cam5`, que aparece marcada cuando `frac` = 0,35? (post hoc, no pre-declarado, hipótesis no verificada)",
          f"El segmento `247562357599`, cámara 5, tiene {mi(seg247['positivos'])} positivos en {mi(seg247['cajas'])} cajas con más de 100 puntos del sensor superior ({p(seg247['tasa'])}) y es la celda que aparece marcada con `frac` = 0,35. Con los parámetros congelados (`frac` = 0,25) **no se marca**. "
@@ -952,12 +1017,15 @@ def preguntas(N: dict) -> str:
          "diferencia solución menos regla = 0; alternativas: LR3 y XGBoost", "GUIA_VALIDACION_EXTERNA.md (sección 6), src/waymo_evaluacion/ep3/congelado.py, manifest_alternativas.json, plan_v3_desviaciones.md (DEV-4)"),
         ("¿Cómo se garantiza el sellado de la validación externa?",
          "Con cuatro candados. (1) El orden de los candidatos nuevos queda fijado en `plan_seleccion_ep3.json` (sha256 en `plan_seleccion_ep3.sha256`) y el notebook 00b exige y verifica ese plan. (2) `evaluar_sellado.py congelar` guarda los sha256 de la lista de segmentos y de la solución v3 y de las alternativas **antes** de abrir los datos, y `copiar_sello_a_artefactos.py` los copia a `artefactos_ep3/`. "
-         "(3) Commit y push previos, que hace la persona (los scripts nunca tocan git): el sello queda en el historial antes de la evaluación. (4) `evaluar` toma un candado de una sola evaluación y lo hace solo cuando el cálculo terminó; no se puede repetir con otros parámetros. Cualquier cambio posterior de código se declara como desviación con fecha y motivo.",
-         "1 evaluación; 5 archivos de la solución v3 con sha256", "GUIA_VALIDACION_EXTERNA.md, docs/ep3/plan_seleccion_ep3.sha256, scripts/ep3/evaluar_sellado.py, data/06_models_ep3/manifest_v3.json"),
+         "(3) Hacemos commit y push antes de evaluar (los scripts nunca tocan git): el sello queda en el historial antes de la evaluación. (4) `evaluar` toma un candado de una sola evaluación y lo hace solo cuando el cálculo terminó; no se puede repetir con otros parámetros. Cualquier cambio posterior de código se declara como desviación con fecha y motivo.",
+         f"1 evaluación; {n_sha_manifest} archivos con sha256 en el manifest; la verificación incluye además el plan v3 ({n_sha_plan} archivos): {n_sha_manifest + n_sha_plan} de {n_sha_manifest + n_sha_plan}", "GUIA_VALIDACION_EXTERNA.md, docs/ep3/plan_seleccion_ep3.sha256, scripts/ep3/evaluar_sellado.py, data/06_models_ep3/manifest_v3.json"),
         ("¿Qué pasa si la validación externa no encuentra huecos? (caso A; estimación gruesa, post hoc)",
-         f"Es el caso A: C es igual a A porque no hay celdas que auditar. **No refuta ni confirma el detector**: pudo no haber huecos. Con unas {elegibles} celdas elegibles (≈ {sp['total_cuota']} segmentos × 5 cámaras × la fracción de celdas con ≥ 100 cajas en desarrollo, {n_el} de {n_tot}) y una tasa de 2 de {n_el} ({p(2 / n_el)}) en desarrollo, se esperarían ≈ {c(lam, 1)} celdas marcadas, y la probabilidad de no marcar ninguna es del orden del {p(p0, 0)} (estimación gruesa tipo Poisson, exp(−{c(lam, 1)}); post hoc, no pre-declarada). "
-         "Por eso un resultado sin huecos es plausible y se interpreta con cautela; lo informativo seguiría siendo el desempeño de la regla fuera de muestra.",
-         f"≈ {c(lam, 1)} celdas marcadas esperadas; probabilidad de ninguna ≈ {p(p0, 0)}", "GUIA_VALIDACION_EXTERNA.md (sección 7, caso A), plan_seleccion_ep3.json, f12_resumen.json"),
+         f"Es el caso A: C es igual a A porque no hay celdas que auditar. **No refuta ni confirma el detector**: pudo no haber huecos. Dos estimaciones gruesas, ambas post hoc y no pre-declaradas. "
+         f"(1) Por celda: con unas {elegibles} celdas elegibles (≈ {sp['total_cuota']} segmentos × 5 cámaras × la fracción de celdas con ≥ 100 cajas en desarrollo, {n_el} de {n_tot}) y una tasa de 2 de {n_el} ({p(2 / n_el)}) en desarrollo, se esperarían ≈ {c(lam, 1)} celdas marcadas y la probabilidad de no marcar ninguna es del orden del {p(p0, 0)} (Poisson, exp(−{c(lam, 1)})). "
+         f"(2) Por concentración: los {n_sf_dia_hueco} huecos están en {n_sf_dia_hueco} de los {n_sf_dia} segmentos de día de San Francisco de desarrollo; con {cuota_sf_dia} segmentos nuevos de ese estrato, la probabilidad de que ninguno tenga hueco es ({n_sf_dia - n_sf_dia_hueco}/{n_sf_dia})^{cuota_sf_dia} ≈ {p(p_sf, 0)}. "
+         f"Rango: entre ≈ {p(p_sf, 0)} y ≈ {p(p0, 0)} de no ver ningún hueco (post hoc). Las dos estimaciones salen de los mismos datos con que se ajustó el detector, así que son optimistas: la tasa real de huecos probablemente sea menor y la probabilidad de no ver ninguno, mayor. "
+         "Un resultado sin huecos es plausible y se interpreta con cautela; lo informativo seguiría siendo el desempeño de la regla fuera de muestra.",
+         f"≈ {c(lam, 1)} celdas marcadas esperadas; probabilidad de ninguna entre ≈ {p(p_sf, 0)} (concentración en San Francisco de día) y ≈ {p(p0, 0)} (por celda)", "GUIA_VALIDACION_EXTERNA.md (sección 7, caso A), plan_seleccion_ep3.json, f12_resumen.json, data/09_app_ep3 (cajas_oof.parquet, lista_A.csv)"),
         ("¿Por qué se congelaron LR3 y XGBoost si la solución es la regla? (DEV-4)",
          f"Porque «solución contra regla» da 0 por construcción y no informa. Se congelaron antes de abrir datos (LR3 y XGBoost entrenadas con los 41 segmentos; XGBoost con la configuración más repetida entre los 5 folds, {N['alt']['xgb_folds_que_la_eligieron']}) para poder preguntar si algo más complejo mejora fuera de muestra. "
          "Son 4 comparaciones (diferencia de AUC y de fracción para el 80 %, para cada alternativa): un «gana» aislado es **exploratorio** (post hoc, sin corrección por comparaciones múltiples), no cambia la solución elegida y se usaría solo para decidir una validación nueva.",
@@ -970,6 +1038,15 @@ def preguntas(N: dict) -> str:
          f"Porque lo robusto es que ordenar la cola con la regla reduce el tiempo frente a revisar sin orden (de ≈ {N['h_azar']:.0f} h a ≈ {N['h_A']:.0f} h, con {SEG_POR_CAJA} s por caja: supuesto), con un intervalo de captura al 20 % que queda lejos del azar ({c(esc['Captura@20_lo'])} a {c(esc['Captura@20_hi'])} contra 0,20). "
          f"El flujo en dos pasos (≈ {N['h_C']:.0f} h) sale de 2 celdas y de parámetros ajustados con los mismos datos, con una diferencia pareada cuyo IC incluye 0 ({c(glob['ic_lo'])} a {c(glob['ic_hi'])}): va como segunda barra rotulada «en muestra».",
          f"≈ {N['h_azar']:.0f} h sin orden; ≈ {N['h_A']:.0f} h un paso; ≈ {N['h_C']:.0f} h dos pasos (en muestra)", "f6_modelo_escogido.csv, f5_brazoC.csv, f12_diferencia_C_menos_A.csv"),
+        ("¿Por qué las primeras cajas de la cola tienen la misma probabilidad? (F21)",
+         f"Porque la regla ordena solo por «menos puntos del sensor superior» y {mi(emp['n_cajas'])} cajas tienen 0 puntos: la regla no las distingue, empatan en el puntaje y reciben una probabilidad calibrada casi igual (de {p(emp['prob_min'])} a {p(emp['prob_max'])}: cada partición de la validación cruzada calibró por separado). "
+         f"En esas cajas, {p(emp['pct_sin_pareja'])} no tiene pareja. El orden dentro del empate no es informativo y la página lo dice sobre la tabla. No es un defecto de la tabla: es lo que la regla sabe. Los modelos que usan otras variables (distancia, tamaño, cámara) no superaron a la regla en AUC, así que no hay evidencia de que desempatar con ellas mejore. "
+         "Para la persona que revisa no cambia el trabajo: se atiende por objeto y por segmento, y todas las cajas del empate quedan dentro de lo que se revisa antes que el resto.",
+         f"{mi(emp['n_cajas'])} cajas con 0 puntos; {p(emp['pct_sin_pareja'])} sin pareja; probabilidad calibrada de {p(emp['prob_min'])} a {p(emp['prob_max'])}", "f12_eda_calidad_resumen.json, data/09_app_ep3/cajas_oof.parquet (num_top_lidar_points, prob_cal), app_logica.py (nota_empate)"),
+        ("¿Cuál es el valor de negocio en una frase? (en muestra)",
+         f"Con la cola ordenada por la regla, encontrar el 80 % de las cajas sin pareja exige revisar ≈ {p(esc['Fraccion_80'], 0)} de las cajas en vez del 80 % del total al azar: unas {N['h_A']:.0f} h en lugar de {N['h_azar']:.0f} h con {SEG_POR_CAJA} s por caja (supuesto, no medido); con auditoría previa de las celdas marcadas, ≈ {N['h_C']:.0f} h. "
+         f"Rótulo: {EN_MUESTRA}; la diferencia entre uno y dos pasos sale de 2 celdas y no se distingue de 0.",
+         f"≈ {N['h_azar']:.0f} h sin orden; ≈ {N['h_A']:.0f} h un paso; ≈ {N['h_C']:.0f} h dos pasos (en muestra)", "f6_modelo_escogido.csv, f5_metricas_candidatos.csv, f12_diferencia_C_menos_A.csv"),
     ]
     out = ["# Preguntas cruzadas con respuesta, cifra y fuente", "", f"*Generado por `scripts/ep3/generar_docs_ep3.py`. {len(Q)} preguntas; cada cifra sale del archivo indicado (carpeta `data/08_reporting_ep3` salvo que se diga otra). Las referencias a secciones corresponden a `informe_tecnico_EP3.md`.*", ""]
     for i, (q, a, cifra, fuente) in enumerate(Q, 1):
