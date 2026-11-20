@@ -548,11 +548,13 @@ comp = pd.read_csv(REP / "pagina_comparacion_antes_despues.csv")
 display(comp[["seccion", "caso", "cifra", "antes", "despues"]])
 tiempos = json.loads((REP / "pagina_tiempos_carga.json").read_text(encoding="utf-8"))
 display(pd.DataFrame(tiempos["secciones"]).T)
-ruta20 = REP / "pagina_arranque_f20.json"          # F20-P12: tiempos hasta página completa con un navegador sin interfaz (con y sin lanzador)
-if ruta20.exists():
-    ar20 = json.loads(ruta20.read_text(encoding="utf-8"))
-    display(pd.DataFrame([{"escenario": e["escenario"][:30], "repetición": e["repeticion"], "servidor (s)": e["servidor_responde_s"], "primera visita (s)": e["primera_visita_explica_s"], **e["secciones_s"]}
-                          for e in ar20["escenarios"]]))
+for version in ("f20", "f21"):                      # F20-P12 y F21-P7: tiempos hasta página completa con un navegador sin interfaz (con y sin lanzador)
+    ruta = REP / f"pagina_arranque_{version}.json"
+    if ruta.exists():
+        print(f"Tiempos de arranque, {version.upper()}:")
+        ar = json.loads(ruta.read_text(encoding="utf-8"))
+        display(pd.DataFrame([{"escenario": e["escenario"][:30], "repetición": e["repeticion"], "servidor (s)": e["servidor_responde_s"], "primera visita (s)": e["primera_visita_explica_s"], **e["secciones_s"]}
+                              for e in ar["escenarios"]]))
 """)
     n.md("""
 ## Validación externa sellada (P9) y despliegue

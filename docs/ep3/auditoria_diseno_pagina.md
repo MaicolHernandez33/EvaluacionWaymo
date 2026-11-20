@@ -1,4 +1,4 @@
-# Auditoría de diseño de la página (F20)
+# Auditoría de diseño de la página (F20 y F21)
 
 *Generado por `scripts/ep3/generar_auditoria_diseno.py`. P0: lectura de las capturas anteriores (`images/ep3/pagina/*_1366.png`, F19-B) contra la lista de patrones de plantilla. P11: causa del render incompleto de «Ética y límites» y pasadas de corrección.*
 
@@ -135,6 +135,37 @@ Captura revisada: `images/ep3/pagina/08_ayuda_y_glosario_1366.png`.
 - Auditoría: la captura exigía dos tablas estáticas y ahora hay una más una lista; el conteo de elementos de la captura se corrigió (la espera lo detectó: no guardó la imagen hasta corregirlo).
 - Verificación de que no quedan los patrones T1 a T12 en las capturas de 1366 y 1920 px: ver la tabla siguiente.
 
+## F21: dos pasadas de corrección y mediciones
+
+### F21, pasada 1: primeras capturas de 1366 px (cola con y sin fila, Explica, Resumen y las seis pestañas de Validación)
+
+- Cola (T12): «Segmento» quedaba cortado a 1366 px porque el ancho de las columnas suponía 6,6 px por carácter y el texto real mide 5,5 a 5,6 (medido sobre la captura: «lejanos y poco densos» ocupa 117 px para 21 caracteres). Constantes medidas (`formato.PX_POR_CARACTER` = 5,6 de encabezado y 5,5 de contenido) y «Tipo de caso» sin ancho fijo: las nueve columnas quedan visibles sin desplazamiento.
+- Cola: la nota del empate decía «probabilidad de 80,2 % a 90,4 %» mientras todas las filas visibles muestran 87,8 %. Ahora: «87,8 % en la primera y de 80,2 % a 90,4 % en el grupo» (el rango existe porque cada partición calibró por separado).
+- Resumen (T9): los enlaces de las alertas quedaban 8 px más arriba que su texto, porque el markdown de Streamlit lleva margen inferior negativo y acorta la columna del texto. CSS que lo anula (`[class*="st-key-alerta_"]`); la diferencia medida baja a 3 o 4 px.
+- Resumen: «en muestra» salía tres veces (etiqueta de la barra, nota y alerta); la alerta ahora dice «Todas las cifras salen de los 41 segmentos de desarrollo». Quedan dos.
+- Validación, Ensambles: las etiquetas del eje se repetían (−0,04, −0,04, −0,03, −0,03…) por usar dos decimales con un paso de 0,005; las marcas se calculan (`_marcas_eje`). «E4 contra vista obs» pasó a «vista de observación».
+- Validación, Selección (T12): la tabla de resultados tenía una columna «Fuente» con nombres de archivo (.csv) y «Detalle» cortado; se quitó la columna (la fuente va en una línea: informe técnico, sección 12 y anexo B) y «Detalle» usa su ancho. La tabla O1 a O4 tenía una fila vacía al pie (altura de 31 px por fila contra 30 reales).
+- Validación, No supervisado: las dos barras se superponían y las etiquetas salían cortadas («lejanos y poco d…»); altura por categoría y etiquetas completas.
+- Validación, En muestra: la leyenda salía cortada («Solo celdas sanas, sin aud…»); leyenda completa y valores sobre las barras.
+- Tablas de evidencia: «Proporción menos probabilidad de la regla» no era un porcentaje; pasó a «Diferencia: proporción menos probabilidad de la regla» (la prueba de formatos engañosos lo detectó).
+
+### F21, pasada 2: regeneración completa (8 páginas, cola sin selección, 6 pestañas de Validación y modo presentación; 1366 y 1920 px)
+
+- Ética (1366 px): «79,8» y «%» quedaban en líneas distintas; Explica (1920 px): «20» y «% de las cajas». Los textos HTML (`estilos._e`) y los textos largos de Explica (`formato.sin_corte`) usan espacio de no separación entre el número y «%».
+- Cola: con la nota más larga del empate, el final del texto («…no es informativo») quedaba bajo la barra de herramientas de la tabla (los iconos de descarga y búsqueda, que Streamlit dibuja sobre la esquina superior derecha); se acortó la frase («87,8 % en la primera y de 80,2 % a 90,4 % en el grupo») y la nota reserva ese espacio a la derecha (`padding-right`), de modo que si no cabe pasa a dos líneas.
+- Mensajes de error con rutas internas (`data/06_models_ep3`, `scripts/ep3/f7_preparar_app.py`): la prueba nueva de términos internos los encontró; ahora dicen qué falta sin nombrar archivos.
+- Aceptado sin cambio: la Auditoría mantiene el mapa en un contenedor de 560 px con desplazamiento (41 filas); en Validación y Auditoría la descripción ocupa dos líneas y el chip queda centrado en vertical, pero a la misma distancia del borde derecho; la tabla de Selección muestra su borde inferior.
+
+### Mediciones sobre las capturas finales
+
+Fuente: `data/08_reporting_ep3/capturas_resultado.json` (30 capturas; anchos 1366, 1920 px). Se mide con el DOM, no a ojo.
+
+| Medida | Resultado | Exigido |
+|---|---|---|
+| Chip de estado contra el borde derecho del contenido (máximo en las capturas) | 0,0 px | ≤ 1,5 px |
+| Enlace de cada alerta contra el centro de su texto (máximo, 12 alertas) | 3,3 px | ≤ 5 px |
+| Desplazamiento horizontal de la página (máximo) | 0 px | ≤ 0 |
+
 ### Verificación final contra los patrones de plantilla
 
 | Código | Estado en las capturas finales |
@@ -150,6 +181,6 @@ Captura revisada: `images/ep3/pagina/08_ayuda_y_glosario_1366.png`.
 | T9 | Cola con selección de fila y panel de detalle, vista por objeto, filtros y flujos; ejemplos de un clic en Explica. |
 | T10 | Títulos de 1,5 rem; la información útil empieza en la primera pantalla. |
 | T11 | Ninguna página queda con más de la mitad vacía (Explica ocupa la pantalla con controles, resultado y gráfico). |
-| T12 | Encabezados con el ancho calculado (sin «Posició»), probabilidad calibrada en lugar de la barra «Prioridad», «Pliegues» en vez de «Folds». |
+| T12 | Encabezados con el ancho calculado (sin «Posició»), probabilidad calibrada en lugar de la barra «Prioridad», «Particiones» en vez de «Folds» (F21: nada de «pliegue»). |
 
-Las capturas anteriores a F20 (F19-B) están en `images/ep3/pagina/antes_f20/` para comparar.
+Las capturas anteriores a F20 (F19-B) están en `images/ep3/pagina/antes_f20/` para comparar; las de F20, anteriores a F21, en `images/ep3/pagina/antes_f21/`.

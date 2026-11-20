@@ -40,7 +40,7 @@ NAVEGADORES = [r"C:\Program Files\Google\Chrome\Application\chrome.exe", r"C:\Pr
 ALTO_MIN = {"Resumen": 600, "Cola de revisión": 700, "Explica una caja": 600, "Auditoría de cámaras": 700, "Validación": 450, "Puntuar datos nuevos": 550, "Ética y límites": 450, "Ayuda y glosario": 900}
 # el ULTIMO elemento que dibuja cada seccion (texto) y conteos de elementos que deben existir (selector CSS, minimo)
 CLAVE = {"Resumen": {"texto": "Validación externa pendiente", "conteos": [(".aud-metrica", 4), (".vega-embed", 1)]},
-         "Cola de revisión": {"texto": "Caja en la posición 1", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1)]},
+         "Cola de revisión": {"texto": "Detalle de la caja en la posición 1", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1)]},
          "Explica una caja": {"texto": "Es una ilustración del modelo", "conteos": [(".vega-embed", 1), ("[data-testid=stSlider]", 3)]},
          "Auditoría de cámaras": {"texto": "Las celdas se llaman", "conteos": [(".vega-embed", 1), (".aud-metrica", 4), ("[data-testid=stTable]", 1)]},
          "Validación": {"texto": "Ver tabla completa", "conteos": [(".vega-embed", 1), ("[role=tab]", 6)]},
@@ -51,6 +51,26 @@ CLAVE = {"Resumen": {"texto": "Validación externa pendiente", "conteos": [(".au
 CLAVE_PREVIA = {"Cola de revisión": {"texto": "Solo cola: unas", "conteos": [("[role=tab]", 2), (".vega-embed", 1)]}}
 JS_PESTANA = "(() => { const t = Array.from(document.querySelectorAll('[role=tab]')).find(x => x.textContent.includes('Cola de cajas')); if (t) t.click(); return !!t; })()"
 JS_TABLA = "(() => { const d = document.querySelector('[data-testid=\"stDataFrame\"]'); if (!d) return null; const r = d.getBoundingClientRect(); return JSON.stringify({x: r.left, y: r.top, w: r.width, h: r.height}); })()"
+# F21: variantes de una pagina que tambien se fotografian. Cola sin fila elegida; las seis pestanas de Validacion (cada una con su texto propio, que solo esta visible con la pestana abierta)
+PESTANAS_VALIDACION = [("Hiperparámetros", "hiperparametros", "Cambio de PR-AUC al optimizar"), ("Ensambles", "ensambles", "Diferencia de AUC entre cada ensamble"), ("Generalización", "generalizacion", "Punto azul: AUC"),
+                       ("Selección", "seleccion", "Resultados de la solución elegida"), ("No supervisado", "no_supervisado", "Proporción de cajas sin pareja en cada tipo de caso"),
+                       ("En muestra", "en_muestra", "Fracción de las cajas que hay que revisar")]
+CLAVE_COLA_SIN_FILA = {"texto": "Seleccione una fila", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1)]}
+JS_GEOMETRIA = """(() => {
+  const q = s => document.querySelector(s);
+  const chip = q('.st-key-chip_estado button'), cont = q('[data-testid="stMainBlockContainer"]');
+  const r = chip ? chip.getBoundingClientRect() : null, c = cont ? cont.getBoundingClientRect() : null;
+  const pad = cont ? parseFloat(getComputedStyle(cont).paddingRight) : 0;
+  const alertas = Array.from(document.querySelectorAll('[class*="st-key-alerta_"]')).map(a => {
+    const tx = a.querySelector('.aud-fila'), en = a.querySelector('a');
+    if (!tx || !en) return null;
+    const rt = tx.getBoundingClientRect(), re = en.getBoundingClientRect();
+    return {texto_centro: (rt.top + rt.bottom) / 2, enlace_centro: (re.top + re.bottom) / 2, dy: Math.abs((rt.top + rt.bottom) / 2 - (re.top + re.bottom) / 2)};
+  }).filter(x => x);
+  const ancho_pagina = document.documentElement.scrollWidth, ancho_ventana = window.innerWidth;
+  return JSON.stringify({chip_derecha: r && r.right, contenido_derecha: c && c.right - pad, alertas, scroll_horizontal_px: ancho_pagina - ancho_ventana});
+})()"""
+JS_PESTANA_ROTULO = "((rotulo) => { const t = Array.from(document.querySelectorAll('[role=tab]')).find(x => x.textContent.trim() === rotulo); if (t) t.click(); return !!t; })(%s)"
 PIE = "Waymo Open Dataset v2, uso académico"            # el pie lo dibuja el marco DESPUES de la seccion: si esta, el script termino
 JS_ESTADO = """((clave, pie, conteos) => {
   const app = document.querySelector('[data-testid="stApp"]');
@@ -221,23 +241,43 @@ def main() -> None:
     try:
         secs = [(i, s) for i, s in enumerate(SECCIONES, 1) if a.secciones is None or s in a.secciones]
         for ancho in a.anchos:
-            trabajos = [(nombre_archivo(i, s), s, False) for i, s in secs]
+            trabajos: list[tuple[str, str, bool, str | None]] = []
+            for i, s in secs:
+                if s == "Validación":
+                    trabajos += [(f"{nombre_archivo(i, s)}_{sufijo}", s, False, f"tab:{rotulo}|{texto}") for rotulo, sufijo, texto in PESTANAS_VALIDACION]
+                else:
+                    trabajos.append((nombre_archivo(i, s), s, False, "cola_con_fila" if s == "Cola de revisión" else None))
+                    if s == "Cola de revisión":
+                        trabajos.append((nombre_archivo(i, s) + "_sin_seleccion", s, False, "cola_sin_fila"))
             if a.secciones is None:
-                trabajos.append(("09_resumen_modo_presentacion", "Resumen", True))
-            for nombre, seccion, pres in trabajos:
+                trabajos.append(("09_resumen_modo_presentacion", "Resumen", True, None))
+            for nombre, seccion, pres, variante in trabajos:
                 nav.eventos.clear()
+                geometria = None
                 nav.cmd("Emulation.setDeviceMetricsOverride", width=ancho, height=900, deviceScaleFactor=1, mobile=False)
                 nav.cmd("Page.navigate", url=url(a.puerto, seccion))
                 t0 = time.time()
-                ok, e, motivo, _, completa = esperar(nav, seccion, a.maximo, a.estable, CLAVE_PREVIA.get(seccion))
-                if ok and seccion in CLAVE_PREVIA:                      # cola: abre «Cola de cajas» y elige la primera fila con un clic real (el panel de detalle es parte del diseno)
+                previa = CLAVE_PREVIA.get(seccion) if variante and variante.startswith("cola") else None
+                if variante and variante.startswith("tab:"):                 # Validacion: la pagina base (primera pestana) se espera con su clave normal
+                    previa = None
+                ok, e, motivo, _, completa = esperar(nav, seccion, a.maximo, a.estable, previa)
+                if ok and variante and variante.startswith("cola"):          # cola: abre «Cola de cajas»; con fila, elige la primera con un clic real (el panel de detalle es parte del diseno)
                     nav.js(JS_PESTANA)
                     time.sleep(1.5)
-                    caja = nav.js(JS_TABLA)
-                    if caja:
-                        for tipo in ("mousePressed", "mouseReleased"):
-                            nav.cmd("Input.dispatchMouseEvent", type=tipo, x=caja["x"] + 19, y=caja["y"] + 50, button="left", clickCount=1)
-                    ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable)
+                    if variante == "cola_con_fila":
+                        caja = nav.js(JS_TABLA)
+                        if caja:
+                            for tipo in ("mousePressed", "mouseReleased"):
+                                nav.cmd("Input.dispatchMouseEvent", type=tipo, x=caja["x"] + 19, y=caja["y"] + 50, button="left", clickCount=1)
+                        ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable)
+                    else:
+                        ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable, CLAVE_COLA_SIN_FILA)
+                if ok and variante and variante.startswith("tab:"):          # Validacion: abre la pestana y espera su texto propio
+                    rotulo, texto = variante[4:].split("|", 1)
+                    nav.js(JS_PESTANA_ROTULO % json.dumps(rotulo))
+                    time.sleep(1.5)
+                    clave_tab = {"texto": texto, "conteos": [("[role=tab]", 6)] + ([(".vega-embed", 1)] if rotulo != "Selección" else [("[data-testid=stDataFrame]", 1)])}
+                    ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable, clave_tab)
                 if ok and pres:
                     # clic REAL del raton sobre el interruptor del modo presentacion (al pie de la barra lateral): un label.click() de JavaScript no cambia el estado del interruptor
                     pos = nav.js("(() => { const l = document.querySelector('[data-testid=\"stSidebar\"] [data-testid=\"stCheckbox\"] label'); if (!l) return null; const r = l.getBoundingClientRect(); return JSON.stringify({x: r.left + 18, y: r.top + r.height / 2}); })()")
@@ -250,11 +290,14 @@ def main() -> None:
                     ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable)
                     if ok and not nav.js("document.documentElement.outerHTML.includes('--escala: 1.18')"):
                         ok, motivo = False, "el modo presentacion no se activo (falta --escala: 1.18)"
+                clave_final = (CLAVE_COLA_SIN_FILA if variante == "cola_sin_fila" else
+                               ({"texto": variante[4:].split("|", 1)[1], "conteos": [("[role=tab]", 6)] + ([(".vega-embed", 1)] if "Selección|" not in variante else [("[data-testid=stDataFrame]", 1)])} if variante and variante.startswith("tab:") else None))
                 if ok:                                                    # ajusta el viewport al alto real del contenido y vuelve a esperar la estabilidad
                     alto = int(min(max(e.get("alto", 900) + 40, 700), 3600))
                     nav.cmd("Emulation.setDeviceMetricsOverride", width=ancho, height=alto, deviceScaleFactor=1, mobile=False)
-                    ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable)
+                    ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable, clave_final)
                     alto = int(min(max(e.get("alto", alto) + 40, 700), 3600))
+                    geometria = nav.js(JS_GEOMETRIA) if ok else None
                     if ok:
                         nav.cmd("Emulation.setDeviceMetricsOverride", width=ancho, height=alto, deviceScaleFactor=1, mobile=False)
                         time.sleep(0.6)
@@ -265,7 +308,7 @@ def main() -> None:
                 internos = [x for x in todos if "status of 404" in x]
                 errores = [x for x in todos if x not in internos]
                 fallo |= not ok
-                resultado.append({"seccion": seccion, "ancho": ancho, "archivo": f"{nombre}_{ancho}.png", "listo": ok, "segundos_hasta_listo": listo_en, "segundos_hasta_completa": completa, "motivo_si_no": motivo, "estado_final": e,
+                resultado.append({"seccion": seccion, "ancho": ancho, "archivo": f"{nombre}_{ancho}.png", "listo": ok, "segundos_hasta_listo": listo_en, "segundos_hasta_completa": completa, "variante": variante, "geometria": geometria, "motivo_si_no": motivo, "estado_final": e,
                                   "errores_consola": errores, "404_internos_de_streamlit": len(internos)})
                 if ok and not a.sin_guardar:
                     img = nav.cmd("Page.captureScreenshot", format="png")

@@ -225,7 +225,7 @@ def test_las_cifras_no_cambian_salvo_el_redondeo_unificado(monkeypatch: pytest.M
     ex = abrir("Explica una caja")
     t = texto(ex) + " " + " ".join(e.value for e in ex.markdown)
     m = antes["Explica una caja"]["metricas"]
-    assert m["Probabilidad calibrada de no tener pareja"] in t and "Posición en la cola: 59 %" in t.replace("\xa0", " ")                      # antes: «entre el 59 % primero»
+    assert m["Probabilidad calibrada de no tener pareja"] in t and "Posición en la cola: 59 %" in t.replace("\xa0", " ") and any("Puntaje: -50 (menos los puntos del sensor superior)" in c.value for c in ex.caption)                      # antes: «entre el 59 % primero»
     assert m["Puntaje"].replace("-", "") .replace(",000", "") in t or m["Puntaje"] in t
 
 
@@ -240,6 +240,9 @@ def test_tokens_cumplen_contraste_y_coinciden_con_el_tema() -> None:
         for clave, token in (("primaryColor", "primario"), ("backgroundColor", "fondo"), ("secondaryBackgroundColor", "superficie"), ("textColor", "texto")):
             assert f'{clave} = "{E.TOKENS[token]}"' in t, (ruta.name, clave)
         assert "[theme]" in t and 'font = "sans serif"' in t
+        lateral = t.split("[theme.sidebar]")[1]                                                          # F22: barra lateral de tinta, con el tema nativo de Streamlit
+        for clave, token in (("backgroundColor", "tinta"), ("secondaryBackgroundColor", "tinta_2"), ("textColor", "tinta_texto"), ("primaryColor", "tinta_acento")):
+            assert f'{clave} = "{E.TOKENS[token]}"' in lateral, (ruta.name, clave)
 
 
 def _archivos_de_la_pagina() -> list[Path]:

@@ -9,7 +9,7 @@
 4. **Los notebooks `11` a `15`** (ya ejecutados) en ese orden: datos y detector, IE9/IE10, IE11/IE12, dos pasos y página, no supervisado.
 5. **La página** (`scripts\ep3\arrancar_app.bat`) y, si se va a presentar, `docs/ep3/guion_presentacion.md` y `docs/ep3/preguntas_cruzadas.md`.
 
-Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_congelados.py` (EP2, 14 de 14), `.venv\Scripts\python scripts\ep3\verificar_congelados_v3.py` (5 de 5) y `.venv\Scripts\python scripts\ep3\verificar_no_supervisado.py` (1 de 1). Pruebas de EP3: 177 recolectadas (`pruebas_ep3_conteo.json`).
+Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_congelados.py` (EP2, 14 de 14), `.venv\Scripts\python scripts\ep3\verificar_congelados_v3.py` (5 de 5) y `.venv\Scripts\python scripts\ep3\verificar_no_supervisado.py` (1 de 1). Pruebas de EP3: 190 recolectadas (`pruebas_ep3_conteo.json`).
 
 ## Tabla de archivos
 | Ruta | Para qué sirve | Cuándo se usa | ¿Se puede ejecutar? (tiempo aproximado) |
@@ -54,7 +54,7 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `scripts/ep3/f18_sesgo_seleccion.py` | F18-A6: motivos de descarte y rendimiento de la selección de segmentos de EP2. | Para el sesgo de selección del informe | sí, segundos |
 | `scripts/ep3/f18_verificar_definiciones.py` | F18-A4: cómo se define el «20 %» en el informe y en la página, y por qué el AUC base de f13 es 0,798. | Para citar la causa exacta de 70,9 % contra 70,2 % | sí, segundos |
 | `scripts/ep3/f19_congelar_alternativas.py` | F19-A4b (DEV-4): congela LR3 y XGBoost (entrenados con los 41 segmentos) ANTES de abrir datos nuevos, con su manifest aparte. | Ya se corrió; se niega a sobrescribir | no repetir (~4 s; se niega a sobrescribir) |
-| `scripts/ep3/f19_medir_arranque.py` | F19-B9 y F20-P12: mide el arranque en frío de la página (con y sin lanzador) y el tiempo hasta estar lista cada sección, con un navegador sin interfaz. | Para comprobar que la página abre rápido | sí, ~3 min (4 arranques); escribe `pagina_arranque.json` y restaura `capturas_resultado.json` |
+| `scripts/ep3/f19_medir_arranque.py` | F19-B9, F20-P12 y F21-P7: mide el arranque en frío de la página (con y sin lanzador) y el tiempo hasta estar lista cada sección, con un navegador sin interfaz. | Para comprobar que la página abre rápido | sí, ~3 min (4 arranques); escribe `pagina_arranque.json` y restaura `capturas_resultado.json` |
 | `scripts/ep3/f1_datos.py` | F1: arma `dev_41.parquet` (41 segmentos) y los folds. | Solo para reconstruir los datos | NO ejecutar: reescribe `dev_41.parquet`, que está congelado |
 | `scripts/ep3/f2_detector.py` | F2: detector de huecos, Lista A y reglas simples. | Para reconstruir el filtro 1 | NO ejecutar: reescribe `detector_params_v3.json` (congelado) |
 | `scripts/ep3/f3_analisis.py` | F3: tablas de IE9 desde los checkpoints. | Después de `f3_tuning.py` | sí; no medido (minutos o menos) |
@@ -76,6 +76,7 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `scripts/ep3/generar_reporte_f19a.py` | Genera `REPORTE_F19A.md` leyendo los resultados del ensayo y de las alternativas. | Al cerrar F19-A | sí, segundos |
 | `scripts/ep3/generar_reporte_f19b.py` | Genera `REPORTE_F19B.md` leyendo los tiempos medidos, las capturas y el conteo de pruebas, y corriendo las tres verificaciones de congelados. | Al cerrar F19-B | sí, ~5 s |
 | `scripts/ep3/generar_reporte_f20.py` | Genera `REPORTE_F20.md` leyendo las capturas, los tiempos, el conteo de pruebas y las verificaciones. | Al cerrar F20 | sí, ~1 min (corre las tres verificaciones) |
+| `scripts/ep3/generar_reporte_f21.py` | Genera `REPORTE_F21.md` leyendo las capturas, los tiempos, el conteo de pruebas, el guion y las verificaciones. | Al cerrar F21 | sí, ~1 min (corre las tres verificaciones) |
 | `scripts/ep3/ingesta_nuevos.py` | Ingesta de segmentos nuevos para la validación externa. | Solo en la validación sellada | NO se ha ejecutado |
 | `scripts/ep3/plan_seleccion_ep3.py` | F18-B4: calcula (sin descargar nada) el plan de selección de segmentos nuevos y su sha256; `--verificar` lo comprueba. | Antes del Colab; el plan se declara una sola vez | sí, segundos |
 | `scripts/ep3/puntuar_segmento.py` | Puntúa un segmento nuevo desde la línea de comandos. | Para usar la solución con datos nuevos | sí (necesita un `lidar_box` y su asociación) |
@@ -91,7 +92,8 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `docs/ep3/REPORTE_F19A.md` | Reporte final de la tarea F19-A (preparar el sello antes del Colab). | Para ver qué cambió en F19-A | no (documento) |
 | `docs/ep3/REPORTE_F19B.md` | Reporte final de la tarea F19-B (pulido de la página y corrección de documentos). | Para ver qué cambió en F19-B | no (documento) |
 | `docs/ep3/REPORTE_F20.md` | Reporte final de la tarea F20 (rediseño de la página y cierre de documentos). | Para ver qué cambió en F20 | se regenera con `generar_reporte_f20.py` |
-| `docs/ep3/auditoria_diseno_pagina.md` | F20-P0 y P11: auditoría de las capturas contra los patrones de plantilla, causa del render incompleto de «Ética y límites» y las dos pasadas de corrección. | Para ver qué se corrigió del diseño y por qué | se regenera con `generar_auditoria_diseno.py` |
+| `docs/ep3/REPORTE_F21.md` | Reporte final de la tarea F21 (última ronda de pulido de la página y ajustes de documentos). | Para ver qué cambió en F21 | se regenera con `generar_reporte_f21.py` |
+| `docs/ep3/auditoria_diseno_pagina.md` | F20-P0 y P11 y F21-P6: auditoría de las capturas contra los patrones de plantilla, causa del render incompleto de «Ética y límites», las dos pasadas de corrección de F20 y las dos de F21 con sus mediciones. | Para ver qué se corrigió del diseño y por qué | se regenera con `generar_auditoria_diseno.py` |
 | `docs/ep3/despliegue.md` | Cómo correr la página (local, Docker, guía AWS no ejecutada) y seguridad. | Para desplegar | no (documento) |
 | `docs/ep3/ensayo_validacion_externa.md` | Log del ensayo general (con datos de desarrollo: no es un resultado). | Para ver qué se probó antes de la corrida real | se regenera con `generar_ensayo_md.py` |
 | `docs/ep3/freeze_antes.txt` | `pip freeze` antes de instalar (evidencia de que no se movieron versiones). | Auditoría del entorno | no |
@@ -121,13 +123,15 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `app/precarga.py` | F19-B9: carga y calienta en un hilo los datos y la solución congelada (una vez por proceso, compartido con la página). | Lo importa `app/app.py` y `app/lanzar.py` | no (módulo) |
 | `app/secciones.py` | Las 8 secciones de la página (una función por sección) y el encabezado con el chip de estado. | Lo importan los archivos de `app/paginas/` | no se ejecuta solo |
 | `artefactos_ep3/` | Tablas agregadas y manifests versionables (sin filas por caja) + `README_artefactos.md`. (81 archivos) | Para revisar resultados sin los datos | se regenera con `empaquetar_entrega_ep3.py` |
-| `images/ep3/pagina/` | Capturas de cada sección de la página (perfil analista) y del modo presentación. (45 archivos) | Para la presentación o el informe | se regeneran con `capturar_pagina.py` |
+| `images/ep3/pagina/` | Capturas de cada sección de la página (perfil analista) y del modo presentación. (75 archivos) | Para la presentación o el informe | se regeneran con `capturar_pagina.py` |
 | `data/06_models_ep3/manifest_alternativas.json` | Hash de las alternativas congeladas LR3 y XGBoost (aparte de `manifest_v3.json`). | Lo verifican `congelar` y `evaluar` | no (congelado) |
 | `data/06_models_ep3/manifest_no_supervisado.json` | Hash del artefacto no supervisado. | Lo lee `verificar_no_supervisado.py` | no |
 | `data/06_models_ep3/manifest_v3.json` | Hashes de la solución v3 congelada. | Lo lee `verificar_congelados_v3.py` | no (congelado) |
 | `data/08_reporting_ep3/captura_linea_tiempo_auditoria_de_camaras.json` | F20-P11: línea de tiempo de la carga en frío de «Auditoría de cámaras» (muestra una página a medias mientras el script se ejecuta). | Idem | `capturar_pagina.py --linea-de-tiempo` |
 | `data/08_reporting_ep3/captura_linea_tiempo_etica_y_limites.json` | F20-P11: línea de tiempo (cada 0,1 s) de la carga en frío de «Ética y límites», para la causa del render incompleto de la captura. | Para ver cuándo está completa una página | `capturar_pagina.py --linea-de-tiempo` |
 | `data/08_reporting_ep3/pagina_arranque_f20.json` | F20-P12: tiempos de arranque y de cada página (con y sin lanzador), medidos con un navegador sin interfaz. | Para citar los tiempos de carga | se regenera con `f19_medir_arranque.py` (varios minutos) |
+| `data/08_reporting_ep3/pagina_arranque_f21.json` | F21-P7: tiempos de arranque y de cada página después del pulido final (con y sin lanzador), medidos con un navegador sin interfaz. | Para citar los tiempos de carga de F21 | se regenera con `f19_medir_arranque.py` (varios minutos) |
+| `data/08_reporting_ep3/pagina_arranque_f21_corrida1.json` | F21-P7: primera corrida de la medición de tiempos, conservada junto a la repetición (en esa corrida un arranque sin lanzador salió lento). | Para ver la dispersión de la medición | se regenera con `f19_medir_arranque.py` (varios minutos); es una copia de una corrida pasada |
 | `data/08_reporting_ep3/pagina_numeros_antes.json` | Cifras que mostraba la página antes del rediseño (referencia de la prueba de regresión). | Lo lee `tests/ep3/test_pagina_rediseno.py` | no |
 | `src/waymo_evaluacion/ep3/` | Paquete de EP3 (plan, datos, detector, métricas, modelos, candidatos, inferencia, lógica de la página, sellado). (16 módulos) | Lo importan los scripts, la página y las pruebas | no se ejecuta solo; se prueba con `tests/ep3` |
-| `tests/ep3/` | Pruebas de EP3 (detector, inferencia, candidatos, sellado, página, seguridad). (14 módulos) | Antes de entregar | sí, solo con `.venv\Scripts\python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider` (~1 min); `pytest` sin ruta está vetado |
+| `tests/ep3/` | Pruebas de EP3 (detector, inferencia, candidatos, sellado, página, seguridad). (15 módulos) | Antes de entregar | sí, solo con `.venv\Scripts\python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider` (~1 min); `pytest` sin ruta está vetado |

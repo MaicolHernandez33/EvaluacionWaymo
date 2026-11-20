@@ -125,7 +125,7 @@ def test_numero_legible_no_mezcla_escalas() -> None:
 def test_las_proporciones_salen_como_porcentaje_y_las_diferencias_no() -> None:
     df = pd.DataFrame({"pct_cajas": [0.46], "tasa": [0.2], "Fraccion_80": [0.446], "dif_Fraccion_80_vs_regla": [-0.025], "AUC": [0.823], "ic_lo": [0.1], "pct_nulos": [0.0]})
     t = F.tabla_legible(df, tabla="posthoc__eda_tasas")
-    assert t["% cajas"].iloc[0] == "46,0 %" and t["Proporción sin pareja"].iloc[0] == "20,0 %" and t["Fracción de cajas para el 80 %"].iloc[0] == "44,6 %"
+    assert t["% de cajas"].iloc[0] == "46,0 %" and t["Proporción sin pareja"].iloc[0] == "20,0 %" and t["Fracción de cajas para el 80 %"].iloc[0] == "44,6 %"
     assert t["Dif. Fraccion 80 vs regla"].iloc[0] == "-0,025" if "Dif. Fraccion 80 vs regla" in t.columns else True
     assert t["AUC"].iloc[0] == "0,823" and t["% de nulos"].iloc[0] == "0,0 %"
 
@@ -265,6 +265,6 @@ def test_hay_capturas_completas_de_las_8_secciones_y_del_modo_presentacion_a_136
     assert all(x["listo"] for x in r), [x["archivo"] for x in r if not x["listo"]]
     for ancho in (1366, 1920):
         png = sorted(carpeta.glob(f"*_{ancho}.png"))
-        assert len(png) == 9, (ancho, [p.name for p in png])
+        assert len(png) == 15, (ancho, [p.name for p in png])           # F21: 8 páginas, cola sin selección, 6 pestañas de Validación y el modo presentación (Validación no tiene captura aparte)
         assert all(p.stat().st_size > 20_000 for p in png), [p.name for p in png if p.stat().st_size <= 20_000]       # un esqueleto en blanco pesa ~9 KB
     assert any("explica" in p.name for p in carpeta.glob("*_1366.png")) and any("presentacion" in p.name for p in carpeta.glob("*_1920.png"))
