@@ -15,7 +15,7 @@
 | Cajas para el 80 % de recall: un paso / dos pasos | 44,6 % / 29,6 % *(en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos)* | `f5_brazoC.csv` |
 | Dos pasos menos un paso (IC) *(en muestra)* | -0,150 (-0,490 a 0,000), no excluye 0 | `f12_diferencia_C_menos_A.csv` |
 | ¿Mejoran los clusters la predicción? | No (descriptivo) | `f13_aporte_cluster.csv` |
-| Pruebas | 190 en `tests/ep3` (EP2: 81; total 271) | `pruebas_ep3_conteo.json` (`pytest --collect-only`, sin ejecutar) |
+| Pruebas | 407 en `tests/ep3` (EP2: 81; total 488) | `pruebas_ep3_conteo.json` (`pytest --collect-only`, sin ejecutar) |
 
 **La ganancia del brazo C sale de 2 celdas cámara x segmento, una de ellas en el segmento donde se descubrió el hueco.**
 
@@ -29,7 +29,7 @@
 | `app/` | página Streamlit |
 | `artefactos_ep3/` | versionable (fuera de `data/`): manifests, umbrales, parámetros del detector, plan v3 y tablas agregadas |
 | `data/*_ep3` | `05_model_input_ep3`, `06_models_ep3` (v3 congelado), `07_model_output_ep3`, `08_reporting_ep3`, `09_app_ep3` (ignoradas por git) |
-| `tests/ep3/` | 190 pruebas |
+| `tests/ep3/` | 407 pruebas |
 | raíz | `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `requirements_app.txt`, `requirements_ep3.txt`, `constraints_ep3.txt` |
 
 ## Cómo reproducir

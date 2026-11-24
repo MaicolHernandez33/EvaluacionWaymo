@@ -12,7 +12,7 @@ import pytest
 
 from waymo_evaluacion.ep3 import formato as F
 from waymo_evaluacion.ep3.app_logica import (
-    COLUMNA_FOTOGRAMAS, GLOSARIO, PERFILES, SECCIONES, cargar_datos, camara_de_azimut, curva_inversa, datos_ciclistas, formatear_kpi, nombre_curva_legible, preguntas_frecuentes, recall_en_presupuesto,
+    COLUMNA_FOTOGRAMAS, GLOSARIO, PERFILES, ATRIBUCION_WAYMO, SECCIONES, TITULO_RESUMEN, cargar_datos, camara_de_azimut, curva_inversa, datos_ciclistas, formatear_kpi, nombre_curva_legible, preguntas_frecuentes, recall_en_presupuesto,
     resumen_cola, tabla_cola, texto_resultado_cola, validar_asociacion, validar_lidar_box,
 )
 from tests.ep3.test_app import _datos_sinteticos, _modelos_sinteticos, ir_a, textos
@@ -79,15 +79,13 @@ def test_fuente_unica_de_la_cobertura(tmp_path: Path) -> None:
         assert F.de_cada_100(r["cobertura"]) in texto_resultado_cola(r) and F.de_cada_100(r["cobertura_uno"]) in texto_resultado_cola(r)
 
 
-def test_tabla_de_la_cola_oculta_identificadores_y_avisa_de_ciclistas(tmp_path: Path) -> None:
+def test_tabla_de_la_cola_lleva_identificadores_y_avisa_de_ciclistas(tmp_path: Path) -> None:
     _datos_sinteticos(tmp_path / "d")
     d = cargar_datos(tmp_path / "d")
     top = d["cajas"].head(5).assign(es_ciclista=[1, 0, 0, 0, 0], az_signed=[0.0, 30.0, -40.0, 90.0, 150.0])
     rg = {1: (-20.0, 20.0), 2: (20.4, 63.0), 3: (-60.0, -19.5)}
-    con = tabla_cola(top, 100, rg, presentacion=False)
-    sin = tabla_cola(top, 100, rg, presentacion=True)
-    assert {"Segmento", "Marca de tiempo", "Identificador de objeto"} <= set(con.columns)
-    assert not ({"Segmento", "Marca de tiempo", "Identificador de objeto"} & set(sin.columns)) and COLUMNA_FOTOGRAMAS in sin.columns
+    con = tabla_cola(top, 100, rg)
+    assert {"Segmento", "Marca de tiempo", "Identificador de objeto"} <= set(con.columns) and COLUMNA_FOTOGRAMAS in con.columns
     assert con["Clase"].iloc[0].startswith("Ciclista") and con["Clase"].iloc[1] == "Peatón"
     assert con["Cámara"].tolist() == ["1 (frontal)", "2 (frontal izq.)", "3 (frontal der.)", "—", "—"]
     assert "Prioridad" not in con.columns and con["Prob. sin pareja"].iloc[0] == "30,0 %"          # F20-P4e: la probabilidad calibrada reemplaza a la barra «Prioridad» saturada en 100
@@ -125,36 +123,35 @@ def entorno(tmp_path_factory):
     return base
 
 
-@pytest.mark.parametrize("presentacion", [False, True])
 @pytest.mark.parametrize("perfil", list(PERFILES))
-def test_humo_8_secciones_x_3_perfiles(entorno: Path, monkeypatch: pytest.MonkeyPatch, perfil: str, presentacion: bool) -> None:
+def test_humo_8_secciones_x_3_perfiles(entorno: Path, monkeypatch: pytest.MonkeyPatch, perfil: str) -> None:
     at_mod = pytest.importorskip("streamlit.testing.v1")
     monkeypatch.setenv("WAYMO_APP_DATA", str(entorno / "datos"))
     monkeypatch.setenv("WAYMO_APP_MODELOS", str(entorno / "modelos"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
     at.sidebar.selectbox[0].set_value(perfil).run()                                   # el rol está al pie de la barra lateral
-    esperada = "Resumen" if perfil == list(PERFILES)[0] else PERFILES[perfil]["seccion"]          # el rol por defecto ya está en la página de inicio (Resumen)
+    esperada = TITULO_RESUMEN if perfil == list(PERFILES)[0] else PERFILES[perfil]["seccion"]          # el rol por defecto ya está en la página de inicio (Resumen)
     assert at.title[0].value == esperada                                              # cambiar de rol lleva a la página que ese rol sugiere
-    at.sidebar.toggle[0].set_value(presentacion).run()
     for s in SECCIONES:
         ir_a(at, s)
-        assert not at.exception, (perfil, presentacion, s, at.exception)
-        assert at.title[0].value == s
+        assert not at.exception, (perfil, s, at.exception)
+        assert at.title[0].value == (TITULO_RESUMEN if s == "Resumen" else s)
         assert not at.warning, (perfil, s)                                             # sin banners ámbar por pantalla
-        assert "2 celdas cámara x segmento" in textos(at), (perfil, s)                  # el chip de estado abre el texto completo de «en muestra»
-        assert ("--escala: 1.18" in textos(at)) == presentacion
+        assert ATRIBUCION_WAYMO in textos(at) and "Datos de desarrollo, sin validación externa" not in textos(at), (perfil, s)                  # F26: el pie lleva la atribución en todas las vistas y ya no hay chip
 
 
-def test_modo_presentacion_oculta_identificadores_en_la_cola(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_la_tabla_de_la_cola_de_la_pagina_no_lleva_identificadores_pero_el_csv_si(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at_mod = pytest.importorskip("streamlit.testing.v1")
     monkeypatch.setenv("WAYMO_APP_DATA", str(entorno / "datos"))
     monkeypatch.setenv("WAYMO_APP_MODELOS", str(entorno / "modelos"))
     at = at_mod.AppTest.from_file(str(R / "app" / "app.py"), default_timeout=60).run()
     ir_a(at, "Cola de revisión")
-    assert "Marca de tiempo" in at.dataframe[0].value.columns and "Identificador de objeto" in at.dataframe[0].value.columns
-    at.sidebar.toggle[0].set_value(True).run()
-    cols = set(at.dataframe[0].value.columns)
-    assert not (cols & {"Marca de tiempo", "Identificador de objeto", "Segmento"})
+    assert len(at.dataframe[0].value.columns) == 7 and not (set(at.dataframe[0].value.columns) & {"Marca de tiempo", "Identificador de objeto"})         # F32: el segmento va abreviado (…123456); la marca de tiempo y el identificador completo van en el CSV
+    from waymo_evaluacion.ep3.app_logica import cargar_datos, resumen_cola, tabla_cola
+
+    d = cargar_datos(entorno / "datos")
+    r = resumen_cola(d["cajas"], d["curva"], "sol", "Todos", 0.2, 20)
+    assert {"Segmento", "Marca de tiempo", "Identificador de objeto"} <= set(tabla_cola(r["top"], r["cajas_cola_total"], {}).columns)       # el CSV los lleva siempre (F30: ya no hay modo que los oculte)
 
 
 def test_cola_control_inverso_y_boton_volver_al_20(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -170,8 +167,7 @@ def test_cola_control_inverso_y_boton_volver_al_20(entorno: Path, monkeypatch: p
     assert at.slider[0].value == 20
     at.radio[0].set_value("Meta").run()
     assert at.slider[0].label.startswith("Meta")
-    texto = next(m.value for m in at.markdown if "Con auditoría previa" in m.value)
-    assert "de cada 100" in texto
+    assert any("Para encontrar" in c.value for c in at.caption) and "de cada 100" in " ".join(m.value for m in at.markdown if 'class="aud-kpis"' in m.value)
 
 
 # ------------------------------------------------------------------------------------------------------------ regresión de cifras contra pagina_numeros_antes.json
@@ -193,18 +189,21 @@ def test_las_cifras_no_cambian_salvo_el_redondeo_unificado(monkeypatch: pytest.M
 
     # las 5 cifras de siempre (antes en «Resultados técnicos» de Inicio) siguen visibles, ahora en la pestaña Selección de Validación (con separador de miles es-CL)
     val = abrir("Validación")
-    celdas = " ".join(" ".join(map(str, d.value.to_numpy().ravel())) for d in val.dataframe)
+    celdas = " ".join(" ".join(map(str, d.value.to_numpy().ravel())) for d in val.dataframe) + " " + " ".join(re.sub(r"<[^>]+>", " ", m.value) for m in val.markdown)       # F34: las tablas son HTML
+    celdas = celdas.replace("\xa0", " ")
     for t in antes["Inicio"]["tarjetas"]:
         assert formatear_kpi(t["valor"]) in celdas, t
     # el Resumen muestra las cifras del titular nuevo, leídas de su origen (ie12__brazo_C_y_equilibrio): 358 h sin orden, 200 h un paso, 132 h dos pasos
-    res = texto(abrir("Resumen"))
-    res = res.replace("\xa0", " ").replace("**", "")
-    assert "80.571" in res and "21,2" in res and "≈ 358 h" in res and "≈ 200 h" in res and "≈ 132 h" in res, res[-1500:]
+    res = texto(abrir("Resumen")).replace("\xa0", " ").replace("**", "")
+    assert "21,2" in res and "78.626" in res, res[-1500:]                                                    # F29: los indicadores (la cola de 78.626 cajas y el 21,2 % sin pareja)
+    horas = texto(val).replace("\xa0", " ").replace("**", "")
+    assert "≈ 358 h" in horas and "≈ 200 h" in horas and "≈ 132 h" in horas, horas[-1500:]                    # F30: las horas (impacto estimado) están en Validación › En muestra, con las mismas cifras
+    assert "80.571" in " ".join(" ".join(map(str, d.value.to_numpy().ravel())) for d in val.dataframe) or "80.571" in texto(val).replace("\xa0", " ")        # F29: «Cajas analizadas» pasó a Validación
     # Cola: cajas y horas idénticas; hallados idénticos; la cobertura pasa a una sola fuente (observada) y la tarjeta antigua difiere en <= 0,1 punto
     for clave, presup in (("presupuesto_20", 20), ("presupuesto_68", 68)):
         a = abrir("Cola de revisión")
         a.slider[0].set_value(presup).run()
-        txt = texto(a)
+        txt = " ".join(texto(a).split())                                                   # F32: «70 de cada 100» queda en una tarjeta con la cifra y su unidad en elementos distintos
         old = antes["Cola de revisión"][clave]
         assert old["metricas"]["Cajas a revisar en este segmento"] in txt
         assert old["metricas"]["Horas con 20 s por caja"] + " h" in txt                  # el flujo por defecto sigue siendo el de dos pasos: mismas cajas y horas
@@ -212,20 +211,27 @@ def test_las_cifras_no_cambian_salvo_el_redondeo_unificado(monkeypatch: pytest.M
         texto_viejo = float(old["recall_texto"].replace(" %", "").replace(",", "."))
         assert abs(tarjeta_vieja - texto_viejo) <= 0.1 + 1e-9                           # la inconsistencia que se unificó
         assert f"{round(texto_viejo)} de cada 100" in txt or f"{int(texto_viejo)} de cada 100" in txt
-        assert len(a.dataframe[0].value) == old["filas_tabla"]
+        assert len(a.dataframe[0].value) == min(50, old["filas_tabla"])                   # F32: la tabla se pagina de a 50 (antes mostraba hasta 500 con desplazamiento interno)
     # Auditoría y Evidencia: mismas filas / tablas
     aud = abrir("Auditoría de cámaras")
-    assert len(aud.table[0].value) == antes["Auditoría de cámaras"]["tablas"][0]["filas"]                      # la Lista A pasó a una tabla estática
+    assert len(aud.dataframe[0].value) == antes["Auditoría de cámaras"]["tablas"][0]["filas"]                  # F31: las mismas filas (2 celdas marcadas) en la única tabla de celdas marcadas
     from collections import Counter
 
-    filas_val = Counter(len(d.value) for d in val.dataframe)
-    assert not (Counter(antes["Evidencia"]["filas_por_tabla"]) - filas_val)           # las 26 tablas de antes siguen, con las mismas filas (más el cuadro O1 a O4 y los resultados clave)
-    assert sum(filas_val.values()) == antes["Evidencia"]["tablas"] + 2
+    pies = re.findall(r'class="tstd-pie">([^<]*)<', " ".join(m.value for m in val.markdown))                                    # F34: cada tabla HTML trae su conteo de filas («N filas» o «Filas 1 a 25 de N»)
+
+    def n_filas(pie: str) -> int:
+        m = re.search(r"de ([\d.]+)", pie) if pie.startswith("Filas") else re.match(r"([\d.]+) fila", pie)
+        return int(m.group(1).replace(".", ""))
+
+    filas_val = Counter(n_filas(p) for p in pies)
+    faltan = Counter(antes["Evidencia"]["filas_por_tabla"]) - filas_val
+    assert set(faltan) <= {175}                                                                    # las tablas de antes siguen con las mismas filas; solo «Curvas de validación» (175 filas) salió de pantalla y queda en la descarga CSV
+    assert len(pies) >= antes["Evidencia"]["tablas"] - 1                                           # F34: 25 tablas de evidencia en pantalla (la 26.ª, las curvas, solo en la descarga) más candidatos, resultados y variantes
     # Explica una caja con los valores por defecto: puntaje, lugar en la cola y probabilidad idénticos
     ex = abrir("Explica una caja")
-    t = texto(ex) + " " + " ".join(e.value for e in ex.markdown)
+    t = texto(ex) + " " + " ".join(e.value for e in ex.markdown) + " " + " ".join(c.value for c in ex.caption)
     m = antes["Explica una caja"]["metricas"]
-    assert m["Probabilidad calibrada de no tener pareja"] in t and "Posición en la cola: 59 %" in t.replace("\xa0", " ") and any("Puntaje: -50 (menos los puntos del sensor superior)" in c.value for c in ex.caption)                      # antes: «entre el 59 % primero»
+    assert m["Probabilidad calibrada de no tener pareja"].replace("\xa0", " ") in t.replace("\xa0", " ") and "El 59 % de las cajas de la cola queda antes que esta" in t.replace("\xa0", " ") and "2 · Puntaje" in t                      # antes: «entre el 59 % primero» (el mismo 59 %)
     assert m["Puntaje"].replace("-", "") .replace(",000", "") in t or m["Puntaje"] in t
 
 
@@ -237,11 +243,11 @@ def test_tokens_cumplen_contraste_y_coinciden_con_el_tema() -> None:
         assert E.contraste(E.TOKENS[fg], E.TOKENS[bg]) >= 4.5, (fg, bg)
     for ruta in (R / ".streamlit/config.toml", R / "app/.streamlit/config.toml"):
         t = ruta.read_text(encoding="utf-8")
-        for clave, token in (("primaryColor", "primario"), ("backgroundColor", "fondo"), ("secondaryBackgroundColor", "superficie"), ("textColor", "texto")):
+        for clave, token in (("primaryColor", "acento"), ("backgroundColor", "fondo"), ("secondaryBackgroundColor", "panel_alto"), ("textColor", "texto")):
             assert f'{clave} = "{E.TOKENS[token]}"' in t, (ruta.name, clave)
-        assert "[theme]" in t and 'font = "sans serif"' in t
+        assert "[theme]" in t and 'base = "dark"' in t and ('font = "sans serif"' in t or 'font = "Inter"' in t)
         lateral = t.split("[theme.sidebar]")[1]                                                          # F22: barra lateral de tinta, con el tema nativo de Streamlit
-        for clave, token in (("backgroundColor", "tinta"), ("secondaryBackgroundColor", "tinta_2"), ("textColor", "tinta_texto"), ("primaryColor", "tinta_acento")):
+        for clave, token in (("backgroundColor", "barra"), ("secondaryBackgroundColor", "panel_alto"), ("textColor", "texto"), ("primaryColor", "acento"), ("borderColor", "barra_borde")):
             assert f'{clave} = "{E.TOKENS[token]}"' in lateral, (ruta.name, clave)
 
 

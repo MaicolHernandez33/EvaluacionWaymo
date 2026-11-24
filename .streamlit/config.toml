@@ -3,6 +3,7 @@
 [server]
 address = "localhost"
 headless = false
+maxUploadSize = 500
 
 [browser]
 gatherUsageStats = false
@@ -10,21 +11,28 @@ gatherUsageStats = false
 [client]
 toolbarMode = "minimal"
 
-# Tema (F22): barra lateral de tinta, lienzo claro y cobalto; definido en app/estilos.py (TOKENS); tipografia del sistema, sin fuentes externas.
+# Tema (F24): oscuro, generado desde TOKENS de app/estilos.py con scripts/ep3/generar_config_tema.py (no editar a mano); tipografia del sistema, sin fuentes externas.
 [theme]
-base = "light"
-primaryColor = "#2457D6"
-backgroundColor = "#F6F8FB"
-secondaryBackgroundColor = "#EAEFF6"
-textColor = "#14202F"
+base = "dark"
+primaryColor = "#6FA0FF"
+backgroundColor = "#0B1220"
+secondaryBackgroundColor = "#18253D"
+textColor = "#E8EEF8"
 font = "sans serif"
-baseRadius = "0.6rem"
-borderColor = "#D8E0EB"
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+borderColor = "#2A3A57"
+linkColor = "#6FA0FF"
+linkUnderline = true
+dataframeBorderColor = "#22314D"
+dataframeHeaderBackgroundColor = "#18253D"
+dataframeHeaderTextColor = "#A9B8CF"
 showWidgetBorder = true
+showSidebarBorder = true
 
 [theme.sidebar]
-backgroundColor = "#0F1B2D"
-secondaryBackgroundColor = "#1B2D4A"
-textColor = "#E8EEF7"
-primaryColor = "#8DB0FF"
-borderColor = "#2A3E5E"
+backgroundColor = "#0E1729"
+secondaryBackgroundColor = "#18253D"
+textColor = "#E8EEF8"
+primaryColor = "#6FA0FF"
+borderColor = "#1E2B45"

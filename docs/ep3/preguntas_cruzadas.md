@@ -134,7 +134,7 @@
 
 **27. ¿Por qué se eligió la regla?**
 - Respuesta: Por el plan: el más simple cuyo AUC queda a menos de 0,010 del mejor; nadie cumplió O4 y se aplicó una regla de reserva post hoc entre los que cumplen O1 y O3.
-- Cifra: ningún candidato cumple O4 (regla de reserva DEV-2); entre los 11 candidatos que cumplen O1 y O3, el mejor AUC OOF es 0,824; los que quedan a menos de 0,010 son Regla top, E2; el más simple es Regla top
+- Cifra: ningún candidato cumple O4 (regla de reserva DEV-2); entre los 11 candidatos que cumplen O1 y O3, el mejor AUC OOF es 0,824; los que quedan a menos de 0,010 son regla de puntos del sensor superior, E2; el más simple es regla de puntos del sensor superior
 - Fuente: `f6_seleccion.json, plan_v3_desviaciones.md (DEV-2)`
 
 **28. ¿Algún candidato «vale la pena» frente a la regla (O2)?**
@@ -153,7 +153,7 @@
 - Fuente: `f5_brazoC.csv`
 
 **31. ¿Qué hace la página?**
-- Respuesta: Es una consola de revisión con navegación agrupada: un resumen con el impacto estimado y alertas, la cola de revisión (cuánto revisar o cuánto encontrar, con ambos flujos, detalle por caja, vista por objeto y filtros), el mapa de huecos, la explicación de una caja con ejemplos de un clic, la validación con un gráfico por tema, la ficha de ética, el puntaje de segmentos nuevos y una ayuda con glosario.
+- Respuesta: Es una consola de revisión con navegación agrupada: un resumen con indicadores, alertas de cámara y la cola prioritaria (el impacto estimado está en Validación, pestaña «En muestra»), la cola de revisión (cuánto revisar o cuánto encontrar, con ambos flujos, detalle por caja, vista por objeto y filtros), el mapa de huecos, la explicación de una caja con ejemplos de un clic, la validación con un gráfico por tema, la ficha de ética, el puntaje de segmentos nuevos y una ayuda con glosario.
 - Cifra: 8 páginas, 3 roles
 - Fuente: `app/app.py, app/secciones.py`
 
@@ -163,7 +163,7 @@
 - Fuente: `despliegue.md`
 
 **33. ¿Qué pasa con la licencia y la privacidad?**
-- Respuesta: Los datos de Waymo no salen del equipo; los identificadores se ocultan en modo presentación; el zip es solo para uso académico del docente.
+- Respuesta: Los datos de Waymo no salen del equipo; las tablas locales tienen identificadores y nada se guarda ni se envía; el zip es solo para uso académico del docente.
 - Cifra: sin red, sin datos en la imagen
 - Fuente: `despliegue.md, informe sección 16`
 

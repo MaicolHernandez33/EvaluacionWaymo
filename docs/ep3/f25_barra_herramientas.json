@@ -1,0 +1,31 @@
+{
+ "oracion": {
+  "derecha": 1336,
+  "arriba": 497.921875,
+  "abajo": 533.921875,
+  "texto": " eligió por simplicidad; ver Validación."
+ },
+ "barras_con_el_cursor_sobre_el_grafico": [
+  {
+   "en_grafico": true,
+   "en_tabla": false,
+   "display": "none",
+   "opacidad": "1",
+   "ancho": 0,
+   "alto": 0
+  }
+ ],
+ "graficos": 1,
+ "barras_con_el_cursor_sobre_la_tabla": [
+  {
+   "en_grafico": false,
+   "en_tabla": true,
+   "display": "block",
+   "opacidad": "1",
+   "ancho": 111,
+   "alto": 47
+  }
+ ],
+ "grafico_sin_barra": true,
+ "tabla_con_barra": true
+}

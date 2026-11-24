@@ -1,0 +1,57 @@
+ANTES (copia temporal del repo antes de F38; pytest -q completo):
+FAILED tests/ep3/test_pagina_pulido.py::test_tras_la_precarga_ninguna_seccion_tarda_mas_de_3_segundos
+1 failed, 431 passed, 66 warnings, 37 errors in 360.45s (0:06:00)
+ERROR tests/test_ajustes_finales.py::test_archivos_congelados_mismo_numero_en_los_tres_lugares
+ERROR tests/test_ajustes_finales.py::test_ejecuciones_de_verificacion_en_copias_en_el_informe
+ERROR tests/test_ajustes_finales.py::test_readme_resumen_titular_y_nota_del_ic_bimodal
+ERROR tests/test_ajustes_finales.py::test_balance_de_objetivos_en_el_readme
+ERROR tests/test_ajustes_finales.py::test_balance_fila_2_ningun_modelo_vale_la_pena_y_ic_de_la_regla
+ERROR tests/test_ajustes_finales.py::test_linea_de_ep1_a_ep2_solo_con_hechos_de_los_archivos
+ERROR tests/test_ajustes_finales.py::test_seccion_14_python_licencia_y_canal
+ERROR tests/test_ajustes_finales.py::test_frase_de_lidar_box_originales_en_las_secciones_14_y_15
+ERROR tests/test_ajustes_finales.py::test_readme_e_informe_dicen_el_numero_actual_de_pruebas_y_la_cobertura
+ERROR tests/test_ajustes_finales.py::test_recomendacion_en_dos_pasos_igual_en_readme_e_informe
+ERROR tests/test_ajustes_finales.py::test_parrafo_por_que_importa_a_escala_coincide_con_los_csv
+ERROR tests/test_readme.py::test_generador_dos_veces_misma_salida_salvo_la_hora
+ERROR tests/test_readme.py::test_enlaces_e_imagenes_relativos_existen
+ERROR tests/test_readme.py::test_anclas_del_indice_existen
+ERROR tests/test_readme.py::test_tablas_con_celdas_parejas
+ERROR tests/test_readme.py::test_longitud_y_figuras
+ERROR tests/test_readme.py::test_estructura_y_una_frase_por_seccion
+ERROR tests/test_readme.py::test_resumen_coincide_con_los_csv
+ERROR tests/test_readme.py::test_resultados_post_hoc_etiquetados_y_datos_de_ep1
+ERROR tests/test_readme.py::test_seccion_14_comandos_sin_contradiccion
+ERROR tests/test_readme.py::test_seccion_6_logaritmos_coinciden_con_la_tabla
+ERROR tests/test_readme.py::test_seccion_8_nota_de_reglas_e_hiperparametros
+ERROR tests/test_readme.py::test_seccion_9_titular_describe_el_cluster_de_k2
+ERROR tests/test_readme.py::test_seccion_15_pauta_real_y_equipo
+ERROR tests/test_readme.py::test_unidad_de_revision_es_la_caja
+ERROR tests/test_readme.py::test_tildes_en_etiquetas_de_tablas
+ERROR tests/test_readme.py::test_cabecera_ruta_de_lectura_y_vocabulario
+ERROR tests/test_readme.py::test_aclaraciones_de_cifras_y_etiquetas
+ERROR tests/test_sincronia_readme_informe.py::test_segmentos_de_lluvia_igual_en_los_dos
+ERROR tests/test_sincronia_readme_informe.py::test_41_de_91_igual_en_los_dos
+ERROR tests/test_sincronia_readme_informe.py::test_20_segundos_igual_en_los_dos
+ERROR tests/test_sincronia_readme_informe.py::test_unidad_de_revision_igual_en_los_dos
+ERROR tests/test_sincronia_readme_informe.py::test_logaritmos_igual_en_los_dos
+ERROR tests/test_sincronia_readme_informe.py::test_nombres_de_modelos_con_tilde_en_los_dos
+ERROR tests/test_sincronia_readme_informe.py::test_nota_de_reglas_identicas_y_class_weight_en_el_informe
+ERROR tests/test_sincronia_readme_informe.py::test_sensibilidad_120_en_el_readme
+ERROR tests/test_sincronia_readme_informe.py::test_marcador_del_canal_de_entrega
+FAILED tests/ep3/test_pagina_pulido.py::test_tras_la_precarga_ninguna_seccion_tarda_mas_de_3_segundos
+
+DESPUES (copia temporal con el README nuevo; pytest -q completo, pytest_resumen.json de EP2 restaurado):
+479 passed, 65 warnings in 314.30s (0:05:14)
+
+tests/ep3 en el repo real (medir_pruebas_ep3.py):
+{
+ "fecha": "2026-11-24 11:38",
+ "pasadas": 398,
+ "falladas": 0,
+ "omitidas": 0,
+ "cobertura_total_pct": 86.44128113879003,
+ "comando": "python -m pytest tests/ep3 -q -p no:cacheprovider --cov=src/waymo_evaluacion/ep3",
+ "resumen_pytest": "398 passed, 65 warnings in 274.19s (0:04:34)"
+
+scripts/medir_pruebas.py en la copia (cuenta tambien tests/ep3):
+{"pasadas": 478, "falladas": 1, "omitidas": 0, "codigo_de_salida": 1, "cobertura_total_pct": 94.5, "ultima_linea": "1 failed, 478 passed, 66 warnings in 320.54s (0:05:20)"}

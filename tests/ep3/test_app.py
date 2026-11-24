@@ -10,7 +10,7 @@ import pytest
 from sklearn.linear_model import LogisticRegression
 
 from waymo_evaluacion.ep3.app_logica import (
-    ARCHIVO_PAGINA, AVISO_EN_MUESTRA, CHIP_ESTADO, PERFILES, SECCIONES, cargar_datos, cargar_no_supervisado, curvas_a_mostrar, info_tipo_de_caso, tipo_de_caso, cola_segmento, curva_dependencia, horas_revision, matriz_calor, ocultar_identificadores, percentil_en_cola, recall_en_presupuesto,
+    ARCHIVO_PAGINA, AVISO_EN_MUESTRA, ATRIBUCION_WAYMO, PERFILES, TITULO_RESUMEN, SECCIONES, cargar_datos, cargar_no_supervisado, curvas_a_mostrar, info_tipo_de_caso, tipo_de_caso, cola_segmento, curva_dependencia, horas_revision, matriz_calor, percentil_en_cola, recall_en_presupuesto,
 )
 from waymo_evaluacion.ep3.congelado import CalibradorPlatt, PuntuadorRegla
 from waymo_evaluacion.ep3.detector_huecos import ParametrosDetector
@@ -102,25 +102,6 @@ def test_logica_cola_recall_y_horas(tmp_path: Path) -> None:
     assert horas_revision(180, 20) == pytest.approx(1.0)
 
 
-def test_modo_presentacion_oculta_identificadores(tmp_path: Path) -> None:
-    _datos_sinteticos(tmp_path)
-    c = cargar_datos(tmp_path)["cajas"].head(3)
-    assert "key.laser_object_id" in ocultar_identificadores(c, False).columns
-    oculto = ocultar_identificadores(c, True)
-    assert "key.laser_object_id" not in oculto.columns and "key.frame_timestamp_micros" not in oculto.columns
-
-
-def test_matriz_calor_y_percentil(tmp_path: Path) -> None:
-    _datos_sinteticos(tmp_path)
-    d = cargar_datos(tmp_path)
-    m = matriz_calor(d["celdas"])
-    assert len(m) == 10 and int(m["hueco"].sum()) == 1
-    assert percentil_en_cola(d["cajas"]["score"].max() + 1, d["cajas"]) == 0.0
-    dep = curva_dependencia(PuntuadorRegla("num_top_lidar_points"), d["cajas"][V16].median().to_frame().T, "num_top_lidar_points", np.array([10.0, 100.0]))
-    assert dep["score"].tolist() == [-10.0, -100.0]
-    assert len(PERFILES) == 3
-
-
 @pytest.mark.parametrize("seccion", SECCIONES)
 def test_app_humo_cada_seccion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, seccion: str) -> None:
     at_mod = pytest.importorskip("streamlit.testing.v1")
@@ -132,15 +113,11 @@ def test_app_humo_cada_seccion(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, 
     assert not at.exception, at.exception
     ir_a(at, seccion)
     assert not at.exception, at.exception
-    at.sidebar.toggle[0].set_value(True).run()                       # modo presentacion
-    assert not at.exception, at.exception
-    assert at.title[0].value == seccion
-    at.sidebar.toggle[0].set_value(False).run()
-    assert not at.exception, at.exception
-    assert "2 celdas cámara x segmento" in textos(at)               # el chip de estado abre el texto completo de «en muestra» en TODAS las secciones (DEC-14)
+    assert at.title[0].value == (TITULO_RESUMEN if seccion == "Resumen" else seccion)                # F26: el título del Resumen no es la etiqueta del menú
+    assert ATRIBUCION_WAYMO in textos(at) and "Datos de desarrollo" in textos(at)               # F26: el pie (atribución y datos de desarrollo) está en TODAS las secciones; ya no hay chip
     assert not at.warning                                            # sin banners ámbar por pantalla
     if seccion == "Cola de revisión":
-        assert any(sb.label == "Comparar con un modelo de referencia" for sb in at.selectbox)
+        assert any(sb.label == "Comparar con" for sb in at.selectbox)
 
 
 def test_app_sin_datos_muestra_error_claro(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

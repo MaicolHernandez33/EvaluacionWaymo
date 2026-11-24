@@ -69,7 +69,7 @@ def test_enlaces_e_imagenes_relativos_existen(readme):
 
 
 def test_anclas_del_indice_existen(readme):
-    heads = {_slug(l[3:]) for l in readme.splitlines() if l.startswith("## ")}
+    heads = {_slug(re.sub(r"^#+ ", "", l)) for l in readme.splitlines() if l.startswith(("## ", "### "))}          # F38: también los subtítulos (8.1, 8.2, 8.3 y 12.1)
     for a in re.findall(r"\]\(#([^)]+)\)", readme):
         assert a in heads, f"ancla sin encabezado: {a}"
 
@@ -81,9 +81,9 @@ def test_tablas_con_celdas_parejas(readme):
 
 
 def test_longitud_y_figuras(readme):
-    assert len(readme.splitlines()) <= 520
+    assert len(readme.splitlines()) <= 800                                       # F38: el README de EP3 agrega portada, mapa de la pauta y las secciones 8.1 a 8.3, 12.1, 16 y 17 (EP2: 520)
     figs = re.findall(r"!\[[^\]]*\]\(images/[^)]+\)", readme)
-    assert 8 <= len(figs) <= 10
+    assert 8 <= len(figs) <= 14                                                  # F38: más las 4 capturas de la aplicación (EP2: hasta 10)
     assert readme.count("*Figura:") == len(figs)                       # todas con pie de figura
     for obligatoria in ("08_tasa_por_puntos_clase_distancia", "08_tasa_por_azimut", "09_comparacion_modelos", "10_resultado_principal", "10_puntos_de_operacion", "10_influencia", "10_M_mapa_calor"):
         assert obligatoria in readme, f"falta la figura {obligatoria}"
@@ -92,7 +92,7 @@ def test_longitud_y_figuras(readme):
 
 def test_estructura_y_una_frase_por_seccion(readme):
     titulos = [l for l in readme.splitlines() if l.startswith("## ")]
-    assert [int(t.split(".")[0][3:]) for t in titulos] == list(range(1, 16))
+    assert [int(t.split(".")[0][3:]) for t in titulos] == list(range(1, 18))                                      # F38: 16 y 17 son nuevas
     for bloque in re.split(r"^## ", readme, flags=re.M)[1:]:
         lineas = [l for l in bloque.splitlines()[1:] if l.strip()]
         assert lineas[0].startswith("> "), f"la seccion '{bloque.splitlines()[0]}' no abre con una frase-resumen"
@@ -208,10 +208,10 @@ def test_tildes_en_etiquetas_de_tablas(readme):
 
 
 def test_cabecera_ruta_de_lectura_y_vocabulario(readme):
-    cabecera = "\n".join(readme.splitlines()[:16])
+    cabecera = readme.split("\n## 1. Resumen")[0]                                   # F38: la portada es más larga que las 16 líneas de EP2
     assert "MLY1101" in cabecera and "Fecha:" in cabecera and "Waymo Open Dataset v2" in cabecera
     ruta = [l for l in cabecera.splitlines() if l.startswith("**Lectura rápida:**")][0]
-    assert re.findall(r"\[(\d+)\]\(#", ruta) == ["1", "5", "8", "10", "11", "12"]
+    assert re.findall(r"\[([\d.]+)\]\(#", ruta) == ["1", "8.1", "8.2", "8.3", "12.1", "16"]          # F38: lectura rápida de EP3
     assert "recalibrar el corte" in readme and "reponer el corte" not in readme
     assert "secciones [1](#1-resumen)," in ruta and "[Resumen](#1-resumen)" in readme and "\n## 1. Resumen\n" in readme       # el ancla sigue al título «1. Resumen»
     for viejo in ("30 segundos", "Ruta de lectura", "10 minutos de lectura", "1-resumen-en-30-segundos"):

@@ -40,12 +40,11 @@ Si algún día se cumple la condición anterior, el esquema sería:
 
 ## 5. Seguridad de la página
 - **Escucha solo en `localhost`.** `.streamlit/config.toml` fija `server.address = "localhost"`, `headless = false`, `browser.gatherUsageStats = false` y `client.toolbarMode = "minimal"` (sin el botón Deploy). `scripts/ep3/arrancar_app.bat` (y `.ps1`) repiten `--server.address localhost` y `--browser.gatherUsageStats false`. Antes la página arrancaba en todas las interfaces y mostraba la *Network URL* y la *External URL*.
-- **Nunca se debe exponer sin autenticación y sin quitar los identificadores** (la página muestra `laser_object_id` y marcas de tiempo salvo en modo presentación).
+- **Nunca se debe exponer sin autenticación y sin quitar los identificadores** (la página muestra `laser_object_id` y marcas de tiempo en sus tablas y descargas).
 - **No se publica en servicios de nube con datos de Waymo** (licencia de uso no comercial; ver la advertencia de la sección 4).
 - En Docker: contenedor en `0.0.0.0`, pero el puerto se publica solo como `127.0.0.1:8501:8501`; `.dockerignore` deja `data/` fuera de la imagen.
 - Una prueba de solo lectura, `tests/ep3/test_seguridad_pagina.py`, falla si `address` deja de ser `localhost`, si `toolbarMode` no es `minimal` o si el compose publica el puerto sin `127.0.0.1`.
 
 ## 6. Privacidad y límites
-- El *modo presentación* oculta `laser_object_id` y la marca de tiempo en las tablas de la página y en sus descargas.
 - La sección «Puntuar datos nuevos» procesa el archivo en memoria y no escribe nada.
 - Telemetría desactivada (`browser.gatherUsageStats = false`).

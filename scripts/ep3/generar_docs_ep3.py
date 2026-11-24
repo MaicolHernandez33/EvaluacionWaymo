@@ -16,6 +16,7 @@ import pandas as pd
 RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ / "src"))
 from waymo_evaluacion.ep3.app_logica import SECCIONES as SECCIONES_PAGINA  # noqa: E402
+from waymo_evaluacion.ep3.formato import nombre_visible  # noqa: E402
 from waymo_evaluacion.ep3.plan import verificar_plan_v3  # noqa: E402
 
 REP, APP, MOD, DOC = RAIZ / "data/08_reporting_ep3", RAIZ / "data/09_app_ep3", RAIZ / "data/06_models_ep3", RAIZ / "docs/ep3"
@@ -419,7 +420,7 @@ El plan v3 (`plan_v3.md`, `plan_v3.json`, hash en `plan_v3.sha256`) se congeló 
 | DEC-11 | Las fases 12 y 13 son análisis en muestra, post hoc | no estaban en el plan v3 |
 | DEC-12 | No supervisado: silhouette en 20.000 cajas, GMM y Ward en 15.000, estabilidad con KMeans `n_init=3` y scaler fijo | costo de cómputo |
 | DEC-13 | El artefacto no supervisado tiene manifest propio y no se usa para puntuar | no tocar `manifest_v3.json` |
-| DEC-14 | Aviso «en muestra» siempre visible (desde F20, un chip persistente en todas las páginas con su popover, y una etiqueta junto a cada cifra del flujo en dos pasos) | evitar leer una ganancia en muestra como resultado ciego |
+| DEC-14 | Aviso «en muestra» siempre visible (desde F20 un chip persistente; desde F26 sin chip; desde F28 el Resumen tampoco lo dice: queda en la Cola («(en muestra)»), Validación, Ética y límites, Ayuda y el pie «Datos de desarrollo, n segmentos») | evitar leer una ganancia en muestra como resultado ciego |
 | DEC-15 | El selector de referencia de la página usa las curvas ya calculadas de XGBoost y E2 | no generar predicciones nuevas |
 | DEC-16 | Docker sin probar | el demonio estaba apagado |
 
@@ -529,7 +530,7 @@ Accuracy y F1 son solo referencia: con una clase minoritaria de {p(N['prev'])}, 
 **Solución final en tres capas.** (1) **Filtro 1**: detector de huecos con parámetros congelados (`detector_params_v3.json`). (2) **Regla**: menos puntos del LiDAR superior primero, con umbrales A = {-N['fin']['umbrales']['A']:.0f} y B = {-N['fin']['umbrales']['B']:.0f} (se marcan las cajas con ese número de puntos o menos) y calibración Platt. (3) **Persona** que revisa y decide. v3 está congelado con sha256 en `manifest_v3.json` ({', '.join(N['man']['sha256'])}); se verifica con `scripts/ep3/verificar_congelados_v3.py`.
 
 ## 13. La página y su despliegue
-`app/app.py` (Streamlit, solo local; producto «Auditor de etiquetas 3D», rediseñado en F20 como una consola interna de revisión: guía de estilo en `guia_estilo_pagina.md` y auditoría de diseño en `auditoria_diseno_pagina.md`) es el marco de la página: navegación agrupada (`st.navigation`) con {len(SECCIONES_PAGINA)} páginas ({', '.join(SECCIONES_PAGINA[:-1])} y {SECCIONES_PAGINA[-1]}), el rol al pie de la barra lateral y un único chip de estado. En **Cola de revisión** (maestro-detalle) se decide con un presupuesto (parte en 20 %) o con una meta («quiero encontrar X %», interpolación de la curva guardada) y se elige el flujo, de un paso o de dos pasos; el resultado se dice en lenguaje simple con ambos flujos («con auditoría previa, unas {_de_cada_100(pg['recall_proceso'])}; solo cola, unas {_de_cada_100(pg['recall_A'])}»); al seleccionar una fila se abre el detalle de esa caja (probabilidad calibrada, posición en la cola, tipo de caso, advertencia para ciclistas), hay una vista «Agrupar por objeto» y filtros por clase y cámara, y los supuestos y la confiabilidad van en un popover, junto a un selector de modelo de referencia (XGBoost o E2). Tres roles y un **modo presentación** que oculta los identificadores y agranda la letra. Usa predicciones **fuera de fold**, y el estado «en muestra» está en un chip persistente en todas las páginas, con el texto completo en su popover: «{EN_MUESTRA}. {GANANCIA_C}». Pruebas: {PRUEBAS_EP3} en `tests/ep3` (incluye una prueba de humo de las {len(SECCIONES_PAGINA)} páginas por 3 roles, con el modo presentación activado y desactivado, con `streamlit.testing.v1.AppTest`). Despliegue: local (`scripts/ep3/arrancar_app.bat`, que usa `app/lanzar.py` para precargar la solución congelada y los datos antes de la primera visita) y Docker (lista blanca que excluye `data/`, volúmenes de solo lectura); **Docker no se probó**. La guía de AWS (EC2 + S3 privado) es solo orientativa y advierte que los datos por caja de Waymo no deben salir del equipo (`despliegue.md`).
+`app/app.py` (Streamlit, solo local; producto «Lente», rediseñado en F20 y reestructurado en F23 (el anillo de cámaras como pieza central del Resumen, barra lateral clara, una sola superficie elevada): guía de estilo en `guia_estilo_pagina.md` y auditoría de diseño en `auditoria_diseno_pagina.md`) es el marco de la página: navegación agrupada (`st.navigation`) con {len(SECCIONES_PAGINA)} páginas ({', '.join(SECCIONES_PAGINA[:-1])} y {SECCIONES_PAGINA[-1]}), el rol al pie de la barra lateral y un único chip de estado. En **Cola de revisión** (maestro-detalle) se decide con un presupuesto (parte en 20 %) o con una meta («quiero encontrar X %», interpolación de la curva guardada) y se elige el flujo, de un paso o de dos pasos; el resultado se dice en lenguaje simple con ambos flujos («con auditoría previa, unas {_de_cada_100(pg['recall_proceso'])}; solo cola, unas {_de_cada_100(pg['recall_A'])}»); al seleccionar una fila se abre el detalle de esa caja (probabilidad calibrada, posición en la cola, tipo de caso, advertencia para ciclistas), hay una vista «Agrupar por objeto» y filtros por clase y cámara, y los supuestos y la confiabilidad van en un popover, junto a un selector de modelo de referencia (XGBoost o E2). Tres roles (el rol solo cambia la página que se abre). Usa predicciones **fuera de fold**, y el estado «en muestra» está en un chip persistente en todas las páginas, con el texto completo en su popover: «{EN_MUESTRA}. {GANANCIA_C}». Pruebas: {PRUEBAS_EP3} en `tests/ep3` (incluye una prueba de humo de las {len(SECCIONES_PAGINA)} páginas por 3 roles, con `streamlit.testing.v1.AppTest`). Despliegue: local (`scripts/ep3/arrancar_app.bat`, que usa `app/lanzar.py` para precargar la solución congelada y los datos antes de la primera visita) y Docker (lista blanca que excluye `data/`, volúmenes de solo lectura); **Docker no se probó**. La guía de AWS (EC2 + S3 privado) es solo orientativa y advierte que los datos por caja de Waymo no deben salir del equipo (`despliegue.md`).
 
 **Seguridad de la página.** La app escucha **solo en `localhost`**: `.streamlit/config.toml` fija `server.address = "localhost"`, `scripts/ep3/arrancar_app.bat` pasa `--server.address localhost`, sin telemetría (`browser.gatherUsageStats = false`) y con la barra superior mínima (`client.toolbarMode = "minimal"`, sin el botón Deploy). En Docker el contenedor escucha en `0.0.0.0` (es necesario dentro del contenedor), pero `docker-compose.yml` publica el puerto solo en el equipo (`127.0.0.1:8501:8501`) y `.dockerignore` deja `data/` fuera de la imagen. **No debe exponerse sin autenticación y sin quitar los identificadores, y no se publica en servicios de nube con datos de Waymo.** Una prueba de solo lectura (`tests/ep3/test_seguridad_pagina.py`) falla si cambian estos valores.
 
@@ -568,7 +569,7 @@ No hay verdad externa: no se medirán sensibilidad ni especificidad (DEV-3). Nad
 ## 16. Ética, sesgos y privacidad
 - Una persona decide: la solución ordena y avisa, nunca etiqueta ni descarta. No es una prueba de seguridad del vehículo.
 - Licencia: uso no comercial; los datos no se redistribuyen; la página corre solo en el equipo, no hornea datos en imágenes Docker y no envía nada a internet. El zip de entrega es solo para el uso académico del docente.
-- Privacidad: los identificadores de objeto y las marcas de tiempo solo están en tablas locales; el modo presentación los oculta.
+- Privacidad: los identificadores de objeto y las marcas de tiempo solo están en tablas locales; nada se guarda ni se envía.
 - **Seguridad de la página:** escucha solo en `localhost`, nunca debe exponerse sin autenticación y sin quitar los identificadores, y no se publica en servicios de nube con datos de Waymo (ver sección 13).
 - **Sesgos medidos** (descriptivo, sin pruebas de hipótesis; regla en el punto A, umbral {-f12['umbral_A_regla']:.0f} puntos, `f12_equidad.csv`; AUC solo con >= 200 cajas por clase, `n/c` si no):
 
@@ -717,25 +718,25 @@ def demo_pasos(N: dict) -> list[dict]:
     eqi = eq[eq["celdas_con_hueco"] == "incluidas"].set_index(["variable", "grupo"])
     h = {"azar": c(pg["horas_sin_orden"], 0), "uno": c(N["h_A"], 0), "dos": c(pg["horas_dos_pasos"], 0)}
     pasos = [
-        {"seg": 15, "titulo": "Resumen y chip", "hacer": "Resumen, rol «Analista de revisión»; señalar las tres barras y abrir el chip «Datos de desarrollo · sin validación externa»",
-         "decir": f"En el Resumen, tres barras: sin orden, unas {h['azar']} horas para encontrar el 80 %; solo con la cola, unas {h['uno']}; con auditoría previa, unas {h['dos']}, en muestra, con 20 segundos por caja.",
-         "ver": f"{mi(N['n'])} cajas, {p(N['prev'])} sin pareja, 2 celdas marcadas; barras de horas (20 s por caja: supuesto); texto completo de «en muestra»"},
+        {"seg": 15, "titulo": "Resumen y alertas", "hacer": "Resumen, rol «Analista de revisión»; señalar los cuatro indicadores, el titular con las alertas de cámara y el anillo",
+         "decir": f"En el Resumen, tres filas: sin orden, unas {h['azar']} horas para encontrar el 80 %; solo con la cola, unas {h['uno']}; con auditoría previa, unas {h['dos']}, en muestra, con 20 segundos por caja.",
+         "ver": f"indicadores ({p(N['prev'])} sin pareja, 2 cámaras con alerta); las dos alertas con su botón «Auditar»"},
         {"seg": 25, "titulo": "Cola con ambos flujos", "hacer": "Cola de revisión: «Todos», flujo «Auditoría + cola (dos pasos, en muestra)», presupuesto 20 % (parte ahí)",
          "decir": f"En la cola, con todos los segmentos y el 20 %, con auditoría previa se encuentran unas {_de_cada_100(pg['recall_proceso'])} cajas sin pareja, en muestra, y solo con la cola unas {_de_cada_100(pg['recall_A'])}: "
                   f"{mi(pg['cajas_a_revisar'])} cajas y {c(pg['horas'], 1)} horas. Las primeras filas empatan porque todas tienen 0 puntos del sensor superior.",
          "ver": f"frase con ambos flujos; {mi(pg['cajas_a_revisar'])} cajas, {c(pg['horas'], 1)} h con 20 s por caja; la tabla abre con las cajas de 0 puntos"},
         {"seg": 15, "titulo": "Selección de una fila y nota del empate", "hacer": "Pestaña «Cola de cajas»; seleccionar la primera fila; leer la nota sobre la tabla",
-         "decir": "Selecciono una fila y se abre su detalle: la probabilidad calibrada, la posición en la cola y el tipo de caso. La nota sobre la tabla lo confirma: el orden entre las empatadas no informa.",
-         "ver": "panel de detalle debajo de la tabla; nota «Las primeras N cajas empatan (0 puntos del sensor superior…); el orden entre ellas no es informativo»"},
+         "decir": "Selecciono una fila y se llena el detalle: la probabilidad calibrada, la posición en la cola y el tipo de caso. La nota sobre la tabla lo confirma: el orden entre las empatadas no informa.",
+         "ver": "panel de detalle a la derecha de la tabla, siempre visible; nota «Las primeras N cajas empatan (0 puntos del sensor superior…); el orden entre ellas no es informativo»"},
         {"seg": 15, "titulo": "Auditoría", "hacer": "Auditoría de cámaras: señalar el contorno rojo con X",
          "decir": "En la auditoría de cámaras vemos las dos celdas marcadas: no sabemos si faltan etiquetas o faltan datos.",
-         "ver": "mapa de calor (gris rayado = sin datos suficientes, no es 0 %); Lista A con «Acción sugerida» y «Cajas afectadas»"},
-        {"seg": 15, "titulo": "Explica con «Ciclista lejano»", "hacer": "Explica una caja: botón «Ciclista lejano»",
+         "ver": "mapa de calor (gris plano = sin datos suficientes, no es 0 %); Lista A con «Acción sugerida» y «Cajas afectadas»"},
+        {"seg": 15, "titulo": "Explica con «Ciclista lejano»", "hacer": "Explica una caja (menú «Herramientas»): ejemplo «Ciclista lejano»",
          "decir": "En «Explica una caja» uso el ejemplo «Ciclista lejano»: pocos puntos y lejos, arriba en la cola, y la página advierte que en ciclistas la regla es poco confiable.",
          "ver": f"probabilidad estimada, posición en la cola, tipo de caso, gráfico con los puntos A y B; advertencia ({c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones)"},
-        {"seg": 10, "titulo": "Validación", "hacer": "Validación: recorrer las seis pestañas",
-         "decir": "Cierro en Validación, con un gráfico por tema y la tabla completa dentro de cada pestaña.",
-         "ver": "mejora de PR-AUC, diferencia de AUC, AUC por candidato, criterios O1 a O4, grupos descriptivos y el análisis en muestra"},
+        {"seg": 10, "titulo": "Validación", "hacer": "Validación: recorrer las cinco pestañas",
+         "decir": "Cierro en Validación: arriba el veredicto y cuatro cifras, y en cada pestaña la lectura, un gráfico y las tablas de apoyo cerradas.",
+         "ver": "veredicto calculado, criterios O1 a O4 en tarjetas, AUC por candidato con el mínimo por partición, mejora de PR-AUC, diferencia de AUC, tipos de caso y el análisis en muestra"},
     ]
     assert sum(x["seg"] for x in pasos) == 95
     for x in pasos:                                                                                   # cada paso cabe en su tiempo: a lo más 140 palabras por minuto
@@ -760,9 +761,9 @@ def guion(N: dict) -> str:
     bloques = [
         (40, "El problema", f"Un auto autónomo etiqueta peatones y ciclistas en 3D. A veces una caja no tiene su pareja en las cámaras, y revisarlas todas es caro: {mi(N['n'])} cajas, de las cuales {p(N['prev'])} no tiene pareja. "
          "Queremos que una persona revise primero las que más probablemente faltan.",
-         "Página: Resumen (cuatro métricas y alertas)"),
+         "Página: Resumen (cuatro indicadores y alertas de cámara)"),
         (45, "La idea en dos pasos", "La idea tiene dos pasos. Primero cuadramos la caja de recibos: buscamos cámaras con huecos y las atendemos aparte. Después revisamos recibo por recibo, ordenados. Una persona decide siempre. "
-         "Y una advertencia desde ya: **esto es en muestra. El detector se ajustó con los mismos datos y aún no hay prueba ciega.**", "Resumen: el chip «Datos de desarrollo · sin validación externa» y su texto completo"),
+         "Y una advertencia desde ya: **esto es en muestra. El detector se ajustó con los mismos datos y aún no hay prueba ciega.**", "Resumen: el titular con las alertas de cámara"),
         (45, "Datos y plan", "Usamos 41 segmentos: 33 de entrenamiento y 8 del test de EP2, que ya no son ciegos. El plan v3 quedó congelado con un hash antes de experimentar, y todo se valida por segmento con GroupKFold, porque las cajas de un mismo segmento se parecen entre sí. "
          f"Lo que más explica la falta de pareja son los puntos del LiDAR: {p(pts0)} de las cajas con 0 a 5 puntos del sensor superior no tiene pareja. Las desviaciones del plan se declaran aparte, y todo lo que no estaba en el plan lleva el rótulo post hoc.",
          "Notebook 11: tasa por segmento y EDA"),
@@ -774,7 +775,7 @@ def guion(N: dict) -> str:
          "El valor viene de regularizar modelos que por defecto se sobreajustan. En los bordes de grilla, LightGBM quedó en el mínimo y extendimos una sola vez; después n_estimators quedó en el máximo, y lo declaramos como limitación. "
          f"IE10: probamos {len(f4)} ensambles. Los dos de stacking se calculan por segmentos, porque la validación cruzada de scikit-learn por defecto mezcla segmentos y filtra información. "
          f"Ninguno aporta: E3 y E4 quedan bajo su mejor componente, por {c(-f4.loc['E3', 'dif_AUC'])} y {c(-f4.loc['E4', 'dif_AUC'])} de AUC.",
-         "Página: Validación, pestañas Hiperparámetros y Ensambles (un gráfico cada una)"),
+         "Página: Validación, pestaña Alternativas (hiperparámetros y ensambles, un gráfico cada uno)"),
         (90, "IE11 e IE12", f"IE11 mide la generalización fuera de fold, con intervalos que remuestrean segmentos completos. La regla de menos puntos del sensor superior tiene AUC {c(esc['AUC'])}, con intervalo de {c(esc['AUC_lo'])} a {c(esc['AUC_hi'])}, y nada más complejo la supera de forma distinguible. "
          f"Dejando un segmento fuera cada vez, {lo['segmentos_con_AUC_menor_a_0_55']} de {lo['segmentos_evaluables']} segmentos evaluables tienen AUC bajo 0,55; y en XGBoost la brecha entre ajuste y validación va de {c(br['AUC_ajuste'])} a {c(br['AUC_validacion'])}: sobreajuste. "
          f"La calibración con Platt, ajustada dentro de cada fold, deja el ECE de la regla en {c(esc['ECE_cal'])}, bajo el 0,05 exigido. IE12: los criterios estaban fijados antes. Se cumplen O1, AUC y PR-AUC, y O3, recall en el punto A. "
@@ -841,7 +842,7 @@ def guia_demo(N: dict) -> str:
 
 ## Antes de empezar
 1. Abrir con `scripts\\ep3\\arrancar_app.bat` (usa `app\\lanzar.py`, que carga la solución congelada y los datos antes de aceptar visitas: espere unos 3 s; se abre en http://localhost:8501 y solo es accesible desde este equipo).
-2. Rol «Analista de revisión» (al pie de la barra lateral); modo presentación **apagado** al principio.
+2. Rol «Analista de revisión» (al pie de la barra lateral).
 3. Tener a mano «Ayuda y glosario» por si preguntan un término.
 
 ## Recorrido corto (95 s, 6 pasos)
@@ -856,26 +857,26 @@ Para una demo más larga o si preguntan por algo que el recorrido corto no toca.
 
 | # | Qué hacer (clics) | Qué decir | Qué se ve |
 |---|---|---|---|
-| 1 | **Resumen.** Señalar las 4 métricas y abrir el chip «Datos de desarrollo · sin validación externa» | «Esto es en muestra: el detector se ajustó con los mismos datos y aún no hay prueba ciega.» | {mi(N['n'])} cajas, {p(N['prev'])} sin pareja, 2 celdas marcadas, 41 segmentos |
-| 2 | Señalar las tres barras de «Impacto estimado» y las «Alertas» | «Ordenar la cola baja el tiempo para el 80 % de ≈ {c(pg['horas_sin_orden'], 0)} h a ≈ {c(N['h_A'], 0)} h; con auditoría previa, ≈ {c(pg['horas_dos_pasos'], 0)} h, en muestra.» | barras de horas (20 s por caja: supuesto), tres alertas con enlace a su sección |
+| 1 | **Resumen.** Señalar los cuatro indicadores, el titular («Hay 2 posibles huecos de cámara…») y el anillo (la cámara con la X) | «Esto es en muestra: el detector se ajustó con los mismos datos y aún no hay prueba ciega.» | indicadores (41 segmentos, 2 cámaras con alerta, {p(N['prev'])} sin pareja), titular, filas de alerta con «Auditar» y anillo del segmento elegido |
+| 2 | Pulsar «Auditar» en la primera alerta (abre la Auditoría con esa celda) y volver; en **Validación › En muestra**, señalar las tres filas de horas de «Impacto estimado» | «Ordenar la cola baja el tiempo para el 80 % de ≈ {c(pg['horas_sin_orden'], 0)} h a ≈ {c(N['h_A'], 0)} h; con auditoría previa, ≈ {c(pg['horas_dos_pasos'], 0)} h, en muestra.» | Auditoría con segmento y cámara ya elegidos y la celda resaltada; en Validación, tabla de horas con una barra fina por fila (20 s por caja: supuesto) |
 | 3 | **Cola de revisión.** Segmento «Todos», flujo «Auditoría + cola (dos pasos, en muestra)», presupuesto 20 % (parte ahí) | «Con auditoría previa, unas {_de_cada_100(pg['recall_proceso'])} cajas sin pareja; solo con la cola, unas {_de_cada_100(pg['recall_A'])}.» | frase con ambos flujos; {mi(pg['cajas_a_revisar'])} cajas, {c(pg['horas'], 1)} h con 20 s por caja |
 | 4 | Cambiar el flujo a «Solo cola (un paso)» y volver | «Con un paso se ordenan todas las cajas, sin auditoría previa.» | cajas a revisar y horas del flujo elegido |
 | 5 | Modo «Meta» con 80 %; «Volver al 20 %» | «Si quiero encontrar el 80 %, la página dice cuánto revisar.» | porcentaje de la cola para la meta (curva guardada) |
 | 6 | Abrir «Supuestos y confiabilidad» | «El intervalo es ancho (41 segmentos) y la ganancia de dos pasos sale de 2 celdas.» | segundos por caja editables, intervalos, texto de «en muestra» |
-| 7 | Pestaña «Curva de cobertura», luego «Cola de cajas»; **seleccionar una fila** | «Cada fila abre su detalle: probabilidad calibrada, posición y tipo de caso. Las primeras filas empatan: todas tienen 0 puntos del sensor superior y el orden entre ellas no informa.» | curva con intervalo sombreado; nota del empate sobre la tabla (calculada de la cola) y panel de detalle debajo, a todo el ancho |
+| 7 | Pestaña «Cola de cajas» (la primera), luego «Curva de priorización»; **seleccionar una fila** | «Cada fila llena el detalle de la derecha: probabilidad calibrada, posición y tipo de caso. Las primeras filas empatan: todas tienen 0 puntos del sensor superior y el orden entre ellas no informa.» | curva con intervalo sombreado; nota del empate sobre la tabla (calculada de la cola) y panel de detalle a la derecha, siempre visible |
 | 8 | Activar «Agrupar por objeto» y filtrar la clase «Ciclista: poco confiable» | «Es solo una vista: el número de cajas a revisar no cambia. En ciclistas la regla es poco confiable.» | una fila por objeto con «Fotogramas en la cola»; «Filtrado: N cajas» |
-| 9 | **Auditoría de cámaras.** Señalar el contorno rojo con X | «Dos celdas marcadas; no sabemos si es falta de etiquetas o de datos.» | mapa de calor (gris rayado = sin datos suficientes, no es 0 %), Lista A con «Acción sugerida» y «Cajas afectadas» |
-| 10 | **Explica una caja.** Botón «Ciclista lejano» | «Pocos puntos y lejos: arriba en la cola. En ciclistas, advertencia: {c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones.» | probabilidad estimada, posición en la cola, tipo de caso, gráfico con los puntos A y B; solo el control del sensor superior mueve la probabilidad |
-| 11 | **Validación.** Recorrer las seis pestañas | «Un gráfico por tema, con los resultados guardados de EP3; la tabla completa está en cada pestaña.» | mejora de PR-AUC, diferencia de AUC, AUC por candidato, criterios O1 a O4, grupos descriptivos, análisis en muestra |
-| 12 | Activar el **modo presentación** | «Se ocultan los identificadores y se agranda la letra.» | métricas 2 x 2, tabla sin identificadores |
+| 9 | **Auditoría de cámaras.** Señalar el contorno rojo con X | «Dos celdas marcadas; no sabemos si es falta de etiquetas o de datos.» | mapa de calor (gris plano = sin datos suficientes, no es 0 %), Lista A con «Acción sugerida» y «Cajas afectadas» |
+| 10 | **Explica una caja** (menú «Herramientas», o «Explicar esta caja →» desde la Cola). Ejemplo «Ciclista lejano» | «Pocos puntos y lejos: arriba en la cola. En ciclistas, advertencia: {c(eqi.loc[('clase', 'CYCLIST'), 'recall_A'])} contra {c(eqi.loc[('clase', 'PEDESTRIAN'), 'recall_A'])} en peatones.» | probabilidad estimada, posición en la cola, tipo de caso, gráfico con los puntos A y B; solo el control del sensor superior mueve la probabilidad |
+| 11 | **Validación.** Recorrer las cinco pestañas (Modelo elegido, Generalización, Alternativas, Tipos de caso, En muestra) | «Arriba el veredicto y cuatro cifras; en cada pestaña, la lectura, un gráfico y las tablas de apoyo, cerradas.» | mejora de PR-AUC, diferencia de AUC, AUC por candidato, criterios O1 a O4, grupos descriptivos, análisis en muestra |
+| 12 | Volver al **Resumen** y señalar el titular, las dos alertas y la cola | «Una persona revisa y decide.» | titular, filas de alerta con «Auditar», cola de revisión con «Abrir» |
 | 13 | **Puntuar datos nuevos** (solo mostrar) y «Usar un segmento de desarrollo de ejemplo» | «Todo en memoria; el ejemplo se reconstruye de los datos derivados, no son datos crudos de Waymo.» | formato de los archivos como tabla; listas A y B del ejemplo |
 
 ## Guion del video de 90 s (plan C)
-- 0:00 a 0:10: Resumen con el chip «en muestra».
+- 0:00 a 0:10: Resumen, con el titular de las alertas de cámara.
 - 0:10 a 0:40: Cola de revisión: 20 %, frase con ambos flujos, selección de una fila y su detalle.
 - 0:40 a 1:00: Auditoría de cámaras: las dos celdas marcadas.
 - 1:00 a 1:20: Explica una caja con el ejemplo «Ciclista lejano».
-- 1:20 a 1:30: modo presentación y cierre: «Una persona revisa y decide».
+- 1:20 a 1:30: vuelta al Resumen y cierre: «Una persona revisa y decide».
 
 ## Si algo falla
 - La página no abre: `scripts\\ep3\\arrancar_app.bat` otra vez; si no, el notebook 14 (ya ejecutado) y el video.
@@ -939,9 +940,9 @@ def preguntas(N: dict) -> str:
         ("¿Algún candidato «vale la pena» frente a la regla (O2)?", "Ninguno.", f"mejor dif. de Fracción 80 %: {c(tab['dif_Fraccion_80_vs_regla'].min())} (E2, IC {c(tab.loc['E2', 'dif_Fraccion_80_lo'])} a {c(tab.loc['E2', 'dif_Fraccion_80_hi'])})", "f6_tabla_seleccion.csv"),
         ("¿Cuánto cuesta revisar?", f"Con el supuesto de {SEG_POR_CAJA} s por caja (no medido, editable en la página): horas para el 80 % de recall.", f"un paso {N['h_A']:.0f} h; dos pasos {N['h_C']:.0f} h ({EN_MUESTRA}); al azar {N['h_azar']:.0f} h", "f6_modelo_escogido.csv"),
         ("¿Qué es el punto de equilibrio?", "El costo en cajas por auditoría con el que dos pasos empata con un paso; no inventamos un costo.", f"{mi(N['eq'])} cajas (IC {mi(esc['equilibrio_lo'])} a {mi(esc['equilibrio_hi'])}) ({EN_MUESTRA})", "f5_brazoC.csv"),
-        ("¿Qué hace la página?", f"Es una consola de revisión con navegación agrupada: un resumen con el impacto estimado y alertas, la cola de revisión (cuánto revisar o cuánto encontrar, con ambos flujos, detalle por caja, vista por objeto y filtros), el mapa de huecos, la explicación de una caja con ejemplos de un clic, la validación con un gráfico por tema, la ficha de ética, el puntaje de segmentos nuevos y una ayuda con glosario.", f"{len(SECCIONES_PAGINA)} páginas, 3 roles", "app/app.py, app/secciones.py"),
+        ("¿Qué hace la página?", f"Es una consola de revisión con navegación agrupada: un resumen con indicadores, alertas de cámara y la cola prioritaria (el impacto estimado está en Validación, pestaña «En muestra»), la cola de revisión (cuánto revisar o cuánto encontrar, con ambos flujos, detalle por caja, vista por objeto y filtros), el mapa de huecos, la explicación de una caja con ejemplos de un clic, la validación con un gráfico por tema, la ficha de ética, el puntaje de segmentos nuevos y una ayuda con glosario.", f"{len(SECCIONES_PAGINA)} páginas, 3 roles", "app/app.py, app/secciones.py"),
         ("¿Cómo se despliega?", "Local con Streamlit o con Docker (volumen de datos de solo lectura, sin datos en la imagen). Docker no se probó; AWS es solo una guía.", "Docker 28.3.0 instalado, demonio apagado", "despliegue.md"),
-        ("¿Qué pasa con la licencia y la privacidad?", "Los datos de Waymo no salen del equipo; los identificadores se ocultan en modo presentación; el zip es solo para uso académico del docente.", "sin red, sin datos en la imagen", "despliegue.md, informe sección 16"),
+        ("¿Qué pasa con la licencia y la privacidad?", "Los datos de Waymo no salen del equipo; las tablas locales tienen identificadores y nada se guarda ni se envía; el zip es solo para uso académico del docente.", "sin red, sin datos en la imagen", "despliegue.md, informe sección 16"),
         ("¿Qué cambió respecto de EP2?", "41 segmentos juntos, + XGBoost y LightGBM, búsqueda anidada, ensambles, filtro 1 en el flujo, no supervisado, página y despliegue.", "ver tabla de cambios", "informe_tecnico_EP3.md, sección 6"),
         ("¿Por qué no hay nodos de Kedro en EP2 y EP3?", "El análisis vive en notebooks y scripts; los pipelines de Kedro son los de ingesta y preprocesamiento de EP1.", "-", "informe_tecnico_EP3.md, sección 6"),
         ("¿Por qué 1 repetición y 30 configuraciones?", "Regla de cómputo: la proyección con el plan completo superaba 4 horas (RF tarda 45 a 100 s por ajuste). Está registrado como DEV-1.", "DEV-1", "plan_v3_desviaciones.md"),
@@ -1076,11 +1077,11 @@ def main() -> None:
     verificar_plan_v3(RAIZ)
     N = cargar()
     derivados(N)
-    (DOC / "informe_tecnico_EP3.md").write_text(informe(N), encoding="utf-8")
-    (DOC / "README_EP3.md").write_text(readme(N), encoding="utf-8")
-    (DOC / "guion_presentacion.md").write_text(guion(N), encoding="utf-8")
-    (DOC / "preguntas_cruzadas.md").write_text(preguntas(N), encoding="utf-8")
-    (DOC / "pagina_guia_demo.md").write_text(guia_demo(N), encoding="utf-8")
+    (DOC / "informe_tecnico_EP3.md").write_text(nombre_visible(informe(N)), encoding="utf-8")        # F23: el candidato interno «Regla top» se cita como «regla de puntos del sensor superior»
+    (DOC / "README_EP3.md").write_text(nombre_visible(readme(N)), encoding="utf-8")
+    (DOC / "guion_presentacion.md").write_text(nombre_visible(guion(N)), encoding="utf-8")
+    (DOC / "preguntas_cruzadas.md").write_text(nombre_visible(preguntas(N)), encoding="utf-8")
+    (DOC / "pagina_guia_demo.md").write_text(nombre_visible(guia_demo(N)), encoding="utf-8")
     from waymo_evaluacion.ep3.chequeo_md import revisar_carpeta
 
     problemas = revisar_carpeta(DOC)                       # F19-C1 y C3: tablas bien formadas y sin caracteres de control en TODOS los documentos de docs/ep3

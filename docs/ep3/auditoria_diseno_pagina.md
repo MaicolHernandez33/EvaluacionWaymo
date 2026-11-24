@@ -1,4 +1,4 @@
-# Auditoría de diseño de la página (F20 y F21)
+# Auditoría de diseño de la página (F20, F21 y F23)
 
 *Generado por `scripts/ep3/generar_auditoria_diseno.py`. P0: lectura de las capturas anteriores (`images/ep3/pagina/*_1366.png`, F19-B) contra la lista de patrones de plantilla. P11: causa del render incompleto de «Ética y límites» y pasadas de corrección.*
 
@@ -106,7 +106,7 @@ Captura revisada: `images/ep3/pagina/08_ayuda_y_glosario_1366.png`.
 
 - T3, T6: marco de la página: wordmark en la barra lateral, `st.navigation` con grupos (Revisión, Calidad de datos, Análisis, Herramientas, Ayuda), rol como selector discreto al pie.
 - T4: un solo chip de estado persistente «Datos de desarrollo · sin validación externa» con popover; sin banners por pantalla.
-- Sistema visual: bordes de 1 px, radio de 6 px, un solo acento azul oscuro, color semántico solo para estado, pila tipográfica del sistema con «Segoe UI» primero y cifras tabulares.
+- Sistema visual de F20 (reemplazado en F23, ver la sección «F23» más abajo): bordes de 1 px, radio de 6 px, un solo acento azul oscuro, color semántico solo para estado, pila tipográfica del sistema con «Segoe UI» primero y cifras tabulares.
 
 ## Causa del render incompleto de «Ética y límites» en la captura
 
@@ -182,5 +182,36 @@ Fuente: `data/08_reporting_ep3/capturas_resultado.json` (30 capturas; anchos 136
 | T10 | Títulos de 1,5 rem; la información útil empieza en la primera pantalla. |
 | T11 | Ninguna página queda con más de la mitad vacía (Explica ocupa la pantalla con controles, resultado y gráfico). |
 | T12 | Encabezados con el ancho calculado (sin «Posició»), probabilidad calibrada en lugar de la barra «Prioridad», «Particiones» en vez de «Folds» (F21: nada de «pliegue»). |
+
+## F23: rediseño estructural (pasadas y rasgos de plantilla)
+
+Plan de diseño: `plan_diseno_f23.md`. Capturas anteriores a F23: `images/ep3/pagina/antes_f23/`.
+
+### F23, pasada 1: primeras capturas de 1366 px (Resumen, Cola con y sin fila, Auditoría)
+
+- Resumen: la afirmación salía de 15 px y no de 29 px porque los estilos de Streamlit para los párrafos de markdown ganaban por especificidad; los selectores propios van ahora bajo `[data-testid="stMarkdownContainer"]`. Las tablas propias (cifras de apoyo, criterios, glosario) mostraban los bordes verticales que Streamlit pone a las tablas de markdown: se anulan. El enlace «Auditoría de cámaras» de las alertas se cortaba («Auditoría de cámar»): columnas de la fila de [3,4 | 1,3] a [2,3 | 1,4]. El wordmark decía «Solución v3 , 2026-11-14» (un espacio antes de la coma).
+- Cola: el panel de detalle desbordaba por la derecha (los datos iban en una fila con el anillo) y la página tenía desplazamiento horizontal; ahora la cabecera lleva la probabilidad con el anillo y los datos van debajo en una rejilla que ajusta el texto. La tabla de seis columnas mostraba flechas de desplazamiento horizontal por unos 20 px de más: anchos medidos (Prioridad 76, Prob. sin pareja 125, Puntos sensor sup. 136, Cámara 108, Clase 76; «Tipo de caso» absorbe el resto) y sin tooltips de ayuda en las columnas angostas.
+- Auditoría: las celdas con hueco salían rellenas de teal claro dentro del contorno rojo (la tasa 0 % pintada con la escala sana); ahora van con el relleno rojo suave de la cuña del anillo.
+
+### F23, pasada 2: juego completo de capturas (1366 y 1920 px) y revisión de cada imagen
+
+- Puntuar a 1920 px: la captura la rechazó la regla de alto mínimo (la página medía 540 px contra 550): la especificación del formato pasó a un expander cerrado y la página es más corta. Se bajó el mínimo a 480 px y se repitió esa sección; la espera robusta hizo su trabajo (no guardó la imagen como válida).
+- Modo presentación: «Auditoría de cámaras» y «Puntuar datos nuevos» se cortaban en la barra lateral de 236 px con la letra 18 % mayor; en ese modo la barra mide 276 px.
+- Validación, Selección: la tabla de resultados clave mostraba «regla top» en minúscula y el gráfico de Ensambles «E2 contra Regla top». Lo atrapó la prueba nueva que recorre las ocho páginas buscando el nombre interno; `formato.nombre_visible` reconoce las dos escrituras y `nombre_componente` lo aplica. La lista de definiciones de O1 a O4 quedaba pegada al título siguiente: más margen.
+- Cargador de archivos: el texto sobre el área de arrastre llevaba un punto medio («aquí · Parquet»); ahora «Arrastre el archivo aquí. Formato parquet, hasta 500 MB».
+- Curvas de la cola: se revisaron en el navegador sin referencia y con XGBoost de referencia: los colores se distinguen y el trazo sigue distinto. La comparación con E2 no se fotografió (ver `REPORTE_F23.md`).
+
+### Verificación contra los rasgos de plantilla de F23
+
+| Código | Rasgo | Cómo se ve | Estado en las capturas finales |
+|---|---|---|---|
+| T13 | Tarjetas idénticas | todo en tarjetas con el mismo radio y la misma sombra | Resuelto: una sola superficie elevada (el panel principal del Resumen y el detalle de la cola); radios de 0 (tablas), 6 (controles) y 14 px (panel); la única sombra de la hoja es la del panel. |
+| T14 | Indicadores grandes en mosaico | cuatro fichas con cifras grandes al abrir la página | Resuelto: el Resumen abre con la afirmación y el anillo; la tira de cifras de Auditoría y Puntuar es una fila con líneas finas. |
+| T15 | Etiquetas en mayúsculas con tracking | una etiqueta en mayúsculas sobre cada título | No hay (`text-transform` no se usa). |
+| T16 | Cadenas con puntos medios o «palabra — fragmento» | pie, chip, versión y resultado unidos con «·» | Resuelto: chip, pie, wordmark, resultado de la cola y texto del cargador sin puntos medios (una prueba revisa la hoja de estilos). |
+| T17 | Flechas al final de botones | «→» o `arrow_forward` en los enlaces | Resuelto: los enlaces de las alertas son solo texto. |
+| T18 | Degradados decorativos | fondos con degradado | Solo queda el de la escala de la leyenda del mapa (es la escala, no un adorno). |
+| T19 | Una palabra del título en color o cursiva | un acento tipográfico en un título | No hay. |
+| T20 | Barra lateral oscura con acento azul | la barra lateral de plantilla | Resuelto: barra clara del mismo tono que el lienzo, con una línea fina; ítem activo en cobalto suave. |
 
 Las capturas anteriores a F20 (F19-B) están en `images/ep3/pagina/antes_f20/` para comparar; las de F20, anteriores a F21, en `images/ep3/pagina/antes_f21/`.

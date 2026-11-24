@@ -1,0 +1,69 @@
+{
+ "normal": {
+  "modo": "normal",
+  "viewport": [
+   1366,
+   768
+  ],
+  "limite_px": 640,
+  "indicadores": {
+   "arriba": 102.640625,
+   "abajo": 207.359375,
+   "izquierda": 266,
+   "derecha": 1326
+  },
+  "titular": {
+   "arriba": 262.046875,
+   "abajo": 326.078125,
+   "izquierda": 288,
+   "derecha": 850.65625
+  },
+  "filas_de_alerta": [
+   {
+    "arriba": 372.625,
+    "abajo": 443.5,
+    "izquierda": 288,
+    "derecha": 850.65625
+   },
+   {
+    "arriba": 460,
+    "abajo": 530.875,
+    "izquierda": 288,
+    "derecha": 850.65625
+   }
+  ],
+  "ultima_fila_de_alerta": {
+   "arriba": 460,
+   "abajo": 530.875,
+   "izquierda": 288,
+   "derecha": 850.65625
+  },
+  "panel_principal": {
+   "arriba": 223.859375,
+   "abajo": 560.578125,
+   "izquierda": 266,
+   "derecha": 1326
+  },
+  "anillo": {
+   "arriba": 272.90625,
+   "abajo": 503.90625,
+   "izquierda": 987.328125,
+   "derecha": 1227.328125
+  },
+  "leyenda_anillo": {
+   "arriba": 514.40625,
+   "abajo": 534.078125,
+   "izquierda": 986.578125,
+   "derecha": 1228.0625
+  },
+  "lineas_del_titular": 2,
+  "tamano_del_titular": "26.25px",
+  "indicadores_visibles": true,
+  "titular_visible": true,
+  "lista_de_alertas_visible": true,
+  "panel_termina_en_px": 531,
+  "panel_dentro_del_limite": true,
+  "scroll_horizontal_px": 0,
+  "barra_lateral_desborde_px": 0
+ }
+}

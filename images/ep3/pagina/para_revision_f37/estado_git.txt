@@ -1,0 +1,250 @@
+ M .dockerignore
+ M .gitignore
+ M .streamlit/config.toml
+ M CLAUDE.md
+ M app/.streamlit/config.toml
+ M app/app.py
+ M app/assets/icono.png
+ M app/contexto.py
+ M app/estilos.py
+ M app/precarga.py
+ M app/secciones.py
+ M docs/ep3/ESTADO.md
+ M docs/ep3/MAPA_DE_ARCHIVOS.md
+ M docs/ep3/PENDIENTES_PAGINA.md
+ M docs/ep3/README_EP3.md
+ M docs/ep3/auditoria_diseno_pagina.md
+ M docs/ep3/despliegue.md
+ M docs/ep3/guia_estilo_pagina.md
+ M docs/ep3/guion_presentacion.md
+ M docs/ep3/informe_tecnico_EP3.md
+ M docs/ep3/pagina_guia_demo.md
+ M docs/ep3/plan_integracion_readme.md
+ M docs/ep3/preguntas_cruzadas.md
+ M images/ep3/pagina/01_resumen_1366.png
+ M images/ep3/pagina/01_resumen_1920.png
+ D images/ep3/pagina/02_cola_de_revision_1366.png
+ D images/ep3/pagina/02_cola_de_revision_1920.png
+ D images/ep3/pagina/02_cola_de_revision_sin_seleccion_1366.png
+ D images/ep3/pagina/02_cola_de_revision_sin_seleccion_1920.png
+ D images/ep3/pagina/03_explica_una_caja_1366.png
+ D images/ep3/pagina/03_explica_una_caja_1920.png
+ D images/ep3/pagina/04_auditoria_de_camaras_1366.png
+ D images/ep3/pagina/04_auditoria_de_camaras_1920.png
+ D images/ep3/pagina/04_explica_una_caja.png
+ D images/ep3/pagina/05_evidencia.png
+ D images/ep3/pagina/05_validacion_en_muestra_1366.png
+ D images/ep3/pagina/05_validacion_en_muestra_1920.png
+ D images/ep3/pagina/05_validacion_ensambles_1366.png
+ D images/ep3/pagina/05_validacion_ensambles_1920.png
+ D images/ep3/pagina/05_validacion_generalizacion_1366.png
+ D images/ep3/pagina/05_validacion_generalizacion_1920.png
+ D images/ep3/pagina/05_validacion_hiperparametros_1366.png
+ D images/ep3/pagina/05_validacion_hiperparametros_1920.png
+ D images/ep3/pagina/05_validacion_no_supervisado_1366.png
+ D images/ep3/pagina/05_validacion_no_supervisado_1920.png
+ D images/ep3/pagina/05_validacion_seleccion_1366.png
+ D images/ep3/pagina/05_validacion_seleccion_1920.png
+ M images/ep3/pagina/06_puntuar_datos_nuevos_1366.png
+ M images/ep3/pagina/06_puntuar_datos_nuevos_1920.png
+ M images/ep3/pagina/07_etica_y_limites_1366.png
+ M images/ep3/pagina/07_etica_y_limites_1920.png
+ M images/ep3/pagina/08_ayuda_y_glosario_1366.png
+ M images/ep3/pagina/08_ayuda_y_glosario_1920.png
+ D images/ep3/pagina/09_inicio_modo_presentacion.png
+ D images/ep3/pagina/09_resumen_modo_presentacion_1366.png
+ D images/ep3/pagina/09_resumen_modo_presentacion_1920.png
+ D images/ep3/pagina/antes_f20/09_inicio_modo_presentacion_1366.png
+ D images/ep3/pagina/antes_f20/09_inicio_modo_presentacion_1920.png
+ D images/ep3/pagina/antes_f21/09_resumen_modo_presentacion_1366.png
+ D images/ep3/pagina/antes_f21/09_resumen_modo_presentacion_1920.png
+ M scripts/ep3/capturar_pagina.py
+ M scripts/ep3/crear_notebooks_ep3.py
+ M scripts/ep3/empaquetar_entrega_ep3.py
+ M scripts/ep3/generar_auditoria_diseno.py
+ M scripts/ep3/generar_docs_ep3.py
+ M scripts/ep3/generar_guia_estilo.py
+ M scripts/ep3/generar_mapa.py
+ M scripts/ep3/generar_pendientes_pagina.py
+ M scripts/ep3/puntuar_segmento.py
+ M src/waymo_evaluacion/ep3/app_logica.py
+ M src/waymo_evaluacion/ep3/formato.py
+ M tests/ep3/conftest.py
+ M tests/ep3/test_app.py
+ M tests/ep3/test_pagina_f20.py
+ M tests/ep3/test_pagina_f21.py
+ M tests/ep3/test_pagina_f22.py
+ M tests/ep3/test_pagina_pulido.py
+ M tests/ep3/test_pagina_rediseno.py
+?? app/tablas.py
+?? docs/ep3/REPORTE_F23.md
+?? docs/ep3/REPORTE_F24.md
+?? docs/ep3/REPORTE_F25.md
+?? docs/ep3/REPORTE_F26.md
+?? docs/ep3/REPORTE_F27.md
+?? docs/ep3/REPORTE_F29.md
+?? docs/ep3/REPORTE_F30.md
+?? docs/ep3/REPORTE_F31_F33.md
+?? docs/ep3/REPORTE_F34_F35.md
+?? docs/ep3/REPORTE_F36.md
+?? docs/ep3/REPORTE_F37.md
+?? docs/ep3/f23_fold_resumen.json
+?? docs/ep3/f23_paleta_validacion.json
+?? docs/ep3/f23_resultado_suite.json
+?? docs/ep3/f23_sello_antes.json
+?? docs/ep3/f23_sello_despues.json
+?? docs/ep3/f24_contraste.json
+?? docs/ep3/f24_fold_resumen.json
+?? docs/ep3/f24_paleta_validacion.json
+?? docs/ep3/f24_resultado_suite.json
+?? docs/ep3/f24_sello_despues.json
+?? docs/ep3/f25_ambar_en_el_dom.json
+?? docs/ep3/f25_barra_herramientas.json
+?? docs/ep3/f25_barra_lateral.json
+?? docs/ep3/f25_contraste.json
+?? docs/ep3/f25_paleta_validacion.json
+?? docs/ep3/f25_resultado_suite.json
+?? docs/ep3/f25_sello_despues.json
+?? docs/ep3/f26_contraste.json
+?? docs/ep3/f26_marca.json
+?? docs/ep3/f26_resultado_suite.json
+?? docs/ep3/f26_sello_despues.json
+?? docs/ep3/f27_contraste.json
+?? docs/ep3/f27_resultado_suite.json
+?? docs/ep3/f27_sello_despues.json
+?? docs/ep3/f29_contraste.json
+?? docs/ep3/f29_navegacion.json
+?? docs/ep3/f29_resultado_suite.json
+?? docs/ep3/f29_sello_despues.json
+?? docs/ep3/f30_altura_bloque.json
+?? docs/ep3/f30_contraste.json
+?? docs/ep3/f30_resultado_suite.json
+?? docs/ep3/f30_sello_despues.json
+?? docs/ep3/f31_f32_escala_sintetica.json
+?? docs/ep3/f31_f33_capturas.json
+?? docs/ep3/f31_sello_despues.json
+?? docs/ep3/f32_orden_cola_antes_despues.json
+?? docs/ep3/f33_cifras_cruzadas.json
+?? docs/ep3/f33_contraste.json
+?? docs/ep3/f33_sello_despues.json
+?? docs/ep3/f34_cifras_cruzadas.json
+?? docs/ep3/f34_f35_capturas.json
+?? docs/ep3/f34_sello_despues.json
+?? docs/ep3/f35_contraste.json
+?? docs/ep3/f35_escala_sintetica.json
+?? docs/ep3/f35_sello_despues.json
+?? docs/ep3/f36_capturas.json
+?? docs/ep3/f36_sello_despues.json
+?? docs/ep3/f36_verificacion_despliegue.json
+?? docs/ep3/f37_candidatos_ensayo.json
+?? docs/ep3/f37_hueco_ensayo.json
+?? docs/ep3/f37_pruebas_ui_ensayo.json
+?? docs/ep3/f37_sello_despues.json
+?? docs/ep3/plan_diseno_f23.md
+?? docs/referencias_diseno/
+?? images/ep3/pagina/01_resumen_1366x768.png
+?? images/ep3/pagina/02_auditoria_de_camaras_1366.png
+?? images/ep3/pagina/02_auditoria_de_camaras_1920.png
+?? images/ep3/pagina/02b_curvas_con_e2.png
+?? images/ep3/pagina/02b_curvas_con_xgboost.png
+?? images/ep3/pagina/02b_curvas_sin_referencia.png
+?? images/ep3/pagina/03_cola_de_revision_1366.png
+?? images/ep3/pagina/03_cola_de_revision_1920.png
+?? images/ep3/pagina/03_cola_de_revision_sin_seleccion_1366.png
+?? images/ep3/pagina/03_cola_de_revision_sin_seleccion_1920.png
+?? images/ep3/pagina/04_validacion_alternativas_1366.png
+?? images/ep3/pagina/04_validacion_alternativas_1920.png
+?? images/ep3/pagina/04_validacion_en_muestra_1366.png
+?? images/ep3/pagina/04_validacion_en_muestra_1920.png
+?? images/ep3/pagina/04_validacion_generalizacion_1366.png
+?? images/ep3/pagina/04_validacion_generalizacion_1920.png
+?? images/ep3/pagina/04_validacion_modelo_elegido_1366.png
+?? images/ep3/pagina/04_validacion_modelo_elegido_1920.png
+?? images/ep3/pagina/04_validacion_tipos_de_caso_1366.png
+?? images/ep3/pagina/04_validacion_tipos_de_caso_1920.png
+?? images/ep3/pagina/05_explica_una_caja_1366.png
+?? images/ep3/pagina/05_explica_una_caja_1920.png
+?? images/ep3/pagina/antes_f23/
+?? images/ep3/pagina/antes_f24/
+?? images/ep3/pagina/antes_f34/
+?? images/ep3/pagina/antes_f36/
+?? images/ep3/pagina/f25_barra_normal_1366x768.png
+?? images/ep3/pagina/f25_curva_cursor_encima.png
+?? images/ep3/pagina/f26_cola_agrupada.png
+?? images/ep3/pagina/f26_favicon_16.png
+?? images/ep3/pagina/f26_marca_normal.png
+?? images/ep3/pagina/f26_pie.png
+?? images/ep3/pagina/f29_destino_abrir.png
+?? images/ep3/pagina/f29_destino_auditar.png
+?? images/ep3/pagina/para_revision/
+?? images/ep3/pagina/para_revision_f31_f33/
+?? images/ep3/pagina/para_revision_f34_f35/
+?? images/ep3/pagina/para_revision_f36/
+?? images/ep3/pagina/para_revision_f37/
+?? scripts/crear_demo_hueco.py
+?? scripts/ep3/armar_para_revision.py
+?? scripts/ep3/f23_integridad_sello.py
+?? scripts/ep3/f23_medir_resumen.py
+?? scripts/ep3/f23_registrar_suite.py
+?? scripts/ep3/f24_auditar_contraste.py
+?? scripts/ep3/f24_capturar_curvas.py
+?? scripts/ep3/f24_medir_resumen.py
+?? scripts/ep3/f24_registrar_suite.py
+?? scripts/ep3/f25_buscar_ambar.py
+?? scripts/ep3/f25_comprobar_herramientas.py
+?? scripts/ep3/f25_medir_barra.py
+?? scripts/ep3/f25_registrar_suite.py
+?? scripts/ep3/f25_validar_paleta.py
+?? scripts/ep3/f26_capturas_extra.py
+?? scripts/ep3/f26_registrar_suite.py
+?? scripts/ep3/f27_registrar_suite.py
+?? scripts/ep3/f29_navegacion.py
+?? scripts/ep3/f29_registrar_suite.py
+?? scripts/ep3/f30_medir_bloque.py
+?? scripts/ep3/f30_registrar_suite.py
+?? scripts/ep3/f31_f32_prueba_escala.py
+?? scripts/ep3/f31_f33_capturas.py
+?? scripts/ep3/f32_comparar_orden_cola.py
+?? scripts/ep3/f33_cifras_cruzadas.py
+?? scripts/ep3/f34_cifras_cruzadas.py
+?? scripts/ep3/f34_exportar_valores.py
+?? scripts/ep3/f34_f35_capturas.py
+?? scripts/ep3/f35_prueba_escala.py
+?? scripts/ep3/f36_capturas.py
+?? scripts/ep3/f36_exportar_textos.py
+?? scripts/ep3/f36_verificar_despliegue.py
+?? scripts/ep3/f37_analizar.py
+?? scripts/ep3/f37_armar_demo.py
+?? scripts/ep3/f37_colab_descargar.py
+?? scripts/ep3/f37_pruebas_ui.py
+?? scripts/ep3/generar_config_tema.py
+?? scripts/ep3/generar_icono.py
+?? scripts/ep3/generar_plan_diseno_f23.py
+?? scripts/ep3/generar_reporte_f23.py
+?? scripts/ep3/generar_reporte_f24.py
+?? scripts/ep3/generar_reporte_f25.py
+?? scripts/ep3/generar_reporte_f26.py
+?? scripts/ep3/generar_reporte_f27.py
+?? scripts/ep3/generar_reporte_f29.py
+?? scripts/ep3/generar_reporte_f30.py
+?? src/waymo_evaluacion/ep3/escala_sintetica.py
+?? src/waymo_evaluacion/ep3/etica_ayuda.py
+?? src/waymo_evaluacion/ep3/puntuar.py
+?? src/waymo_evaluacion/ep3/tablas_estandar.py
+?? src/waymo_evaluacion/ep3/validacion.py
+?? tests/ep3/datos_f34/
+?? tests/ep3/datos_f36/
+?? tests/ep3/test_pagina_f23.py
+?? tests/ep3/test_pagina_f24.py
+?? tests/ep3/test_pagina_f25.py
+?? tests/ep3/test_pagina_f26.py
+?? tests/ep3/test_pagina_f27.py
+?? tests/ep3/test_pagina_f29.py
+?? tests/ep3/test_pagina_f30.py
+?? tests/ep3/test_pagina_f31.py
+?? tests/ep3/test_pagina_f32.py
+?? tests/ep3/test_pagina_f33.py
+?? tests/ep3/test_pagina_f34.py
+?? tests/ep3/test_pagina_f35.py
+?? tests/ep3/test_pagina_f36.py
+?? tests/ep3/test_pagina_f37.py

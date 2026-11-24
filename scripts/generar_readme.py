@@ -24,6 +24,9 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import generar_informe_tecnico as inf  # noqa: E402  (carga los mismos archivos que el informe)
 
+sys.path.insert(0, str(Path(__file__).resolve().parent / "ep3"))
+import readme_f38 as rm  # noqa: E402  (bloques de EP3 del README, F38: cifras de artefactos_ep3/ y de las funciones de la página)
+
 R, REP, DOCS = inf.R, inf.REP, inf.DOCS
 es, n3, n1, pc, miles = inf.es, inf.n3, inf.n1, inf.pc, inf.miles
 BASE_N, MOD_N = inf.BASE_N, inf.MOD_N
@@ -133,11 +136,12 @@ def encabezados():
         ("5. EDA y calidad de datos", "eda"), ("6. Preparación y transformación", "preparacion"), ("7. Metodología (CRISP-DM)", "metodologia"), ("8. Modelos supervisados", "supervisados"),
         ("9. Aprendizaje no supervisado", "no_supervisado"), ("10. Evaluación final en el test", "test"), ("11. Hallazgo post hoc: el segmento anómalo y la auditoría por cámara", "posthoc"),
         ("12. Interpretación y recomendaciones", "recomendaciones"), ("13. Ética, sesgos y privacidad", "etica"), ("14. Estructura del repositorio, reproducción y pruebas", "repo"),
-        ("15. Mapa de la pauta, referencias, equipo y limitaciones", "pauta")]
+        ("15. Mapa de la pauta, referencias, equipo y limitaciones", "pauta"),
+        ("16. Lente: la aplicación y su despliegue", "lente"), ("17. Mejoras incorporadas desde EP1 y EP2", "mejoras")]
 
 
 TIT = dict((k, t) for t, k in encabezados())
-RUTA_RAPIDA = ["resumen", "eda", "supervisados", "test", "posthoc", "recomendaciones"]       # secciones 1, 5, 8, 10, 11 y 12
+RUTA_RAPIDA = [("1", "1. Resumen"), ("8.1", rm.T81), ("8.2", rm.T82), ("8.3", rm.T83), ("12.1", rm.T121), ("16", "16. Lente: la aplicación y su despliegue")]       # F38: secciones 1, 8.1, 8.2, 8.3, 12.1 y 16
 
 
 def h(k):
@@ -147,21 +151,33 @@ def h(k):
 # --------------------------------------------------------------------------------------------- 0 y 1
 def cabecera():
     indice = " · ".join(f"[{t.split('. ', 1)[1].split(',')[0].split(':')[0]}](#{slug(t)})" for t, _ in encabezados())
-    ruta = ", ".join(f"[{TIT[k].split('.')[0]}](#{slug(TIT[k])})" for k in RUTA_RAPIDA)
+    ruta = ", ".join(f"[{n}](#{slug(titulo)})" for n, titulo in RUTA_RAPIDA)
     ruta = ", ".join(ruta.split(", ")[:-1]) + " y " + ruta.split(", ")[-1]
-    return f"""# Auditoría de cajas 3D sin par 2D de cámara en Waymo Open Dataset v2
+    return f"""# Lente · Auditoría de cajas 3D sin par 2D de cámara en Waymo Open Dataset v2
 
-*Una lista priorizada para que una persona revise primero las cajas 3D etiquetadas de peatones y ciclistas que probablemente no tienen su par 2D de cámara.*
+*Una lista priorizada y un aviso de cámaras con huecos para que una persona revise primero las cajas 3D de peatones y ciclistas que probablemente no tienen su par 2D.*
 
-**Curso:** MLY1101 Machine Learning · **Evaluación:** Parcial N°2 (EP2) · **Caso:** Waymo Open Dataset v2, target `sin_camara` · **Fecha:** {datetime.now().strftime('%Y-%m-%d')}
+**Curso:** MLY1101 Machine Learning · **Evaluación:** EP3 y Evaluación Final Transversal (la base de EP2 sigue en las secciones 1 a 15) · **Caso:** Waymo Open Dataset v2, target `sin_camara` · **Fecha:** {datetime.now().strftime('%Y-%m-%d')}
 
-[Informe técnico](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_evaluacion_test.md) · [Log de trabajo](docs/log_trabajo_ep2.md) · [README de EP1](docs/README_EP1.md)
+{rm.ficha(slug)}
+
+{rm.en_breve(slug)}
+
+{rm.como_verlo()}
+
+[Informe técnico de EP3](docs/ep3/informe_tecnico_EP3.md) · [Informe de EP2](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_evaluacion_test.md) · [Log de trabajo](docs/log_trabajo_ep2.md) · [README de EP1](docs/README_EP1.md)
+
+{rm.siglas()}
+
+**Mapa de la pauta**
+
+{rm.mapa_pauta(slug, lambda titulo: "#" + slug(titulo))}
 
 **Índice:** {indice}
 
 **Lectura rápida:** secciones {ruta}.
 
-*Generado por `scripts/generar_readme.py` el {datetime.now().strftime('%Y-%m-%d %H:%M')}. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*"""
+*Generado por `scripts/generar_readme.py` el {datetime.now().strftime('%Y-%m-%d %H:%M')}. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`, `artefactos_ep3/`) o de las funciones de la aplicación; los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*"""
 
 
 def sec_resumen():
@@ -379,6 +395,7 @@ def sec_metodo():
     crisp = inf.tabla_crisp()
     crisp = crisp[["fase", "qué se hizo", "sección y notebook"]].copy()
     crisp["sección y notebook"] = crisp["sección y notebook"].str.replace("Secciones", "Secciones del informe:", regex=False)
+    crisp.loc[crisp["fase"].str.startswith("6."), "qué se hizo"] += "; en EP3, la aplicación Lente (sección 16)"
     sha = PLAN.get("sha256", {}).get("archivos", {})
     return f"""{h('metodologia')}
 
@@ -673,13 +690,13 @@ def linea_ep1_a_ep2():
     reqs = (R / "requirements.txt").read_text(encoding="utf-8").lower()
     nb06 = json.loads((inf.NBS / "06_eda_y_preparacion_modelamiento.ipynb").read_text(encoding="utf-8"))
     spw = next((x.group(1) for c in nb06["cells"] if c["cell_type"] == "code" for o in c.get("outputs", []) for x in [re.search(r"scale_pos_weight para XGBoost: ([\d.]+)", "".join(o.get("text", [])))] if x), None)
-    if "xgboost" in codigo_07_10.lower() or "xgboost" in reqs or iu.find_spec("xgboost") or iu.find_spec("imblearn") or spw is None:
+    if "xgboost" in codigo_07_10.lower() or "xgboost" in reqs or iu.find_spec("imblearn") or spw is None:          # F38: el entorno de EP3 trae xgboost (EP3 sí lo usa); lo que afirma esta línea es sobre EP2: su requirements.txt y sus notebooks 07 a 10
         inf.fallar("XGBoost o imbalanced-learn aparecen en el entorno o en los notebooks 07 a 10, o falta el scale_pos_weight del 06: revisar la linea EP1 a EP2 del README")
     cw = inf.leer_csv("09_class_weight.csv", keep_default_na=False).set_index(["modelo", "class_weight"])["mejor PR-AUC interno (promedio de folds)"]
     return (f"**De EP1 a EP2.** El README de EP1 (sección 6) proponía Random Forest o XGBoost con SMOTE para `tiene_camara` ({m.group(1)} % de positivos). En EP2 el target pasó a `sin_camara`, con una prevalencia de {pc(PREV.get('PR-AUC', float('nan')))} en la población principal, "
             f"y comparamos regresión logística, HGB (`HistGradientBoostingClassifier`, el boosting de árboles de scikit-learn) y Random Forest. No usamos SMOTE: evaluamos `class_weight` en vez de sobremuestrear "
             f"(HGB {n3(float(cw[('HGB', 'None')]))} sin peso frente a {n3(float(cw[('HGB', 'balanced')]))} balanceado; regresión logística {n3(float(cw[('LR', 'None')]))} frente a {n3(float(cw[('LR', 'balanced')]))}) e `imbalanced-learn` no está instalado en el entorno. "
-            f"XGBoost no se entrenó: no está instalado, no figura en `requirements.txt` ni en el código de los notebooks 07 a 10; el 06 solo imprime un `scale_pos_weight` de {es(spw)} para `tiene_camara`.")
+            f"XGBoost no se entrenó en EP2: no figura en `requirements.txt` ni en el código de los notebooks 07 a 10; el 06 solo imprime un `scale_pos_weight` de {es(spw)} para `tiene_camara`. En EP3 sí se entrena y se optimiza (secciones 8.1 y 8.2).")
 
 
 def balance_objetivos():
@@ -762,6 +779,15 @@ def balance_objetivos():
     return pd.DataFrame(filas)
 
 
+def balance_corto():
+    """Tabla corta (objetivo, train, test, veredicto de una palabra) y, debajo, la tabla completa con el detalle en un bloque plegable (F38)."""
+    bo = balance_objetivos()
+    corto = lambda s: str(s).split(";")[0].strip()                                      # noqa: E731  (la primera cifra de cada celda)
+    filas = [(f"Objetivo {r['Objetivo (sección 2)']}".replace("Objetivo ", "Objetivo ", 1).replace(". ", " · ", 1), corto(r["Train (fuera de fold)"]), corto(r["Test oficial"]), r["¿Se cumple?"].split(".")[0]) for _, r in bo.iterrows()]
+    cuerpo = tabla(bo, raw=True)
+    return rm.tabla(filas, ["Objetivo", "Train (fuera de fold)", "Test oficial", "¿Se cumple?"]) + "\n\n" + rm.det("Detalle de cada objetivo (qué pasa y qué no pasa)", cuerpo)
+
+
 def sec_reco():
     ob = C10.get("D", {}).get("OP", {}).get(f"{BASE_N} | B", {})
     rb = ob.get("recall", [float("nan")] * 3)
@@ -777,7 +803,7 @@ Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 
 **Balance de objetivos** (metas de la [sección 2](#{slug(TIT['contexto'])}); «sí» si pasan todos los chequeos, «no» si no pasa ninguno y «parcial» si pasan algunos; las metas de AUC y PR-AUC son las de train y se aplican también al test como referencia):
 
-{tabla(balance_objetivos(), raw=True)}
+{balance_corto()}
 
 **Qué esperar.** Con el corte A: en train, recall {ci_txt(TR['recall'])} revisando {pc(punto(TR['pct']))} de las cajas; en el test oficial, recall {ci_txt(TE['recall'])} revisando {pc(punto(TE['pct']))}. Con el corte B (20 % de revisión): recall {recall_b} en test.
 
@@ -888,7 +914,7 @@ def sec_pauta():
 
 > Cada indicador de la pauta de EP2 tiene su lugar en el README, el informe y los notebooks, y cada entregable tiene su archivo.
 
-La pauta es la de {PAUTA_FUENTE}: actividad grupal con defensa individual, ponderación de {PAUTA_PESO} % y presentación de 10 minutos; la defensa no es un archivo, así que no aparece en las tablas.
+El mapa completo de EP3 y de la Evaluación Final (IE1 a IE12, con sus pesos) está al inicio de este README; esta sección conserva el de EP2. La pauta de EP2 es la de {PAUTA_FUENTE}: actividad grupal con defensa individual, ponderación de {PAUTA_PESO} % y presentación de 10 minutos; la defensa no es un archivo, así que no aparece en las tablas.
 
 {tabla(indicadores, raw=True)}
 
@@ -903,8 +929,53 @@ La pauta es la de {PAUTA_FUENTE}: actividad grupal con defensa individual, ponde
 **Limitaciones.** {len(inf.SPLIT_TEST)} segmentos de test, pocos ciclistas, un segmento concentra el problema, rangos de azimut por cámara empíricos y causa del hueco de cámara no distinguible; más en la [sección 12 del informe](docs/informe_tecnico_EP2.md#12-limitaciones-y-desviaciones-del-plan)."""
 
 
+def plegar_tabla(texto, encabezado, titulo):
+    """Mete una tabla de apoyo (la que empieza con ``encabezado``) dentro de un bloque plegable (F38)."""
+    lineas = texto.split("\n")
+    ini = [i for i, l in enumerate(lineas) if l.startswith(encabezado)]
+    assert len(ini) == 1, f"no hay una sola tabla que empiece con {encabezado!r}"
+    fin = ini[0]
+    while fin < len(lineas) and lineas[fin].startswith("|"):
+        fin += 1
+    cuerpo = "\n".join(lineas[ini[0]:fin])
+    return "\n".join(lineas[:ini[0]] + [rm.det(titulo, cuerpo)] + lineas[fin:])
+
+
+def agregar_a_linea(texto, inicio, extra):
+    lineas = texto.split("\n")
+    idx = [i for i, l in enumerate(lineas) if l.startswith(inicio)]
+    assert len(idx) == 1, f"no hay una sola linea que empiece con {inicio!r}"
+    lineas[idx[0]] += " " + extra
+    return "\n".join(lineas)
+
+
+def agregar_despues_de_linea(texto, inicio, bloque):
+    lineas = texto.split("\n")
+    idx = [i for i, l in enumerate(lineas) if l.startswith(inicio)]
+    assert len(idx) == 1, f"no hay una sola linea que empiece con {inicio!r}"
+    lineas.insert(idx[0] + 1, "\n" + bloque)
+    return "\n".join(lineas)
+
+
 def main():
-    cuerpo = [cabecera(), sec_resumen(), sec_contexto(), sec_ep1(), sec_datos(), sec_eda(), sec_prep(), sec_metodo(), sec_modelos(), sec_nosup(), sec_test(), sec_posthoc(), sec_reco(), sec_etica(), sec_repo(), sec_pauta()]
+    s1, s4, s8, s9, s10, s11, s12, s13 = sec_resumen(), sec_datos(), sec_modelos(), sec_nosup(), sec_test(), sec_posthoc(), sec_reco(), sec_etica()
+    s14 = sec_repo()
+    # F38: notas de corrección sobre el texto de EP2 (el texto original no se borra)
+    s1 = agregar_a_linea(s1, "- **Qué hicimos.**", "(" + rm.nota_test_sellado() + ")")
+    s1 = agregar_a_linea(s1, "- **Hallazgo (post hoc, no pre-declarado).**", rm.nota_54_8())
+    s4 = agregar_a_linea(s4, "- **Test sellado.**", rm.nota_test_sellado())
+    s9 = agregar_despues_de_linea(s9, "> Con k = 2,", rm.nota_k2())
+    s11 = agregar_a_linea(s11, "- **El segmento.**", rm.nota_54_8())
+    s4 = s4.rstrip() + "\n\n" + rm.bloque_herramientas()
+    s8 = plegar_tabla(s8, "| Modelo | Hiperparámetro |", "Tabla de hiperparámetros buscados y elegidos (EP2)")
+    s8 = plegar_tabla(s8, "| Variable | OR (+1 DE) |", "Odds ratios de la regresión logística (EP2)")
+    s10 = plegar_tabla(s10, "| Grupo | Segmentos (oficial) |", "Equidad descriptiva por grupo (test de EP2)")
+    s8 = s8.rstrip() + "\n\n" + "\n\n".join([rm.sec_81(), rm.sec_82(), rm.sec_83()])
+    s12 = s12.rstrip() + "\n\n" + rm.sec_121()
+    s13 = s13.rstrip() + "\n\n" + rm.parrafo_etica_app()
+    s14 = agregar_despues_de_linea(s14, "**Pruebas y cobertura**", rm.parrafo_pruebas_ep3())
+    s16 = rm.sec_16(lambda n, pie: fig(n, pie), slug)
+    cuerpo = [cabecera(), s1, sec_contexto(), sec_ep1(), s4, sec_eda(), sec_prep(), sec_metodo(), s8, s9, s10, s11, s12, s13, s14, sec_pauta(), s16, rm.sec_17()]
     texto = "\n\n".join(c.strip() for c in cuerpo) + "\n"
     (R / "README.md").write_text(texto, encoding="utf-8")
     n_fig = len(re.findall("!" + chr(92) + "[", texto))

@@ -1,0 +1,137 @@
+{
+ "ancho": 1366,
+ "capturas": [
+  {
+   "archivo": "f31_01_resumen_franja.png",
+   "ancho": 1366,
+   "alto": 231,
+   "selectores": [
+    ".aud-kpi"
+   ]
+  },
+  {
+   "archivo": "f31_02_celdas_marcadas.png",
+   "ancho": 1366,
+   "alto": 315,
+   "selectores": [
+    ".st-key-aud_celdas"
+   ]
+  },
+  {
+   "archivo": "f31_03_fila_seleccionada.png",
+   "ancho": 1366,
+   "alto": 315,
+   "selectores": [
+    ".st-key-aud_celdas",
+    ".st-key-aud_anillo"
+   ]
+  },
+  {
+   "archivo": "f31_04_mapa_calor.png",
+   "ancho": 1366,
+   "alto": 573,
+   "selectores": [
+    ".st-key-aud_mapa"
+   ]
+  },
+  {
+   "archivo": "f31_05_que_es_un_hueco.png",
+   "ancho": 1366,
+   "alto": 211,
+   "selectores": [
+    "details:¿Qué es un hueco?"
+   ]
+  },
+  {
+   "archivo": "f32_01_cola_de_cajas.png",
+   "ancho": 1366,
+   "alto": 1500,
+   "selectores": [
+    ".st-key-cola_lista"
+   ]
+  },
+  {
+   "archivo": "f32_03_filtros.png",
+   "ancho": 1366,
+   "alto": 620,
+   "selectores": [
+    ".st-key-plan_revision",
+    ".st-key-cola_lista"
+   ]
+  },
+  {
+   "archivo": "f32_02_fila_seleccionada.png",
+   "ancho": 1366,
+   "alto": 900,
+   "selectores": [
+    ".st-key-cola_lista",
+    ".st-key-panel_detalle"
+   ]
+  },
+  {
+   "archivo": "f32_05_ciclista.png",
+   "ancho": 1366,
+   "alto": 900,
+   "selectores": [
+    ".st-key-cola_lista",
+    ".st-key-panel_detalle"
+   ]
+  },
+  {
+   "archivo": "f32_04_curva.png",
+   "ancho": 1366,
+   "alto": 501,
+   "selectores": [
+    "tabpanel"
+   ]
+  },
+  {
+   "archivo": "f32_06_supuestos.png",
+   "ancho": 1366,
+   "alto": 362,
+   "selectores": [
+    "details:Supuestos y confiabilidad"
+   ]
+  },
+  {
+   "archivo": "f33_01_cercana_y_densa.png",
+   "ancho": 1366,
+   "alto": 1040,
+   "selectores": [
+    ".st-key-ex_curva"
+   ]
+  },
+  {
+   "archivo": "f33_02_lejana.png",
+   "ancho": 1366,
+   "alto": 1040,
+   "selectores": [
+    ".st-key-ex_curva"
+   ]
+  },
+  {
+   "archivo": "f33_03_ciclista.png",
+   "ancho": 1366,
+   "alto": 1040,
+   "selectores": [
+    ".st-key-ex_curva"
+   ]
+  },
+  {
+   "archivo": "f33_04_cero_puntos.png",
+   "ancho": 1366,
+   "alto": 1061,
+   "selectores": [
+    ".st-key-ex_curva"
+   ]
+  },
+  {
+   "archivo": "f33_05_desde_la_cola.png",
+   "ancho": 1366,
+   "alto": 1108,
+   "selectores": [
+    ".st-key-ex_curva"
+   ]
+  }
+ ]
+}

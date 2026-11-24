@@ -142,7 +142,7 @@ Verificar (3 comandos):
 Abrir la página (3 comandos):
 1. `.venv\\Scripts\\pip install -r requirements_app.txt -c constraints_ep3.txt`
 2. `scripts\\ep3\\arrancar_app.bat`
-3. Abrir http://localhost:8501 (solo escucha en su equipo; active «Modo presentación» para ocultar identificadores). Informe: `docs/ep3/informe_tecnico_EP3.md`; guía: `docs/ep3/README_EP3.md`.
+3. Abrir http://localhost:8501 (solo escucha en su equipo). Informe: `docs/ep3/informe_tecnico_EP3.md`; guía: `docs/ep3/README_EP3.md`.
 
 AVISO DE LICENCIA: contiene datos derivados del Waymo Open Dataset (uso no comercial). Solo para uso académico del docente; no redistribuir ni publicar.
 Integridad: `SHA256SUMS` lista el sha256 de cada archivo (formato `hash  ruta`).

@@ -1,0 +1,566 @@
+{
+ "escrituras_o_caches_en_el_codigo_que_viaja": [
+  {
+   "archivo": "src/waymo_evaluacion/ep3/alternativas.py",
+   "linea": 51,
+   "coincidencia": "mkdir(",
+   "codigo": "carpeta.mkdir(parents=True, exist_ok=True)"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/alternativas.py",
+   "linea": 52,
+   "coincidencia": "joblib.dump",
+   "codigo": "joblib.dump(alternativas, carpeta / ARCHIVO)"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/alternativas.py",
+   "linea": 57,
+   "coincidencia": "write_text",
+   "codigo": "(carpeta / MANIFEST).write_text(json.dumps(man, indent=1, ensure_ascii=False), encoding=\"utf-8\")"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/inferencia.py",
+   "linea": 43,
+   "coincidencia": "mkdir(",
+   "codigo": "carpeta.mkdir(parents=True, exist_ok=True)"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/inferencia.py",
+   "linea": 44,
+   "coincidencia": "joblib.dump",
+   "codigo": "joblib.dump({\"puntuador\": self.puntuador, \"calibrador\": self.calibrador, \"descripcion\": self.descripcion}, carpeta / \"modelo_final_v3.joblib\")"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/inferencia.py",
+   "linea": 45,
+   "coincidencia": "write_text",
+   "codigo": "(carpeta / \"umbrales_v3.json\").write_text(json.dumps(self.umbrales, indent=1), encoding=\"utf-8\")"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/inferencia.py",
+   "linea": 46,
+   "coincidencia": "write_text",
+   "codigo": "(carpeta / \"detector_params_v3.json\").write_text(json.dumps(self.detector.to_dict(), ensure_ascii=False, indent=1), encoding=\"utf-8\")"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/sellado.py",
+   "linea": 65,
+   "coincidencia": "write_text",
+   "codigo": "salida.write_text(json.dumps(man, indent=1), encoding=\"utf-8\")"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/sellado.py",
+   "linea": 92,
+   "coincidencia": "open(ruta, \"x\"",
+   "codigo": "with open(ruta, \"x\", encoding=\"utf-8\") as f:                 # modo exclusivo: dos corridas a la vez no pasan las dos"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/sellado.py",
+   "linea": 272,
+   "coincidencia": "mkdir(",
+   "codigo": "carpeta_salida.mkdir(parents=True, exist_ok=True)"
+  },
+  {
+   "archivo": "src/waymo_evaluacion/ep3/sellado.py",
+   "linea": 274,
+   "coincidencia": "write_bytes",
+   "codigo": "(carpeta_salida / nombre).write_bytes(contenido)"
+  }
+ ],
+ "streamlit_y_archivos_subidos": {
+  "version": "1.65.0",
+  "memory_uploaded_file_manager.py": {
+   "existe": true,
+   "escribe_a_disco": false,
+   "usa_diccionario_en_memoria": true
+  },
+  "uploaded_file_manager.py": {
+   "existe": true,
+   "escribe_a_disco": false,
+   "usa_diccionario_en_memoria": false
+  },
+  "memory_media_file_storage.py": {
+   "existe": true,
+   "escribe_a_disco": true,
+   "usa_diccionario_en_memoria": true
+  }
+ },
+ "archivos": {
+  "imagen_codigo_app": [
+   {
+    "archivo": "app/.streamlit/config.toml",
+    "bytes": 892
+   },
+   {
+    "archivo": "app/app.py",
+    "bytes": 3247
+   },
+   {
+    "archivo": "app/assets/icono.png",
+    "bytes": 21853
+   },
+   {
+    "archivo": "app/contexto.py",
+    "bytes": 2169
+   },
+   {
+    "archivo": "app/estilos.py",
+    "bytes": 87826
+   },
+   {
+    "archivo": "app/lanzar.py",
+    "bytes": 1136
+   },
+   {
+    "archivo": "app/paginas/auditoria.py",
+    "bytes": 203
+   },
+   {
+    "archivo": "app/paginas/ayuda.py",
+    "bytes": 191
+   },
+   {
+    "archivo": "app/paginas/cola.py",
+    "bytes": 193
+   },
+   {
+    "archivo": "app/paginas/etica.py",
+    "bytes": 193
+   },
+   {
+    "archivo": "app/paginas/explica.py",
+    "bytes": 191
+   },
+   {
+    "archivo": "app/paginas/puntuar.py",
+    "bytes": 199
+   },
+   {
+    "archivo": "app/paginas/resumen.py",
+    "bytes": 173
+   },
+   {
+    "archivo": "app/paginas/validacion.py",
+    "bytes": 181
+   },
+   {
+    "archivo": "app/precarga.py",
+    "bytes": 4147
+   },
+   {
+    "archivo": "app/secciones.py",
+    "bytes": 99441
+   },
+   {
+    "archivo": "app/tablas.py",
+    "bytes": 3722
+   }
+  ],
+  "imagen_codigo_ep3": [
+   {
+    "archivo": "src/waymo_evaluacion/ep3/__init__.py",
+    "bytes": 0
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/alternativas.py",
+    "bytes": 4332
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/app_logica.py",
+    "bytes": 81993
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/candidatos.py",
+    "bytes": 4879
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/chequeo_md.py",
+    "bytes": 4280
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/congelado.py",
+    "bytes": 3228
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/datos.py",
+    "bytes": 4912
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/detector_huecos.py",
+    "bytes": 12610
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/escala_sintetica.py",
+    "bytes": 4966
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/etica_ayuda.py",
+    "bytes": 8686
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/formato.py",
+    "bytes": 26407
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/inferencia.py",
+    "bytes": 10931
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/ingesta_nuevos.py",
+    "bytes": 2225
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/metricas.py",
+    "bytes": 9342
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/modelos.py",
+    "bytes": 6666
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/plan.py",
+    "bytes": 1946
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/puntuar.py",
+    "bytes": 19151
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/seleccion.py",
+    "bytes": 1403
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/seleccion_nuevos.py",
+    "bytes": 8870
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/sellado.py",
+    "bytes": 17374
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/tablas_estandar.py",
+    "bytes": 8662
+   },
+   {
+    "archivo": "src/waymo_evaluacion/ep3/validacion.py",
+    "bytes": 43332
+   }
+  ],
+  "volumen_datos_09_app_ep3": [
+   {
+    "archivo": "data/09_app_ep3/cajas_oof.parquet",
+    "bytes": 9535692
+   },
+   {
+    "archivo": "data/09_app_ep3/celdas.csv",
+    "bytes": 6746
+   },
+   {
+    "archivo": "data/09_app_ep3/clusters.csv",
+    "bytes": 826
+   },
+   {
+    "archivo": "data/09_app_ep3/curva_cola.csv",
+    "bytes": 38041
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie10__ensambles_aportan.csv",
+    "bytes": 490
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie10__todos_los_candidatos.csv",
+    "bytes": 2054
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie11__brecha_LR3.csv",
+    "bytes": 663
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie11__brecha_regla_top.csv",
+    "bytes": 662
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie11__brecha_XGB.csv",
+    "bytes": 648
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie11__leave_one_segment_out_regla_top.csv",
+    "bytes": 1780
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie11__metricas_de_generalizacion.csv",
+    "bytes": 4356
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie12__brazo_C_y_equilibrio.csv",
+    "bytes": 1996
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie12__modelo_escogido.csv",
+    "bytes": 953
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie12__tabla_de_seleccion.csv",
+    "bytes": 3024
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie9__bordes_de_grilla.csv",
+    "bytes": 646
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie9__curvas_de_validacion.csv",
+    "bytes": 7785
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/ie9__defecto_vs_optimizado.csv",
+    "bytes": 2236
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__aporte_sobre_la_regla.csv",
+    "bytes": 574
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__clusters_k2.csv",
+    "bytes": 663
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__clusters_k4.csv",
+    "bytes": 1041
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__comparacion_ep2_ep3.csv",
+    "bytes": 1228
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__estabilidad.csv",
+    "bytes": 301
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__isolation_forest.csv",
+    "bytes": 155
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/nosup__seleccion_de_k.csv",
+    "bytes": 564
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/posthoc__auc_por_fold_y_brazos.csv",
+    "bytes": 2799
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/posthoc__diferencia_C_menos_A.csv",
+    "bytes": 2290
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/posthoc__eda_calidad.csv",
+    "bytes": 1418
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/posthoc__eda_tasas.csv",
+    "bytes": 1350
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/posthoc__equidad.csv",
+    "bytes": 1797
+   },
+   {
+    "archivo": "data/09_app_ep3/evidencia/posthoc__sensibilidad_detector.csv",
+    "bytes": 3828
+   },
+   {
+    "archivo": "data/09_app_ep3/kpis.json",
+    "bytes": 1465
+   },
+   {
+    "archivo": "data/09_app_ep3/lista_A.csv",
+    "bytes": 354
+   }
+  ],
+  "volumen_modelos_06_models_ep3": [
+   {
+    "archivo": "data/06_models_ep3/alternativas_v3.joblib",
+    "bytes": 35520
+   },
+   {
+    "archivo": "data/06_models_ep3/detector_params_v3.json",
+    "bytes": 570
+   },
+   {
+    "archivo": "data/06_models_ep3/manifest_alternativas.json",
+    "bytes": 1059
+   },
+   {
+    "archivo": "data/06_models_ep3/manifest_no_supervisado.json",
+    "bytes": 623
+   },
+   {
+    "archivo": "data/06_models_ep3/manifest_v3.json",
+    "bytes": 1744
+   },
+   {
+    "archivo": "data/06_models_ep3/modelo_final_v3.joblib",
+    "bytes": 1805
+   },
+   {
+    "archivo": "data/06_models_ep3/no_supervisado_v3.joblib",
+    "bytes": 1984457
+   },
+   {
+    "archivo": "data/06_models_ep3/umbrales_v3.json",
+    "bytes": 31
+   }
+  ]
+ },
+ "tablas_de_datos": {
+  "cajas_oof.parquet": {
+   "filas": 80571,
+   "columnas": [
+    "seg",
+    "grupo",
+    "ubicacion",
+    "momento",
+    "key.frame_timestamp_micros",
+    "key.laser_object_id",
+    "sin_camara",
+    "az_signed",
+    "box_center_x",
+    "box_center_y",
+    "box_center_z",
+    "azimut_abs_deg",
+    "distancia_m",
+    "box_length",
+    "box_width",
+    "box_height",
+    "volumen_caja",
+    "num_lidar_points",
+    "num_top_lidar_points",
+    "densidad_puntos",
+    "speed_mps",
+    "heading_sin",
+    "heading_cos",
+    "es_ciclista",
+    "score",
+    "prob_cal",
+    "en_hueco",
+    "tipo_caso"
+   ]
+  },
+  "celdas.csv": {
+   "filas": 41,
+   "columnas": [
+    "seg",
+    "grupo",
+    "ubicacion",
+    "momento",
+    "cajas",
+    "tasa_c1",
+    "tasa_c2",
+    "tasa_c3",
+    "tasa_c4",
+    "tasa_c5",
+    "n_rango_c1",
+    "n_rango_c2",
+    "n_rango_c3",
+    "n_rango_c4",
+    "n_rango_c5",
+    "hueco_c1",
+    "hueco_c2",
+    "hueco_c3",
+    "hueco_c4",
+    "hueco_c5",
+    "algun_hueco"
+   ]
+  },
+  "clusters.csv": {
+   "filas": 2,
+   "columnas": [
+    "k",
+    "cluster",
+    "cajas",
+    "pct_cajas",
+    "positivos",
+    "tasa_sin_camara",
+    "ic_lo",
+    "ic_hi",
+    "segmentos",
+    "mediana_distancia_m",
+    "mediana_azimut_abs_deg",
+    "mediana_num_lidar_points",
+    "mediana_num_top_lidar_points",
+    "mediana_densidad_puntos",
+    "mediana_volumen_caja",
+    "tipo_de_caso",
+    "prob_media_regla_platt",
+    "diferencia_tasa_menos_prob_regla",
+    "AUC_regla_dentro_del_cluster"
+   ]
+  },
+  "curva_cola.csv": {
+   "filas": 400,
+   "columnas": [
+    "solucion",
+    "presupuesto",
+    "recall",
+    "lo",
+    "hi"
+   ]
+  },
+  "lista_A.csv": {
+   "filas": 2,
+   "columnas": [
+    "segmento",
+    "grupo",
+    "ubicacion",
+    "momento",
+    "camara",
+    "tasa",
+    "mediana_camara",
+    "umbral",
+    "cajas_en_rango",
+    "cajas_afectadas_poblacion_principal",
+    "positivos_afectados"
+   ]
+  }
+ },
+ "rutas_y_credenciales": {
+  "usuario_buscado": "(el del equipo; no se escribe aquí)",
+  "hallazgos": [
+   {
+    "archivo": "app/.streamlit/config.toml",
+    "tipo": "palabra de credencial",
+    "palabra": "TOKEN",
+    "linea": 9,
+    "texto": "# Tema (F24): oscuro, generado desde TOKENS de app/estilos.py con scripts/ep3/generar_config_tema.py (no editar a mano);"
+   },
+   {
+    "archivo": "app/estilos.py",
+    "tipo": "palabra de credencial",
+    "palabra": "TOKEN",
+    "linea": 7,
+    "texto": "``TOKENS`` es la ÚNICA fuente de verdad de los colores: de aquí salen el CSS (``css()``), el tema nativo de Streamlit "
+   },
+   {
+    "archivo": "app/secciones.py",
+    "tipo": "palabra de credencial",
+    "palabra": "TOKEN",
+    "linea": 61,
+    "texto": "    t = E.TOKENS"
+   },
+   {
+    "archivo": "data/09_app_ep3/cajas_oof.parquet",
+    "tipo": "correo"
+   }
+  ]
+ },
+ "dockerfile_copia": [
+  "COPY requirements_app.txt constraints_ep3.txt ./",
+  "COPY app ./app",
+  "COPY app/.streamlit ./.streamlit",
+  "COPY src/waymo_evaluacion/__init__.py ./src/waymo_evaluacion/__init__.py",
+  "COPY src/waymo_evaluacion/ep3 ./src/waymo_evaluacion/ep3"
+ ],
+ "compose_volumenes": [
+  "- ./data/09_app_ep3:/app/data/09_app_ep3:ro",
+  "- ./data/06_models_ep3:/app/data/06_models_ep3:ro"
+ ]
+}

@@ -1,0 +1,207 @@
+Comparación del README: antes 498 líneas, ahora 774 líneas.
+
+0. Portada (antes del índice y de la sección 1): 14 -> 74 líneas; 67 agregadas o cambiadas, 7 quitadas o cambiadas.
+    - # Auditoría de cajas 3D sin par 2D de cámara en Waymo Open Dataset v2
+    + # Lente · Auditoría de cajas 3D sin par 2D de cámara en Waymo Open Dataset v2
+    - *Una lista priorizada para que una persona revise primero las cajas 3D etiquetadas de peatones y ciclistas que probablemente no tienen su par 2D de cá
+    + *Una lista priorizada y un aviso de cámaras con huecos para que una persona revise primero las cajas 3D de peatones y ciclistas que probablemente no t
+    - **Curso:** MLY1101 Machine Learning · **Evaluación:** Parcial N°2 (EP2) · **Caso:** Waymo Open Dataset v2, target `sin_camara` · **Fecha:** 2026-10-21
+    + **Curso:** MLY1101 Machine Learning · **Evaluación:** EP3 y Evaluación Final Transversal (la base de EP2 sigue en las secciones 1 a 15) · **Caso:** Wa
+    - [Informe técnico](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_evaluacion_test.md) · [Log de trabajo](docs/log_trabajo_ep2.
+    + | Ficha del proyecto | Dato |
+    + |---|---|
+    + | Caso | Waymo Open Dataset v2 (acordado con el docente) |
+    + | Equipo | Maicol Hernández (rama `maicolhernandez`) y Francis Moya (rama `francismoya`) |
+    + | Solución | v3 congelada el 2026-11-14 (regla «menos puntos top» en dos pasos; hashes en [`artefactos_ep3/manifest_v3.json`](artefactos_ep3/manifest_
+    + | Aplicación | Lente (Streamlit), sección [16](#16-lente-la-aplicación-y-su-despliegue) |
+    - **Índice:** [Resumen](#1-resumen) · [Contexto](#2-contexto-valor-de-negocio-objetivos-y-kpis) · [Qué hicimos en EP1](#3-qué-hicimos-en-ep1) · [Datos](
+    + **En breve**
+    - **Lectura rápida:** secciones [1](#1-resumen), [5](#5-eda-y-calidad-de-datos), [8](#8-modelos-supervisados), [10](#10-evaluación-final-en-el-test), [1
+    + - **Problema.** Algunas cajas 3D de peatones y ciclistas no tienen su par 2D de cámara (`sin_camara`: 21,2 % de las 80.571 cajas de 41 segmentos) y so
+    + - **Qué hace Lente.** Flujo en dos pasos: un detector marca las cámaras con hueco (se atienden aparte) y una regla ordena el resto de las cajas por me
+    + - **Resultado (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos 
+    + - **Límites.** El recall de la regla es 80,6 % en peatones y 44,3 % en ciclistas (115 casos en 14 segmentos); un segmento concentra el 54,8 % de los p
+    - *Generado por `scripts/generar_readme.py` el 2026-10-21 11:28. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`); los res
+    + **Cómo verlo**
+    + | Qué | Cómo |
+    + |---|---|
+    + | Ejecutar la aplicación (Lente) | `.venv\Scripts\python.exe app\lanzar.py --server.address localhost --server.port 8501 --browser.gatherUsageStats fa
+    + | Reproducir el resultado oficial de EP2 | `.venv\Scripts\python.exe -X utf8 scripts\verificar_congelados.py` y luego el notebook 10 con el kernel `ep
+    + | Correr las pruebas | `.venv\Scripts\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider` (EP3); `pytest -q` corre además las de EP2 y reg
+    + | Aplicación desplegada | Despliegue en AWS Academy: en preparación |
+    + [Informe técnico de EP3](docs/ep3/informe_tecnico_EP3.md) · [Informe de EP2](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_e
+    + **Siglas.** IC: intervalo de confianza del 95 % (bootstrap por segmentos); AUC: área bajo la curva ROC; PR-AUC: área bajo la curva precisión-recall; L
+    + **Mapa de la pauta**
+    + **A. Secciones mínimas del informe**
+    + | Sección pedida | Dónde está | Notebook | Evidencia |
+    + |---|---|---|---|
+    + | Problema de negocio | [2](#2-contexto-valor-de-negocio-objetivos-y-kpis) | 07 | Tabla de KPIs de la sección 2 |
+    + | Objetivos | [2](#2-contexto-valor-de-negocio-objetivos-y-kpis) | 07 | Balance de objetivos (sección 12) |
+    + | KPIs | [2](#2-contexto-valor-de-negocio-objetivos-y-kpis) | 07 y 10 | Tabla de KPIs de la sección 2 |
+    + | Fuentes de datos | [4](#4-datos) | 00, 02, 03 | Tabla de fuentes y herramientas de la sección 4 |
+    + | Preparación y EDA | [5](#5-eda-y-calidad-de-datos) y [6](#6-preparación-y-transformación) | 06 y 08 | Figuras 08 de la sección 5 |
+    + | Metodología CRISP-DM | [7](#7-metodología-crisp-dm) | todos | Tabla CRISP-DM de la sección 7 |
+    + | Desarrollo de los modelos | [8](#8-modelos-supervisados) | 09 y 09b | Figura 09_comparacion_modelos |
+    + | Hiperparámetros y ensambles | [8.1](#81-optimización-de-hiperparámetros-ie9) y [8.2](#82-técnicas-de-ensamble-ie10) | 12 (EP3) | Tablas de `artefact
+    + | Evaluación con métricas apropiadas | [8.3](#83-capacidad-de-generalización-ie11), [10](#10-evaluación-final-en-el-test) y [12.1](#121-solución-elegi
+    + | Conclusiones, limitaciones y recomendaciones | [12](#12-interpretación-y-recomendaciones) y [15](#15-mapa-de-la-pauta-referencias-equipo-y-limitacio
+    + **B. Indicadores de evaluación**
+    + | Indicador | Peso en la EFT | Peso en EP3 | Dónde se demuestra | Nivel de evidencia |
+    + |---|---|---|---|---|
+    + | IE1: Fuentes de datos y herramientas colaborativas | 5 % | — | [4](#4-datos) | tabla |
+    + | IE2: Manipulación de datos en Python | 5 % | — | [4](#4-datos) | notebook |
+    + | IE3: EDA y calidad de datos | 5 % | — | [5](#5-eda-y-calidad-de-datos) | figura |
+    + | IE4: Sesgos, ética y privacidad | 5 % | — | [13](#13-ética-sesgos-y-privacidad) | tabla |
+    + | IE5: Metodología | 10 % | — | [7](#7-metodología-crisp-dm) | tabla |
+    + | IE6: Modelos supervisados | 10 % | — | [8](#8-modelos-supervisados) | figura y tabla |
+    + | IE7: Aprendizaje no supervisado | 10 % | — | [9](#9-aprendizaje-no-supervisado) | figura |
+    + | IE8: Interpretación del desempeño | 10 % | — | [10 a 12](#10-evaluación-final-en-el-test) | figura y tabla |
+    + | IE9: Optimización de hiperparámetros | 10 % | 20 % | [8.1](#81-optimización-de-hiperparámetros-ie9) | tabla |
+    + | IE10: Técnicas de ensamble | 10 % | 30 % | [8.2](#82-técnicas-de-ensamble-ie10) | tabla |
+    + | IE11: Capacidad de generalización | 10 % | 20 % | [8.3](#83-capacidad-de-generalización-ie11) | tabla y notebook |
+    + | IE12: Selección de la solución óptima | 10 % | 30 % | [12.1](#121-solución-elegida-y-justificación-ie12) | tabla y prueba automática |
+    + **Índice:** [Resumen](#1-resumen) · [Contexto](#2-contexto-valor-de-negocio-objetivos-y-kpis) · [Qué hicimos en EP1](#3-qué-hicimos-en-ep1) · [Datos](
+    + **Lectura rápida:** secciones [1](#1-resumen), [8.1](#81-optimización-de-hiperparámetros-ie9), [8.2](#82-técnicas-de-ensamble-ie10), [8.3](#83-capacid
+    + *Generado por `scripts/generar_readme.py` el 2026-11-24 11:38. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`, `artefac
+1. Resumen: 25 -> 25 líneas; 3 agregadas o cambiadas, 3 quitadas o cambiadas.
+    - - **Qué hicimos.** Predecimos `sin_camara` (20,7 % de las cajas de la población principal de train), con validación por segmento, tres modelos contra 
+    + - **Qué hicimos.** Predecimos `sin_camara` (20,7 % de las cajas de la población principal de train), con validación por segmento, tres modelos contra 
+    - - **Hallazgo (post hoc, no pre-declarado).** El segmento `257766998801` aporta el 54,8 % de los positivos del test; sin él, el AUC de la regla es 0,93
+    + - **Hallazgo (post hoc, no pre-declarado).** El segmento `257766998801` aporta el 54,8 % de los positivos del test; sin él, el AUC de la regla es 0,93
+    - **Recomendación.** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos LiDAR. Siempre 
+    + **Recomendación (en una frase).** Antes de revisar caja por caja, revisar cámara por cámara; recién después, ordenar las cajas con la regla de puntos 
+2. Contexto, valor de negocio, objetivos y KPIs: 42 -> 42 líneas; 0 agregadas o cambiadas, 0 quitadas o cambiadas.
+3. Qué hicimos en EP1: 21 -> 21 líneas; 0 agregadas o cambiadas, 0 quitadas o cambiadas.
+4. Datos: 15 -> 30 líneas; 16 agregadas o cambiadas, 1 quitadas o cambiadas.
+    - - **Test sellado.** Los 8 segmentos de test no se abrieron hasta el notebook 10; antes solo se contaron filas y positivos.
+    + - **Test sellado.** Los 8 segmentos de test no se abrieron hasta el notebook 10; antes solo se contaron filas y positivos. En EP3 esos 41 segmentos (3
+    + **Fuentes y herramientas colaborativas (IE1).**
+    + | Fuente o herramienta | Para qué la usamos | Por qué esa y no otra |
+    + |---|---|---|
+    + | GitHub: ramas `main`, `maicolhernandez` y `francismoya` | Trabajo en paralelo y revisión por rama (acuerdo del [notebook 03](notebooks/03_fuentes_y_
+    + | Bucket de Waymo v2 con `gsutil` desde Google Colab | Descargar solo `lidar_box` y `camera_to_lidar_box_association` de cada segmento ([notebooks 00 
+    + | Kedro | Pipelines de ingesta y preprocesamiento (`kedro run`, [README de EP1](docs/README_EP1.md)) | Estructura reproducible por nodos; guarda en Pa
+    + | pytest | Pruebas de pipelines, README, informe y página (sección 14) | Detectan cifras que se desincronizan entre documentos |
+    + | sha256 de archivos congelados | `scripts/verificar_congelados.py` y `verificar_congelados_v3.py` | Prueba que modelos y planes no cambiaron antes de
+    + | Streamlit | Lente, la aplicación (sección 16) | Una página interactiva en Python, sin escribir front-end; probada con `AppTest` |
+    + Reparto de ramas: `git branch -a` lista `main`, `maicolhernandez` y `francismoya` (también en `origin`). No usamos MLflow (decisión DEC-6 de [`ESTADO.
+    + **Manipulación de datos en Python (IE2).** [Notebook 04](notebooks/04_estructuras_y_almacenamiento.ipynb): listas frente a NumPy, tipos de columna (ah
+5. EDA y calidad de datos: 31 -> 31 líneas; 0 agregadas o cambiadas, 0 quitadas o cambiadas.
+6. Preparación y transformación: 27 -> 27 líneas; 0 agregadas o cambiadas, 0 quitadas o cambiadas.
+7. Metodología (CRISP-DM): 29 -> 29 líneas; 1 agregadas o cambiadas, 1 quitadas o cambiadas.
+    - | 6. Despliegue | Recomendación de uso: cámara por cámara primero, luego cajas por puntos top, con una persona en el circuito; monitoreo y reproducibi
+    + | 6. Despliegue | Recomendación de uso: cámara por cámara primero, luego cajas por puntos top, con una persona en el circuito; monitoreo y reproducibi
+8. Modelos supervisados: 73 -> 148 líneas; 76 agregadas o cambiadas, 1 quitadas o cambiadas.
+    - **De EP1 a EP2.** El README de EP1 (sección 6) proponía Random Forest o XGBoost con SMOTE para `tiene_camara` (15,7 % de positivos). En EP2 el target 
+    + **De EP1 a EP2.** El README de EP1 (sección 6) proponía Random Forest o XGBoost con SMOTE para `tiene_camara` (15,7 % de positivos). En EP2 el target 
+    + <details>
+    + <summary>Tabla de hiperparámetros buscados y elegidos (EP2)</summary>
+    + </details>
+    + <details>
+    + <summary>Odds ratios de la regresión logística (EP2)</summary>
+    + </details>
+    + ### 8.1 Optimización de hiperparámetros (IE9)
+    + > Optimizar mejora a XGBoost y LightGBM y no mejora a Regresión logística, Random Forest ni a HistGradientBoosting; ni siquiera el XGBoost optimizado 
+    + **Método.** Búsqueda aleatoria **anidada por segmento**: dentro de cada uno de los 5 folds externos (por segmento), la elección usa solo los segmentos
+    + | Modelo | AUC por defecto (IC) | AUC optimizado (IC) | Fracción para 80 %: defecto a optimizado | Dif. PR-AUC (IC) | Veredicto |
+    + |---|---|---|---|---|---|
+    + | Regresión logística (LR) | 0,797 (0,701 a 0,889) | 0,775 (0,681 a 0,872) | 0,467 a 0,535 | -0,018 (-0,051 a +0,018) | no mejora |
+    + | Random Forest (RF) | 0,798 (0,704 a 0,881) | 0,746 (0,657 a 0,848) | 0,472 a 0,657 | -0,040 (-0,077 a +0,003) | no mejora |
+    + | HistGradientBoosting (HGB) | 0,794 (0,706 a 0,872) | 0,772 (0,670 a 0,867) | 0,494 a 0,574 | +0,014 (-0,021 a +0,047) | no mejora |
+    + | XGBoost (XGB) | 0,791 (0,705 a 0,869) | 0,800 (0,704 a 0,884) | 0,491 a 0,488 | +0,059 (+0,034 a +0,085) | mejora |
+    + | LightGBM (LGBM) | 0,796 (0,708 a 0,874) | 0,794 (0,699 a 0,878) | 0,491 a 0,531 | +0,036 (+0,012 a +0,060) | mejora |
+    + Fuente: [`artefactos_ep3/f3_defecto_vs_optimizado.csv`](artefactos_ep3/f3_defecto_vs_optimizado.csv) y [`f3_bordes.csv`](artefactos_ep3/f3_bordes.csv)
+    + **Bordes de la grilla.** Tocan el borde: LGBM `n_estimators` en el máximo de la grilla en 5 de 5 folds. El plan permite una sola extensión de grilla y
+    + **Qué decidimos y por qué.**
+    + - **Regularizar fuerte.** Los tres modelos de EP2 terminaron regularizados: regresión logística con `C` = 0,001 (penalización fuerte), HGB con `max_le
+    + - **Optimizar no cambia la elección.** El mejor modelo único optimizado, XGBoost, queda 0,023 de AUC bajo la regla (IC -0,039 a -0,004 de la diferenci
+    + - Hipótesis sin verificar: la búsqueda interna puede aprovechar particularidades de los segmentos de entrenamiento y no sostenerse en el fold de valid
+    + ### 8.2 Técnicas de ensamble (IE10)
+    + > Ningún ensamble aporta: E1 queda dentro del ruido sobre su mejor componente, E2 empata con la regla porque la contiene, y E3 y E4 quedan por debajo.
+    + Promediar compañeros solo ayuda si se equivocan en cosas distintas; aquí todos miran lo mismo, los puntos del LiDAR. «Aporta» exige +0,010 de AUC sobr
+    + | Técnica | Qué combina | AUC (IC) | Fracción para 80 % (IC) | Dif. AUC frente a su mejor componente (IC) | Dif. fracción para 80 % frente a la regla 
+    + |---|---|---|---|---|---|---|
+    + | Random Forest (bagging) | muchos árboles sobre muestras distintas de las filas; promedia sus votos | 0,798 (0,704 a 0,881) | 0,472 (0,318 a 0,720) |
+    + | HistGradientBoosting (boosting) | árboles en secuencia: cada uno corrige el error del anterior | 0,794 (0,706 a 0,872) | 0,494 (0,327 a 0,696) | — |
+    + | XGBoost (boosting) | boosting regularizado de árboles | 0,800 (0,704 a 0,884) | 0,488 (0,294 a 0,766) | — | +0,042 (-0,022 a +0,105) | no vale la pe
+    + | LightGBM (boosting) | boosting de árboles por hojas | 0,794 (0,699 a 0,878) | 0,531 (0,294 a 0,762) | — | +0,084 (-0,006 a +0,136) | no vale la pena
+    + | E1 · voto suave | Ensamble de voto suave de LR, RF y HGB. | 0,803 (0,704 a 0,890) | 0,462 (0,291 a 0,767) | +0,005 (-0,007 a +0,020) frente a Random
+    + | E2 · promedio de rangos con la regla | Ensamble que promedia los rangos de E1 y de la regla de puntos del sensor superior. | 0,824 (0,720 a 0,907) |
+    + | E3 · apilamiento de cinco modelos | Ensamble por apilamiento (stacking) de LR, RF, HGB, XGB y LGBM, con una regresión logística final entrenada con 
+    + | E4 · apilamiento por tres vistas | Ensamble por apilamiento de tres vistas (observación, tamaño y posición): un modelo por vista y una regresión log
+    + Fuente: [`f4_candidatos_metricas.csv`](artefactos_ep3/f4_candidatos_metricas.csv), [`f4_ensambles_aporta.csv`](artefactos_ep3/f4_ensambles_aporta.csv)
+    + **Qué decidimos y por qué.** El mejor modelo único es XGBoost (AUC 0,800) y la regla lo supera (0,823). E2 tiene el AUC más alto (0,824), pero su dife
+    + ### 8.3 Capacidad de generalización (IE11)
+    + > La regla se sostiene fuera de fold (AUC 0,823, IC 0,725 a 0,900), y la única debilidad es un fold con un segmento sin pares en una cámara.
+    + **Validación usada.** `GroupKFold` de 5 folds **por segmento**: un segmento son unos 20 segundos de video con casi 200 fotogramas parecidos entre sí, 
+    + | AUC por fold | Fold 0 | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Mínimo |
+    + |---|---|---|---|---|---|---|
+    + | Regla de puntos del sensor superior | 0,647 | 0,837 | 0,848 | 0,904 | 0,899 | 0,647 |
+    + | Regresión logística con 3 variables | 0,651 | 0,841 | 0,842 | 0,903 | 0,896 | 0,651 |
+    + | XGBoost | 0,685 | 0,854 | 0,841 | 0,862 | 0,889 | 0,685 |
+    + | E2 · promedio de rangos | 0,648 | 0,844 | 0,851 | 0,908 | 0,909 | 0,648 |
+    + Fuente: [`f5_auc_por_fold.csv`](artefactos_ep3/f5_auc_por_fold.csv). El fold 0 es el más bajo de todos porque contiene el segmento `257766998801`, con
+    + - **Por segmento** (dejando uno fuera, regla): mediana del AUC 0,898; de 22 segmentos evaluables, 2 quedan bajo 0,55 (mínimo 0,408).
+    + - **Brecha ajuste-validación.** La regla no aprende, así que no tiene brecha real. XGBoost con todos los segmentos de entrenamiento: ajuste 0,917, val
+    + - **Calibración.** Con Platt, el ECE de la regla es 0,044.
+    + - **Uno frente a dos pasos** (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin valida
+    + - **Test de EP2 y qué cambió.** En EP2 el test de 8 segmentos estuvo sellado. En EP3 los 41 segmentos (33 de entrenamiento y los 8 de test de EP2, 80.
+9. Aprendizaje no supervisado: 32 -> 34 líneas; 2 agregadas o cambiadas, 0 quitadas o cambiadas.
+    + > **Dos resultados con k = 2, dos poblaciones.** Los de esta sección (EP2, notebook 08) se calcularon sobre las 68.555 filas de train con |azimut| de 
+10. Evaluación final en el test: 56 -> 61 líneas; 5 agregadas o cambiadas, 0 quitadas o cambiadas.
+    + <details>
+    + <summary>Equidad descriptiva por grupo (test de EP2)</summary>
+    + </details>
+11. Hallazgo post hoc: el segmento anómalo y la auditoría por cámara: 15 -> 15 líneas; 1 agregadas o cambiadas, 1 quitadas o cambiadas.
+    - - **El segmento.** `257766998801` tiene 6.474 filas y 2.046 positivos (54,8 % de los del test). El AUC de la regla dentro del segmento es 0,443 y el d
+    + - **El segmento.** `257766998801` tiene 6.474 filas y 2.046 positivos (54,8 % de los del test). El AUC de la regla dentro del segmento es 0,443 y el d
+12. Interpretación y recomendaciones: 25 -> 67 líneas; 42 agregadas o cambiadas, 0 quitadas o cambiadas.
+    + | Objetivo | Train (fuera de fold) | Test oficial | ¿Se cumple? |
+    + |---|---|---|---|
+    + | Objetivo 1 · Predecir `sin_camara` | AUC: regla top 0,862, LR 0,825 | AUC: regla top 0,684, LR 0,698 | parcial |
+    + | Objetivo 2 · Reducir la fracción para 80 % frente al azar y a la regla | Regla top 37,8 % (IC 26,6 % a 46,7 %) frente a 80 % al azar | Regla top 79,
+    + | Objetivo 3 · Punto de operación con recall objetivo | Regla top: recall 0,806 con 37,9 % de las cajas | Regla top: recall 0,590 con 33,1 % de las ca
+    + | Objetivo 4 · Estabilidad, calibración y equidad | AUC mínimo por fold: 0,821 (regla), 0,811 (LR) | Sin folds | parcial |
+    + <details>
+    + <summary>Detalle de cada objetivo (qué pasa y qué no pasa)</summary>
+    + </details>
+    + ### 12.1 Solución elegida y justificación (IE12)
+    + > La solución elegida es la regla «menos puntos top» en dos pasos (auditar cámaras y luego ordenar la cola), porque ninguna alternativa más compleja l
+    + Los criterios se fijaron antes de ver resultados ([`plan_v3.md`](artefactos_ep3/plan_v3.md)): O1 AUC mínimo y PR-AUC sobre la prevalencia; O2 «vale la
+    + | Alternativa | O1 | O2 | O3 | O4 | Dif. AUC frente a la regla (IC) | Veredicto |
+    + |---|---|---|---|---|---|---|
+    + | Regla de una línea (puntos del sensor superior) | sí | no | sí | no | referencia | elegida (la más simple) |
+    + | Regresión logística con 3 variables | sí | no | sí | no | -0,015 (-0,022 a -0,003) | peor que la regla |
+    + | Regresión logística con 16 variables | sí | no | sí | no | -0,026 (-0,038 a -0,004) | peor que la regla |
+    + | Random Forest | sí | no | sí | no | -0,025 (-0,048 a -0,004) | peor que la regla |
+    + | HistGradientBoosting | sí | no | sí | no | -0,028 (-0,044 a -0,010) | peor que la regla |
+    + | XGBoost | sí | no | sí | no | -0,023 (-0,039 a -0,004) | peor que la regla |
+    + | LightGBM | sí | no | sí | no | -0,028 (-0,044 a -0,009) | peor que la regla |
+    + | E1 · voto suave | sí | no | sí | no | -0,020 (-0,033 a -0,002) | peor que la regla |
+    + | E2 · promedio de rangos con la regla | sí | no | sí | no | +0,001 (-0,005 a +0,008) | no distinguible de la regla |
+    + | E3 · apilamiento de cinco modelos | sí | no | sí | no | -0,034 (-0,047 a -0,017) | peor que la regla |
+    + | E4 · apilamiento por tres vistas | sí | no | sí | no | -0,050 (-0,073 a -0,024) | peor que la regla |
+    + | Versión de un paso (brazo A) | — | — | — | — | — | fracción para 80 %: 44,6 % |
+    + | Versión de dos pasos (brazo C) | — | — | — | — | — | fracción para 80 %: 29,6 % (en muestra: 41 segmentos, parámetros del detector ajustados con los
+    + Fuente: [`f6_tabla_seleccion.csv`](artefactos_ep3/f6_tabla_seleccion.csv) y [`f6_seleccion.json`](artefactos_ep3/f6_seleccion.json). Ningún candidato 
+    + **Qué decidimos y por qué.** Ningún candidato cumple O4 (regla de reserva DEV-2); entre los 11 candidatos que cumplen O1 y O3, el mejor AUC OOF es 0,8
+    + **Por qué es la óptima.** Empata en desempeño con todo lo más complejo, se explica en una línea, no tiene hiperparámetros que se desajusten y es audit
+    + **Por qué no un modelo más complejo.** Probamos cinco algoritmos, una regresión logística de tres variables y cuatro ensambles (uno de ellos con la re
+13. Ética, sesgos y privacidad: 8 -> 10 líneas; 2 agregadas o cambiadas, 0 quitadas o cambiadas.
+    + **La aplicación (Lente).** Procesa tablas derivadas por caja (identificadores de objeto y marcas de tiempo, sin imágenes). «Puntuar datos nuevos» trab
+14. Estructura del repositorio, reproducción y pruebas: 56 -> 58 líneas; 2 agregadas o cambiadas, 0 quitadas o cambiadas.
+    + **Pruebas de EP3.** 398 pruebas recolectadas en `tests/ep3` (`scripts/ep3/contar_pruebas.py`); última corrida (`scripts/ep3/medir_pruebas_ep3.py`): 39
+15. Mapa de la pauta, referencias, equipo y limitaciones: 29 -> 30 líneas; 2 agregadas o cambiadas, 1 quitadas o cambiadas.
+    - La pauta es la de «Evaluación Parcial N°2» de MLY1101 Machine Learning (archivo «EP2_Instrucciones y Pauta PRESENTACIÓN_Estudiante.pdf»): actividad gr
+    + El mapa completo de EP3 y de la Evaluación Final (IE1 a IE12, con sus pesos) está al inicio de este README; esta sección conserva el de EP2. La pauta 
+[NUEVA] 16. Lente: la aplicación y su despliegue: 58 líneas.
+[NUEVA] 17. Mejoras incorporadas desde EP1 y EP2: 14 líneas.
+
+CIFRAS: 429 distintas antes, 576 ahora; antes y ausentes ahora: 1
+    28.
+
+ADVERTENCIAS (post hoc, sin validación con datos nuevos, en muestra, supuesto): 20 menciones antes, 43 ahora.
+    «post hoc, no pre-declarado»: antes 14, ahora 20
+    «Siempre con una persona que revisa y decide»: antes 1, ahora 1
+    «no está en git»: antes 0, ahora 0
+    «licencia no comercial»: antes 3, ahora 4

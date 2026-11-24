@@ -1,0 +1,53 @@
+{
+ "marca_normal": {
+  "barra": {
+   "izquierda": 0,
+   "arriba": 0,
+   "derecha": 236,
+   "abajo": 768
+  },
+  "logo": {
+   "izquierda": 35,
+   "arriba": 15,
+   "derecha": 231,
+   "abajo": 49
+  },
+  "cabecera": {
+   "izquierda": 20,
+   "arriba": 0,
+   "derecha": 215,
+   "abajo": 56
+  },
+  "titulo": "Lente",
+  "iconos": [
+   "http://localhost:8531/media/21d41f391397c0d0153f195dd6cd6ede"
+  ],
+  "texto_alt": "Logo",
+  "cabe_en_la_barra": true
+ },
+ "pie": {
+  "x": 266,
+  "y": 1067.640625,
+  "w": 1070,
+  "h": 49.28125,
+  "parrafos": [
+   {
+    "texto": "This application was made using the Waymo Open Dat",
+    "fuente_px": 12,
+    "color": "rgb(134, 150, 176)",
+    "lineas": 1
+   },
+   {
+    "texto": "Solución v3 congelada el 2026-11-14. Datos de desa",
+    "fuente_px": 12,
+    "color": "rgb(134, 150, 176)",
+    "lineas": 1
+   }
+  ],
+  "ancho_ventana": 1366
+ },
+ "cola_agrupada": {
+  "archivo": "f26_cola_agrupada.png",
+  "nota": "capturada con un clic real en «Agrupar por objeto»; el valor por defecto de la página no cambia"
+ }
+}

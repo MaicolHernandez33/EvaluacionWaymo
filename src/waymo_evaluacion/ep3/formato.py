@@ -246,13 +246,35 @@ def tabla_legible(df: Any, decimales: int = 3, tabla: str = "") -> Any:
             elif str(c) in ("etapa", "borde"):
                 col = texto.map(lambda x: VALORES_TEXTO.get(x, x))
             else:
-                col = texto.str.replace("_", " ", regex=False).map(acentuar)
+                col = texto.str.replace("_", " ", regex=False).map(acentuar).map(nombre_visible)
         else:
             col = s
         nombre = ren.get(str(c)) or _EVIDENCIA.get(str(c)) or _ENCABEZADOS.get(str(c)) or nombre_columna(str(c))
         usados[nombre] = usados.get(nombre, 0) + 1
         out[nombre if usados[nombre] == 1 else f"{nombre} ({usados[nombre]})"] = col
     return out
+
+
+NOMBRE_REGLA_VISIBLE = "regla de puntos del sensor superior"
+
+
+def nombre_visible(texto: Any) -> Any:
+    """Texto visible (F23): el candidato interno «Regla top» (clave de los datos, que no cambia) se muestra como «regla de puntos del sensor superior».
+
+    Va con mayúscula inicial si abre el texto o la celda (o sigue a un punto o a una barra de tabla) y en minúscula dentro de una frase; se reconoce «Regla top» y «regla top». Un texto sin ese nombre sale igual; lo que no es texto, también.
+    """
+    if not isinstance(texto, str):
+        return texto
+    texto = re.sub(r"\bvista[ _](obs|tam|pos)\b", lambda m: NOMBRES_COMPONENTE["vista_" + m.group(1)], texto, flags=re.IGNORECASE)      # F34: «vista obs» se muestra «vista de observación»
+    if "regla top" not in texto.lower():
+        return texto
+
+    def _cambiar(m: "re.Match[str]") -> str:
+        antes = texto[:m.start()].rstrip(" \n")
+        inicio = (not antes) or antes[-1] in ".!?|" or texto[:m.start()].rstrip(" ").endswith(chr(10))
+        return NOMBRE_REGLA_VISIBLE[0].upper() + NOMBRE_REGLA_VISIBLE[1:] if inicio else NOMBRE_REGLA_VISIBLE
+
+    return re.sub(r"regla top", _cambiar, texto, flags=re.IGNORECASE)
 
 
 def sin_corte(texto: str) -> str:
@@ -266,7 +288,7 @@ NOMBRES_COMPONENTE = {"vista_obs": "vista de observación", "vista_tam": "vista 
 def nombre_componente(x: Any) -> str:
     """Nombre legible de un componente de ensamble (F21-P4): «vista_obs» pasa a «vista de observación»; el resto cambia el guion bajo por espacio."""
     s = str(x)
-    return NOMBRES_COMPONENTE.get(s, s.replace("_", " "))
+    return nombre_visible(NOMBRES_COMPONENTE.get(s, s.replace("_", " ")))
 
 
 PX_POR_CARACTER = 5.6       # ancho medio de un carácter del encabezado de la tabla (letra de 13 px; medido sobre las capturas de F21: 5,1 a 5,6 px)
@@ -284,3 +306,45 @@ def anchos_columnas(df: Any, minimo: int = 56, maximo: int = 460) -> dict[str, i
         cuerpo = 0 if cuerpo != cuerpo else cuerpo
         out[str(c)] = int(round(min(max(enc, cuerpo * PX_POR_CARACTER_CUERPO + PX_MARGEN_CELDA, minimo), maximo)))
     return out
+
+
+# ------------------------------------------------------------------------------------------------------------ F34: signo menos único, identificador de segmento y textos visibles
+MENOS = "−"       # «−» (U+2212): el único signo menos de tablas, ejes y gráficos de Validación y Puntuar
+
+
+def menos(texto: str) -> str:
+    """Cambia el guion de los números negativos por el signo menos («-0,011» -> «−0,011»); no toca guiones entre palabras ni rangos como «2-5»."""
+    return re.sub(r"(?<![\w\d)])-(?=\d)", MENOS, str(texto))
+
+
+def decimal_signado(x: Any, d: int = 3) -> str:
+    """Diferencia con signo explícito: «+0,005», «−0,011» y «0,000» (el cero redondeado no lleva signo)."""
+    s = decimal(x, d)
+    if s == "—":
+        return s
+    if s.startswith("-"):
+        return MENOS + s[1:]
+    return s if float(s.replace(".", "").replace(",", ".")) == 0 else "+" + s
+
+
+def segmento_corto(texto: Any) -> Any:
+    """Identificador de segmento visible: «…534050» (los 6 últimos dígitos) en lugar de los 12. Es el formato del resto de las páginas; los CSV conservan el identificador completo."""
+    if not isinstance(texto, str):
+        return texto
+    return re.sub(r"(?<!\d)\d{12}(?!\d)", lambda m: "…" + m.group(0)[-6:], texto)
+
+
+_TILDES_VISIBLES = (("maximo", "máximo"), ("minimo", "mínimo"), ("Maximo", "Máximo"), ("Minimo", "Mínimo"), ("atipicas", "atípicas"), ("atipicos", "atípicos"), ("atipica", "atípica"),
+                    ("camara", "cámara"), ("Camara", "Cámara"), ("analisis", "análisis"))
+
+
+def texto_visible(texto: Any) -> Any:
+    """Texto de una celda tal como se muestra: con las tildes que faltan en los datos («maximo» -> «máximo»), el identificador de segmento corto y el signo menos único.
+
+    Solo cambia lo que se ve; los nombres de columnas y de archivos no se tocan."""
+    if not isinstance(texto, str):
+        return texto
+    texto = re.sub(r"\bsin[_ ]camara\b", "sin pareja", texto)                       # el vocabulario de la página: «sin pareja», no el nombre interno de la columna
+    for a, b in _TILDES_VISIBLES:
+        texto = re.sub(rf"\b{a}\b", b, texto)
+    return menos(segmento_corto(texto))

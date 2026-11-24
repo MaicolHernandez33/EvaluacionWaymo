@@ -1,0 +1,634 @@
+{
+ "ancho": 1366,
+ "resumen": {
+  "umbral": 4.5,
+  "vistas": 14,
+  "textos_medidos": 1226,
+  "textos_por_debajo": 0,
+  "falsos_positivos_del_dom_descartados_por_pixeles": 5,
+  "razon_minima_dom": 5.42,
+  "notas_muestreadas": 53,
+  "razon_minima_en_pixeles": 5.67
+ },
+ "paginas": [
+  {
+   "vista": "Resumen",
+   "textos_medidos": 122,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Cola de revisión",
+   "textos_medidos": 71,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": [
+    {
+     "texto": "20",
+     "razon_dom": 1.28,
+     "razon_px": 8.46
+    }
+   ]
+  },
+  {
+   "vista": "Cola de revisión|Cola de cajas",
+   "textos_medidos": 71,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": [
+    {
+     "texto": "20",
+     "razon_dom": 1.28,
+     "razon_px": 8.46
+    }
+   ]
+  },
+  {
+   "vista": "Explica una caja",
+   "textos_medidos": 107,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": [
+    {
+     "texto": "50",
+     "razon_dom": 1.28,
+     "razon_px": 14.59
+    },
+    {
+     "texto": "60",
+     "razon_dom": 1.28,
+     "razon_px": 8.46
+    },
+    {
+     "texto": "25",
+     "razon_dom": 1.28,
+     "razon_px": 8.46
+    }
+   ]
+  },
+  {
+   "vista": "Auditoría de cámaras",
+   "textos_medidos": 92,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Puntuar datos nuevos",
+   "textos_medidos": 69,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Ética y límites",
+   "textos_medidos": 39,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Ayuda y glosario",
+   "textos_medidos": 78,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Validación|Hiperparámetros",
+   "textos_medidos": 74,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Validación|Ensambles",
+   "textos_medidos": 68,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Validación|Generalización",
+   "textos_medidos": 93,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Validación|Selección",
+   "textos_medidos": 163,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Validación|No supervisado",
+   "textos_medidos": 84,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  },
+  {
+   "vista": "Validación|En muestra",
+   "textos_medidos": 95,
+   "razon_minima": 5.42,
+   "por_debajo_de_4_5": [],
+   "n_por_debajo": 0,
+   "falsos_positivos_del_dom": []
+  }
+ ],
+ "notas_en_pixeles": [
+  {
+   "nota": "Las cajas con igual probabilidad se ordenan por se",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Resumen"
+  },
+  {
+   "nota": "Útil para repartir el trabajo del turno.",
+   "fondo_px": "#121c30",
+   "texto_px": "#8696b0",
+   "razon_px": 5.67,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Resumen"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Resumen"
+  },
+  {
+   "nota": "Las cifras de arriba no cambian con los filtros.",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Cola de revisión"
+  },
+  {
+   "nota": "Mostrando 1 a 50 de 15.726 cajas · página 1 de 315",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Cola de revisión"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Cola de revisión"
+  },
+  {
+   "nota": "Las cifras de arriba no cambian con los filtros.",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Cola de revisión|Cola de cajas"
+  },
+  {
+   "nota": "Mostrando 1 a 50 de 15.726 cajas · página 1 de 315",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Cola de revisión|Cola de cajas"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Cola de revisión|Cola de cajas"
+  },
+  {
+   "nota": "Escala comprimida: cada paso multiplica los puntos",
+   "fondo_px": "#121c30",
+   "texto_px": "#8696b0",
+   "razon_px": 5.67,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Explica una caja"
+  },
+  {
+   "nota": "El 59 % de las cajas de la cola queda antes que es",
+   "fondo_px": "#121c30",
+   "texto_px": "#8696b0",
+   "razon_px": 5.67,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Explica una caja"
+  },
+  {
+   "nota": "Las demás variables quedan en la mediana de los da",
+   "fondo_px": "#121c30",
+   "texto_px": "#8696b0",
+   "razon_px": 5.67,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Explica una caja"
+  },
+  {
+   "nota": "Es una descripción (post hoc) y no mejora la predi",
+   "fondo_px": "#121c30",
+   "texto_px": "#8696b0",
+   "razon_px": 5.67,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Explica una caja"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Explica una caja"
+  },
+  {
+   "nota": "Las cifras salen de los 41 segmentos de desarrollo",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Auditoría de cámaras"
+  },
+  {
+   "nota": "Se ven 10 de 41 segmentos, de los más graves a los",
+   "fondo_px": "#121c30",
+   "texto_px": "#8696b0",
+   "razon_px": 5.67,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Auditoría de cámaras"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Auditoría de cámaras"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Puntuar datos nuevos"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Ética y límites"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Ayuda y glosario"
+  },
+  {
+   "nota": "peatones y ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Hiperparámetros"
+  },
+  {
+   "nota": "sin par en ninguna cámara",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Hiperparámetros"
+  },
+  {
+   "nota": "validación cruzada por segmentos",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Hiperparámetros"
+  },
+  {
+   "nota": "la regla es poco confiable en ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Hiperparámetros"
+  },
+  {
+   "nota": "Cambio de PR-AUC al optimizar los hiperparámetros ",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Hiperparámetros"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Hiperparámetros"
+  },
+  {
+   "nota": "peatones y ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Ensambles"
+  },
+  {
+   "nota": "sin par en ninguna cámara",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Ensambles"
+  },
+  {
+   "nota": "validación cruzada por segmentos",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Ensambles"
+  },
+  {
+   "nota": "la regla es poco confiable en ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Ensambles"
+  },
+  {
+   "nota": "Diferencia de AUC entre cada ensamble y su mejor c",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Ensambles"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Ensambles"
+  },
+  {
+   "nota": "peatones y ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Generalización"
+  },
+  {
+   "nota": "sin par en ninguna cámara",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Generalización"
+  },
+  {
+   "nota": "validación cruzada por segmentos",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Generalización"
+  },
+  {
+   "nota": "la regla es poco confiable en ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Generalización"
+  },
+  {
+   "nota": "Punto azul: AUC en validación cruzada por segmento",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Generalización"
+  },
+  {
+   "nota": "peatones y ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Selección"
+  },
+  {
+   "nota": "sin par en ninguna cámara",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Selección"
+  },
+  {
+   "nota": "validación cruzada por segmentos",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Selección"
+  },
+  {
+   "nota": "la regla es poco confiable en ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|Selección"
+  },
+  {
+   "nota": "peatones y ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|No supervisado"
+  },
+  {
+   "nota": "sin par en ninguna cámara",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|No supervisado"
+  },
+  {
+   "nota": "validación cruzada por segmentos",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|No supervisado"
+  },
+  {
+   "nota": "la regla es poco confiable en ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|No supervisado"
+  },
+  {
+   "nota": "Proporción de cajas sin pareja en cada tipo de cas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|No supervisado"
+  },
+  {
+   "nota": "This application was made using the Waymo Open Dat",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|No supervisado"
+  },
+  {
+   "nota": "peatones y ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|En muestra"
+  },
+  {
+   "nota": "sin par en ninguna cámara",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|En muestra"
+  },
+  {
+   "nota": "validación cruzada por segmentos",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|En muestra"
+  },
+  {
+   "nota": "la regla es poco confiable en ciclistas",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|En muestra"
+  },
+  {
+   "nota": "Fracción de las cajas que hay que revisar para enc",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|En muestra"
+  },
+  {
+   "nota": "Horas para encontrar el 80 % de las cajas sin pare",
+   "fondo_px": "#0b1220",
+   "texto_px": "#8696b0",
+   "razon_px": 6.24,
+   "color_css": "rgb(134, 150, 176)",
+   "opacidad_css": "1",
+   "vista": "Validación|En muestra"
+  }
+ ]
+}
