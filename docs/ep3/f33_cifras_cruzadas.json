@@ -1,0 +1,94 @@
+{
+ "esperadas": {
+  "cajas a revisar (20 %, dos pasos)": "15.726",
+  "70 de cada 100 (dos pasos, en muestra)": "70 de cada 100",
+  "62 de cada 100 (un paso, en muestra)": "62 de cada 100",
+  "horas estimadas (20 s por caja, supuesto)": "87,4 h",
+  "1.945 cajas afectadas": "1.945",
+  "1.565 sin pareja": "1.565",
+  "21,2 % de las cajas sin pareja (prevalencia, indicador del Resumen)": "21,2 %",
+  "80,5 % sin pareja entre las cajas afectadas (Auditoría)": "80,5 %",
+  "tamaño de la cola (15.726 de 78.626)": "78.626",
+  "4.742 cajas empatadas en la prioridad máxima (Cola y Explica)": "4.742"
+ },
+ "filas": [
+  {
+   "cifra": "cajas a revisar (20 %, dos pasos)",
+   "valor_de_la_funcion": "15.726",
+   "paginas_donde_aparece": [
+    "Cola de revisión"
+   ]
+  },
+  {
+   "cifra": "70 de cada 100 (dos pasos, en muestra)",
+   "valor_de_la_funcion": "70 de cada 100",
+   "paginas_donde_aparece": [
+    "Cola de revisión"
+   ]
+  },
+  {
+   "cifra": "62 de cada 100 (un paso, en muestra)",
+   "valor_de_la_funcion": "62 de cada 100",
+   "paginas_donde_aparece": [
+    "Cola de revisión"
+   ]
+  },
+  {
+   "cifra": "horas estimadas (20 s por caja, supuesto)",
+   "valor_de_la_funcion": "87,4 h",
+   "paginas_donde_aparece": [
+    "Cola de revisión"
+   ]
+  },
+  {
+   "cifra": "1.945 cajas afectadas",
+   "valor_de_la_funcion": "1.945",
+   "paginas_donde_aparece": [
+    "Auditoría de cámaras"
+   ]
+  },
+  {
+   "cifra": "1.565 sin pareja",
+   "valor_de_la_funcion": "1.565",
+   "paginas_donde_aparece": [
+    "Auditoría de cámaras"
+   ]
+  },
+  {
+   "cifra": "21,2 % de las cajas sin pareja (prevalencia, indicador del Resumen)",
+   "valor_de_la_funcion": "21,2 %",
+   "paginas_donde_aparece": [
+    "Resumen"
+   ]
+  },
+  {
+   "cifra": "80,5 % sin pareja entre las cajas afectadas (Auditoría)",
+   "valor_de_la_funcion": "80,5 %",
+   "paginas_donde_aparece": []
+  },
+  {
+   "cifra": "tamaño de la cola (15.726 de 78.626)",
+   "valor_de_la_funcion": "78.626",
+   "paginas_donde_aparece": [
+    "Resumen",
+    "Cola de revisión"
+   ]
+  },
+  {
+   "cifra": "4.742 cajas empatadas en la prioridad máxima (Cola y Explica)",
+   "valor_de_la_funcion": "4.742",
+   "paginas_donde_aparece": [
+    "Cola de revisión",
+    "Explica una caja"
+   ]
+  }
+ ],
+ "resumen_auditoria": {
+  "celdas_total": 41,
+  "celdas_marcadas": 2,
+  "cajas_afectadas": 1945,
+  "sin_pareja": 1565,
+  "pct_sin_pareja": 0.8046272493573264,
+  "segmentos": 41
+ }
+}

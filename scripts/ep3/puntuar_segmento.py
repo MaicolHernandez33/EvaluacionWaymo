@@ -28,7 +28,7 @@ def main() -> None:
     ap.add_argument("--asociacion", type=Path)
     ap.add_argument("--artefactos", type=Path, default=RAIZ / "data/06_models_ep3")
     ap.add_argument("--salida", type=Path)
-    ap.add_argument("--ocultar-ids", action="store_true", help="modo presentacion: no escribe laser_object_id ni marcas de tiempo")
+    ap.add_argument("--ocultar-ids", action="store_true", help="no escribe laser_object_id ni marcas de tiempo en las listas")
     a = ap.parse_args()
     art = cargar_artefactos(a.artefactos)
     asoc = pd.read_parquet(a.asociacion) if a.asociacion else None

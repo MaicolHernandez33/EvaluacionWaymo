@@ -1,0 +1,56 @@
+{
+ "fila_0": "cancelSegmento …998801 · cámara 3, frontal der.",
+ "estado_inicial": {
+  "ruta": "/",
+  "anillo": "…998801",
+  "celda": null,
+  "caja": null,
+  "selectores": [
+   "Rol",
+   "",
+   "",
+   ""
+  ],
+  "titulo": "Estado de las cámaras"
+ },
+ "auditar_0_llego": true,
+ "auditar_0": {
+  "ruta": "/auditoria",
+  "anillo": null,
+  "celda": "Celda resaltada en el mapa: segmento …998801, cámara 3 (frontal der.). Llegó desde «Auditar» del Resumen o con un clic en esta fila.",
+  "caja": null,
+  "selectores": [
+   "Rol",
+   "Grupo de segmentos",
+   "Orden"
+  ],
+  "titulo": "Auditoría de cámaras"
+ },
+ "fila_1": "cancelSegmento …534050 · cámara 5, lateral der.",
+ "anillo_tras_elegir_fila_1": "…534050",
+ "auditar_1_llego": true,
+ "auditar_1": {
+  "ruta": "/auditoria",
+  "anillo": null,
+  "celda": "Celda resaltada en el mapa: segmento …534050, cámara 5 (lateral der.). Llegó desde «Auditar» del Resumen o con un clic en esta fila.",
+  "caja": null,
+  "selectores": [
+   "Rol",
+   "Grupo de segmentos",
+   "Orden"
+  ],
+  "titulo": "Auditoría de cámaras"
+ },
+ "abrir_0_llego": true,
+ "abrir_0": {
+  "ruta": "/explica",
+  "anillo": null,
+  "celda": null,
+  "caja": "Valores cargados desde el Resumen: caja j8GQ-01, prioridad 1.",
+  "selectores": [
+   "Rol"
+  ],
+  "titulo": "Explica una caja"
+ },
+ "conclusion": "los botones navegan con el contexto elegido"
+}

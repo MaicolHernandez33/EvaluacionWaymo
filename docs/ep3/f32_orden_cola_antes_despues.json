@@ -1,0 +1,34 @@
+{
+ "dos": {
+  "cajas": 15726,
+  "positivos_total_antes": 10464,
+  "positivos_total_despues": 10464,
+  "positivos_en_las_primeras_100_antes": 94,
+  "positivos_en_las_primeras_100_despues": 76,
+  "positivos_en_las_primeras_500_antes": 490,
+  "positivos_en_las_primeras_500_despues": 406,
+  "positivos_en_las_primeras_1000_antes": 950,
+  "positivos_en_las_primeras_1000_despues": 887,
+  "positivos_en_las_primeras_5000_antes": 4452,
+  "positivos_en_las_primeras_5000_despues": 4524,
+  "prob_media_primeras_1000_antes": 0.8634,
+  "prob_media_primeras_1000_despues": 0.8941,
+  "mismo_conjunto": true
+ },
+ "uno": {
+  "cajas": 16115,
+  "positivos_total_antes": 10553,
+  "positivos_total_despues": 10553,
+  "positivos_en_las_primeras_100_antes": 94,
+  "positivos_en_las_primeras_100_despues": 76,
+  "positivos_en_las_primeras_500_antes": 490,
+  "positivos_en_las_primeras_500_despues": 407,
+  "positivos_en_las_primeras_1000_antes": 950,
+  "positivos_en_las_primeras_1000_despues": 888,
+  "positivos_en_las_primeras_5000_antes": 4458,
+  "positivos_en_las_primeras_5000_despues": 4525,
+  "prob_media_primeras_1000_antes": 0.8634,
+  "prob_media_primeras_1000_despues": 0.8943,
+  "mismo_conjunto": true
+ }
+}

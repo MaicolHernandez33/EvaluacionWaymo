@@ -1,0 +1,88 @@
+{
+ "carpeta": "10023947602400723454_1120_000_1140_000",
+ "camara": 3,
+ "antes": {
+  "cajas_puntuadas": 6096,
+  "celdas_marcadas": 0,
+  "cajas_en_celdas_marcadas": 0,
+  "cajas_en_cola": 6096,
+  "tiene_asociacion": true,
+  "sin_pareja": 1174,
+  "pct_sin_pareja": 19.26,
+  "por_camara": {
+   "c1": {
+    "cajas_en_rango": 3012,
+    "tasa": 0.83
+   },
+   "c2": {
+    "cajas_en_rango": 1221,
+    "tasa": 0.751
+   },
+   "c3": {
+    "cajas_en_rango": 929,
+    "tasa": 0.874
+   },
+   "c4": {
+    "cajas_en_rango": 923,
+    "tasa": 0.737
+   },
+   "c5": {
+    "cajas_en_rango": 0,
+    "tasa": null
+   }
+  },
+  "celdas": []
+ },
+ "intentos": [
+  {
+   "fraccion": 0.9,
+   "cajas_en_la_celda": 929,
+   "tasa_de_parejas": 0.086,
+   "celdas_marcadas": [
+    "3 (frontal der.)"
+   ],
+   "marcada_exactamente_esa": true,
+   "cajas_en_celdas_marcadas": 929,
+   "pct_sin_pareja": 27.48,
+   "cajas_en_cola": 5167
+  },
+  {
+   "fraccion": 0.95,
+   "cajas_en_la_celda": 929,
+   "tasa_de_parejas": 0.045,
+   "celdas_marcadas": [
+    "3 (frontal der.)"
+   ],
+   "marcada_exactamente_esa": true,
+   "cajas_en_celdas_marcadas": 929,
+   "pct_sin_pareja": 27.97,
+   "cajas_en_cola": 5167
+  },
+  {
+   "fraccion": 0.98,
+   "cajas_en_la_celda": 929,
+   "tasa_de_parejas": 0.018,
+   "celdas_marcadas": [
+    "3 (frontal der.)"
+   ],
+   "marcada_exactamente_esa": true,
+   "cajas_en_celdas_marcadas": 929,
+   "pct_sin_pareja": 28.13,
+   "cajas_en_cola": 5167
+  },
+  {
+   "fraccion": 1.0,
+   "cajas_en_la_celda": 929,
+   "tasa_de_parejas": 0.0,
+   "celdas_marcadas": [
+    "3 (frontal der.)"
+   ],
+   "marcada_exactamente_esa": true,
+   "cajas_en_celdas_marcadas": 929,
+   "pct_sin_pareja": 28.36,
+   "cajas_en_cola": 5167
+  }
+ ],
+ "fraccion_elegida": 0.9,
+ "criterio": "la menor fraccion de {0,90; 0,95; 0,98; 1,0} que marca exactamente esa celda y solo esa (sin celdas marcadas antes)"
+}

@@ -1,0 +1,144 @@
+{
+ "10023947602400723454_1120_000_1140_000": {
+  "cajas_puntuadas": 6096,
+  "celdas_marcadas": 0,
+  "cajas_en_celdas_marcadas": 0,
+  "cajas_en_cola": 6096,
+  "tiene_asociacion": true,
+  "sin_pareja": 1174,
+  "pct_sin_pareja": 19.26,
+  "por_camara": {
+   "c1": {
+    "cajas_en_rango": 3012,
+    "tasa": 0.83
+   },
+   "c2": {
+    "cajas_en_rango": 1221,
+    "tasa": 0.751
+   },
+   "c3": {
+    "cajas_en_rango": 929,
+    "tasa": 0.874
+   },
+   "c4": {
+    "cajas_en_rango": 923,
+    "tasa": 0.737
+   },
+   "c5": {
+    "cajas_en_rango": 0,
+    "tasa": null
+   }
+  },
+  "celdas": []
+ },
+ "18136695827203527782_2860_000_2880_000": {
+  "cajas_puntuadas": 6181,
+  "celdas_marcadas": 0,
+  "cajas_en_celdas_marcadas": 0,
+  "cajas_en_cola": 6181,
+  "tiene_asociacion": true,
+  "sin_pareja": 2228,
+  "pct_sin_pareja": 36.05,
+  "por_camara": {
+   "c1": {
+    "cajas_en_rango": 2891,
+    "tasa": 0.488
+   },
+   "c2": {
+    "cajas_en_rango": 1526,
+    "tasa": 0.573
+   },
+   "c3": {
+    "cajas_en_rango": 794,
+    "tasa": 0.928
+   },
+   "c4": {
+    "cajas_en_rango": 753,
+    "tasa": 0.776
+   },
+   "c5": {
+    "cajas_en_rango": 488,
+    "tasa": 0.871
+   }
+  },
+  "celdas": []
+ },
+ "2577669988012459365_1640_000_1660_000": {
+  "cajas_puntuadas": 6474,
+  "celdas_marcadas": 1,
+  "cajas_en_celdas_marcadas": 1677,
+  "cajas_en_cola": 4797,
+  "tiene_asociacion": true,
+  "sin_pareja": 2046,
+  "pct_sin_pareja": 31.6,
+  "por_camara": {
+   "c1": {
+    "cajas_en_rango": 4095,
+    "tasa": 0.842
+   },
+   "c2": {
+    "cajas_en_rango": 302,
+    "tasa": 0.96
+   },
+   "c3": {
+    "cajas_en_rango": 1677,
+    "tasa": 0.0
+   },
+   "c4": {
+    "cajas_en_rango": 75,
+    "tasa": 0.947
+   },
+   "c5": {
+    "cajas_en_rango": 587,
+    "tasa": 0.862
+   }
+  },
+  "celdas": [
+   {
+    "camara": "3 (frontal der.)",
+    "tasa": 0.0,
+    "cajas_en_rango": 1677,
+    "cajas_afectadas": 1677
+   }
+  ]
+ },
+ "9110125340505914899_380_000_400_000": {
+  "cajas_puntuadas": 1715,
+  "celdas_marcadas": 1,
+  "cajas_en_celdas_marcadas": 268,
+  "cajas_en_cola": 1447,
+  "tiene_asociacion": true,
+  "sin_pareja": 316,
+  "pct_sin_pareja": 18.43,
+  "por_camara": {
+   "c1": {
+    "cajas_en_rango": 779,
+    "tasa": 0.959
+   },
+   "c2": {
+    "cajas_en_rango": 255,
+    "tasa": 0.831
+   },
+   "c3": {
+    "cajas_en_rango": 453,
+    "tasa": 0.951
+   },
+   "c4": {
+    "cajas_en_rango": 0,
+    "tasa": null
+   },
+   "c5": {
+    "cajas_en_rango": 300,
+    "tasa": 0.0
+   }
+  },
+  "celdas": [
+   {
+    "camara": "5 (lateral der.)",
+    "tasa": 0.0,
+    "cajas_en_rango": 300,
+    "cajas_afectadas": 268
+   }
+  ]
+ }
+}

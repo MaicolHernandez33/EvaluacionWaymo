@@ -139,7 +139,7 @@ def test_linea_de_ep1_a_ep2_solo_con_hechos_de_los_archivos(docs):
     linea = [l for l in _sec(readme, 8).splitlines() if l.startswith("**De EP1 a EP2.**")][0]
     ep1 = (R / "docs/README_EP1.md").read_text(encoding="utf-8")
     assert "Random Forest o XGBoost como líneas base, con SMOTE" in ep1 and "Random Forest o XGBoost con SMOTE para `tiene_camara`" in linea
-    assert iu.find_spec("xgboost") is None and iu.find_spec("imblearn") is None
+    assert iu.find_spec("imblearn") is None                                                                       # F38: el entorno de EP3 trae xgboost; la afirmación de EP2 se comprueba en requirements.txt y en los notebooks (líneas siguientes)
     assert "xgboost" not in (R / "requirements.txt").read_text(encoding="utf-8").lower()
     for nb in ("07_decision_target_ep2", "08_analisis_observabilidad_sin_camara", "09_modelos_supervisados_sin_camara", "09b_enmiendas_plan_test_v2", "10_evaluacion_final_sin_camara"):
         celdas = json.loads((R / f"notebooks/{nb}.ipynb").read_text(encoding="utf-8"))["cells"]

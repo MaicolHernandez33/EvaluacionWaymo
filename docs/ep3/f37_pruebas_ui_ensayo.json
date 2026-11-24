@@ -1,0 +1,324 @@
+{
+ "datos": "C:\\Users\\maico\\AppData\\Local\\Temp\\claude\\307681f0e0e403f2\\efdaaac4-f7e0-4b36-ad65-603216fa382f\\scratchpad\\ensayo_demo",
+ "carpetas": {
+  "A": "A_real_sin_hueco",
+  "B": "B_real_sin_hueco_2",
+  "C": "C_hueco",
+  "D": "D_solo_lidar_box"
+ },
+ "pruebas": {
+  "A_completo": {
+   "segundos": [
+    0.77,
+    0.78,
+    0.77
+   ],
+   "mediana": 0.77,
+   "peor": 0.78,
+   "resultado": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …476024",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "0 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "0",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "0",
+     "no hay cajas en celdas marcadas"
+    ],
+    "excepcion": false
+   }
+  },
+  "C_completo": {
+   "segundos": [
+    0.75,
+    0.75,
+    0.76
+   ],
+   "mediana": 0.75,
+   "peor": 0.76,
+   "resultado": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …958272",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "1 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "794",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "541",
+     "68,1 % de las cajas de esas celdas"
+    ],
+    "excepcion": false
+   }
+  },
+  "D_solo_archivo_1": {
+   "segundos": 0.67,
+   "resultado": {
+    "resultado": true,
+    "avisos": [
+     "Sin archivo de asociación: se puntúan las cajas pero no se puede buscar huecos de cámara ni conocer sin pareja"
+    ],
+    "lineas": [
+     "Segmento …958272",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "—",
+     "no se buscaron: falta el archivo 2",
+     "Cajas puntuadas",
+     "6.181",
+     "peatones y ciclistas, población principal",
+     "Cajas en la cola",
+     "6.181",
+     "todas las puntuadas, sin celdas apartadas",
+     "Sin archivo de asociación: se puntúan las cajas pero no se puede buscar huecos de cámara ni conocer sin pareja"
+    ],
+    "excepcion": false
+   },
+   "celdas": "Celdas marcadas\n\n1\n2\n3\n4\n5\n\nNo se buscaron huecos de cámara: falta el archivo 2.\n\nSin el archivo 2 no se buscaron huecos de cámara ni se conoce cuáles cajas tienen pareja; las cajas sí se puntuaron y ordenaron."
+  },
+  "transiciones": {
+   "resumen_antes": "Estado de las cámaras\n\nEtiquetas 2D de peatones y ciclistas en 41 segmentos.\n\nSegmentos nuevos\n\n41\n\ncargados, sin revisar\n\nCámaras con alerta\n\n2\n\nen 2 segmentos, requieren auditoría\n\nCajas en la cola\n\n78.626\n\npeatones y ciclistas por revisar\n\nCajas sin pareja\n\n21,2 %\n\nsin par en ninguna cámara\n\nALERTAS DE CÁMARA\n\nHay 2 posibles huecos de cámara en los últimos datos sin revisar.\n\nSe revisaron 41 segmentos. Estas celdas se auditan aparte de la cola.\n\ncancel\n\nSegmento …998801 · cámara 3, frontal der.\n\nHueco · 1.677 cajas afectadas\n\nAuditar\n\ncancel\n\nSegmento …534050 · cámara 5, lateral der.\n\nHueco · 268 cajas afectadas\n\nAuditar\n\nCámaras del segmento …998801\n\n1\n2\n3\n4\n5\nSana\nX\nHueco\nSin datos\nCola de revisión\n\nQué caja revisar primero, ordenadas por probabilidad de no tener par 2D en ninguna cámara.\n\nAbrir la cola completa\n\nPRIORIDAD\nSEGMENTO\nCAJA\nCÁMARA\nCLASE\nPROB. SIN PAREJA\nACCIÓN\n1\n…196576\nj8GQ-01\n2 (frontal izq.)\nPeatón\n90,4 %\n\nAbrir\n\n2\n…196576\nQlBA-01\n1 (frontal)\nPeatón\n90,4 %\n\nAbrir\n\n3\n…196576\noKew-01\n1 (frontal)\nPeatón\n90,4 %\n\nAbrir\n\n4\n…196576\n1gkQ-05\n2 (frontal izq.)\nPeatón\n90,4 %\n\nAbrir\n\n5\n…196576\n1gkQ-06\n2 (frontal izq.)\nPeatón\n90,4 %\n\nAbrir\n\nLas cajas con igual probabilidad se ordenan por segmento y número de caja, para que la lista nunca repita filas idénticas.\n\nSegmentos con más cajas prioritarias\n\nÚtil para repartir el trabajo del turno.\n\n…958272\n1.506\n…671207\n1.327\n…942360\n1.274\n…476024\n1.217\n…297692\n1.191\n\nThis application was made using the Waymo Open Dataset, provided by Waymo LLC under the Waymo Dataset License Agreement for Non-Commercial Use (see waymo.com/open/terms).\n\nSolución v3 congelada el 2026-11-14. Datos de desarrollo, 41 segmentos.",
+   "resumen_antes_bloque": "",
+   "A": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …476024",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "0 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "0",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "0",
+     "no hay cajas en celdas marcadas"
+    ],
+    "excepcion": false
+   },
+   "A_a_C": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …958272",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "1 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "794",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "541",
+     "68,1 % de las cajas de esas celdas"
+    ],
+    "excepcion": false
+   },
+   "C_a_A": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …476024",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "0 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "0",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "0",
+     "no hay cajas en celdas marcadas"
+    ],
+    "excepcion": false
+   },
+   "mismo_archivo_otra_vez": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …476024",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "0 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "0",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "0",
+     "no hay cajas en celdas marcadas"
+    ],
+    "excepcion": false
+   },
+   "quitar_archivo_2_estado": {
+    "archivos_visibles": []
+   },
+   "quitar_archivo_2_y_subir_1": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …958272",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "1 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "794",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "541",
+     "68,1 % de las cajas de esas celdas"
+    ],
+    "excepcion": false
+   },
+   "archivo_1_primero": {
+    "resultado": true,
+    "avisos": [
+     "Sin archivo de asociación: se puntúan las cajas pero no se puede buscar huecos de cámara ni conocer sin pareja"
+    ],
+    "lineas": [
+     "Segmento …958272",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "—",
+     "no se buscaron: falta el archivo 2",
+     "Cajas puntuadas",
+     "6.181",
+     "peatones y ciclistas, población principal",
+     "Cajas en la cola",
+     "6.181",
+     "todas las puntuadas, sin celdas apartadas",
+     "Sin archivo de asociación: se puntúan las cajas pero no se puede buscar huecos de cámara ni conocer sin pareja"
+    ],
+    "excepcion": false,
+    "subidores_despues": 0
+   },
+   "archivo_2_de_otro_segmento": {
+    "resultado": false,
+    "avisos": [
+     "El archivo 2 no corresponde al archivo 1: ninguno de sus segmentos aparece en el archivo 1 (el archivo 1 trae 1 segmento y el archivo 2, 1). Revise que ambos sean del mismo segmento."
+    ],
+    "lineas": [],
+    "excepcion": false
+   },
+   "corregir_el_archivo_2": {
+    "resultado": true,
+    "avisos": [],
+    "lineas": [
+     "Segmento …476024",
+     "Procesado en memoria con la solución congelada.",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "0 de 5",
+     "segmento × cámara con posible hueco",
+     "Cajas afectadas",
+     "0",
+     "en las celdas marcadas",
+     "Sin pareja en esas celdas",
+     "0",
+     "no hay cajas en celdas marcadas"
+    ],
+    "excepcion": false
+   },
+   "no_es_parquet": {
+    "resultado": false,
+    "avisos": [
+     "El archivo «no_es_parquet.parquet» no es un parquet válido o está dañado. Se espera un archivo en formato parquet."
+    ],
+    "lineas": [],
+    "excepcion": false
+   }
+  },
+  "ejemplo": {
+   "segundos": 0.62,
+   "resultado": {
+    "resultado": true,
+    "avisos": [
+     "Sin archivo de asociación: se puntúan las cajas pero no se puede buscar huecos de cámara ni conocer sin pareja"
+    ],
+    "lineas": [
+     "Segmento …534050 ejemplo de desarrollo",
+     "Procesado en memoria con la solución congelada.",
+     "Ejemplo: segmento de desarrollo …534050, reconstruido desde las variables derivadas (no son datos crudos de Waymo).",
+     "Cargar otro segmento",
+     "download",
+     "Descargar resultados (CSV)",
+     "Celdas marcadas",
+     "—",
+     "no se buscaron: falta el archivo 2",
+     "Cajas puntuadas",
+     "1.715",
+     "peatones y ciclistas, población principal",
+     "Cajas en la cola",
+     "1.715",
+     "todas las puntuadas, sin celdas apartadas",
+     "Sin archivo de asociación: se puntúan las cajas pero no se puede buscar huecos de cámara ni conocer sin pareja"
+    ],
+    "excepcion": false
+   }
+  },
+  "resumen": {
+   "antes_sin_bloque": true,
+   "bloque": "Segmentos puntuados en esta sesión\n\nResponde: ¿Qué segmentos nuevos se puntuaron en esta sesión?\n\nSegmento\tCeldas marcadas\tCajas\tSin pareja\tHora\n…958272\t1\t6.181\t44,9 %\t22:26\n…476024\t0\t6.096\t19,3 %\t22:26\n\n2 filas\n\ndownload\n\nDescargar CSV\n\nNo forman parte de las cifras congeladas (41 segmentos de desarrollo). Se pierden al recargar la página.",
+   "todo_lo_anterior_sigue": true,
+   "lineas_nuevas": [
+    "Segmentos puntuados en esta sesión",
+    "Responde: ¿Qué segmentos nuevos se puntuaron en esta sesión?",
+    "Segmento\tCeldas marcadas\tCajas\tSin pareja\tHora",
+    "…958272\t1\t6.181\t44,9 %\t22:26",
+    "…476024\t0\t6.096\t19,3 %\t22:26",
+    "2 filas",
+    "download",
+    "Descargar CSV",
+    "No forman parte de las cifras congeladas (41 segmentos de desarrollo). Se pierden al recargar la página."
+   ],
+   "lineas_que_faltan": []
+  }
+ },
+ "tamano_mb": {
+  "A": 0.98,
+  "C": 2.07,
+  "D": 2.05,
+  "B": 2.08
+ }
+}

@@ -20,3 +20,7 @@ tests/
 *.parquet
 *.joblib
 **/__pycache__/
+
+# Datos de la demostracion en vivo (F37): nunca dentro de la imagen
+datos_demo/
+**/datos_demo/

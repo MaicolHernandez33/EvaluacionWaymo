@@ -1,0 +1,36 @@
+{
+ "viewport": [
+  1366,
+  768
+ ],
+ "anillo": {
+  "arriba": 188.21875,
+  "abajo": 476.21875,
+  "izquierda": 917.34375,
+  "derecha": 1217.34375
+ },
+ "leyenda_anillo": {
+  "arriba": 486.71875,
+  "abajo": 506.390625,
+  "izquierda": 948.859375,
+  "derecha": 1185.84375
+ },
+ "afirmacion": {
+  "arriba": 125.734375,
+  "abajo": 271.984375,
+  "izquierda": 295.5,
+  "derecha": 778.203125
+ },
+ "panel_principal": {
+  "arriba": 105.234375,
+  "abajo": 583.390625,
+  "izquierda": 272,
+  "derecha": 1320
+ },
+ "anillo_visible_completo": true,
+ "afirmacion_visible_completa": true,
+ "panel_visible_completo": true,
+ "scroll_horizontal_px": 0,
+ "alto_del_contenido": 1320,
+ "fuente_de_la_afirmacion": "Cambria, \"Palatino Linotype\", \"Book Antiqua\", Georgia, serif / 29.25px"
+}

@@ -1,0 +1,85 @@
+{
+ "ancho": 1366,
+ "capturas": [
+  {
+   "archivo": "f34_01_cabecera.png",
+   "ancho": 1366,
+   "alto": 496
+  },
+  {
+   "archivo": "f34_02_modelo_elegido.png",
+   "ancho": 1366,
+   "alto": 786
+  },
+  {
+   "archivo": "f34_03_generalizacion.png",
+   "ancho": 1366,
+   "alto": 724
+  },
+  {
+   "archivo": "f34_04_alternativas_hiperparametros.png",
+   "ancho": 1366,
+   "alto": 510
+  },
+  {
+   "archivo": "f34_05_alternativas_ensambles.png",
+   "ancho": 1366,
+   "alto": 416
+  },
+  {
+   "archivo": "f34_06_tipos_de_caso.png",
+   "ancho": 1366,
+   "alto": 458
+  },
+  {
+   "archivo": "f34_07_en_muestra_impacto.png",
+   "ancho": 1366,
+   "alto": 935
+  },
+  {
+   "archivo": "f34_08_en_muestra_grafico.png",
+   "ancho": 1366,
+   "alto": 438
+  },
+  {
+   "archivo": "f34_09_tablas_de_apoyo_abiertas.png",
+   "ancho": 1366,
+   "alto": 1515
+  },
+  {
+   "archivo": "f34_10_tabla_paginada.png",
+   "ancho": 1366,
+   "alto": 1331
+  },
+  {
+   "archivo": "f35_01_vacio.png",
+   "ancho": 1366,
+   "alto": 738
+  },
+  {
+   "archivo": "f35_02_error_de_archivo.png",
+   "ancho": 1366,
+   "alto": 792
+  },
+  {
+   "archivo": "f35_03_resultado_resumen.png",
+   "ancho": 1366,
+   "alto": 531
+  },
+  {
+   "archivo": "f35_04_resultado_celdas.png",
+   "ancho": 1366,
+   "alto": 299
+  },
+  {
+   "archivo": "f35_05_resultado_cola.png",
+   "ancho": 1366,
+   "alto": 1901
+  },
+  {
+   "archivo": "f35_06_formato_abierto.png",
+   "ancho": 1366,
+   "alto": 610
+  }
+ ]
+}

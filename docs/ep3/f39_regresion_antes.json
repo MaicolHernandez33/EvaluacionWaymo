@@ -1,0 +1,381 @@
+{
+ "10689101165701914459_2072_300_2092_300 · archivos 1 y 2": {
+  "zip_sha256": "9736d20eebd6cef7969baeb6537482a0be22771de562d25584868611330fb9a6",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "125e681dd425a6d269fade76b593a597842708068dea5547ff9026b769e4882c"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "0",
+    "de 5",
+    "segmento × cámara con posible hueco"
+   ],
+   [
+    "Cajas afectadas",
+    "0",
+    "",
+    "en las celdas marcadas"
+   ],
+   [
+    "Sin pareja en esas celdas",
+    "0",
+    "",
+    "no hay cajas en celdas marcadas"
+   ]
+  ],
+  "cajas": 938,
+  "celdas_marcadas": 0,
+  "n_celdas": 5,
+  "tiene_asociacion": true,
+  "cola": 938,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 938,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 938,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": true,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0,
+   "positivos_total": 83,
+   "positivos_en_celdas_con_hueco": 0
+  }
+ },
+ "10689101165701914459_2072_300_2092_300 · solo archivo 1": {
+  "zip_sha256": "bc195743718276dd04f98c71353dc805c0f6dc8e0687172071e365b01eadf1e5",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "3e9a615678f0421aee88bb12820f1be89cc9634ed8819e452ddc4713adb9730a"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "—",
+    "",
+    "no se buscaron: falta el archivo 2"
+   ],
+   [
+    "Cajas puntuadas",
+    "938",
+    "",
+    "peatones y ciclistas, población principal"
+   ],
+   [
+    "Cajas en la cola",
+    "938",
+    "",
+    "todas las puntuadas, sin celdas apartadas"
+   ]
+  ],
+  "cajas": 938,
+  "celdas_marcadas": 0,
+  "n_celdas": 0,
+  "tiene_asociacion": false,
+  "cola": 938,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 938,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 938,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": false,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0
+  }
+ },
+ "13356997604177841771_3360_000_3380_000 · archivos 1 y 2": {
+  "zip_sha256": "c7edd24d4fa930f34510a2c5609ff3d01b51cabbf6c86747a0d41099d77a35b4",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "15346cd481ce943e256f628bfc0191e5f41e16526434a0c77a0a3e57d55a64fb"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "0",
+    "de 5",
+    "segmento × cámara con posible hueco"
+   ],
+   [
+    "Cajas afectadas",
+    "0",
+    "",
+    "en las celdas marcadas"
+   ],
+   [
+    "Sin pareja en esas celdas",
+    "0",
+    "",
+    "no hay cajas en celdas marcadas"
+   ]
+  ],
+  "cajas": 7854,
+  "celdas_marcadas": 0,
+  "n_celdas": 5,
+  "tiene_asociacion": true,
+  "cola": 7854,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 7854,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 7854,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": true,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0,
+   "positivos_total": 2740,
+   "positivos_en_celdas_con_hueco": 0
+  }
+ },
+ "13356997604177841771_3360_000_3380_000 · solo archivo 1": {
+  "zip_sha256": "46445c70ea17956f7591fbba5df04289c04cc72381854efaab7f2b1ee7c9c75a",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "37bdbf69af91f24163f42edd653a66614fd1fe779d2f8deb8d36be297627698f"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "—",
+    "",
+    "no se buscaron: falta el archivo 2"
+   ],
+   [
+    "Cajas puntuadas",
+    "7.854",
+    "",
+    "peatones y ciclistas, población principal"
+   ],
+   [
+    "Cajas en la cola",
+    "7.854",
+    "",
+    "todas las puntuadas, sin celdas apartadas"
+   ]
+  ],
+  "cajas": 7854,
+  "celdas_marcadas": 0,
+  "n_celdas": 0,
+  "tiene_asociacion": false,
+  "cola": 7854,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 7854,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 7854,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": false,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0
+  }
+ },
+ "16229547658178627464_380_000_400_000 · archivos 1 y 2": {
+  "zip_sha256": "3c878996d3bbbaa99ffae0c39d1c64563aab60d3c38d338e9b1e3b443af745ab",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "6b30fd8638c17d7358f5a07a5ab4b8234bfcb0291dbb10f6ac8d3e3ee3bf0704",
+   "lista_B_nueva.csv": "523b5fd303dbce3d1ad96636cd98168c5c2708bd204f61b2157f7b7520f06ec2"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "1",
+    "de 5",
+    "segmento × cámara con posible hueco"
+   ],
+   [
+    "Cajas afectadas",
+    "197",
+    "",
+    "en las celdas marcadas"
+   ],
+   [
+    "Sin pareja en esas celdas",
+    "175",
+    "",
+    "88,8 % de las cajas de esas celdas"
+   ]
+  ],
+  "cajas": 3161,
+  "celdas_marcadas": 1,
+  "n_celdas": 5,
+  "tiene_asociacion": true,
+  "cola": 2964,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 3161,
+   "cajas_en_celdas_con_hueco": 197,
+   "cajas_en_lista_B": 2964,
+   "celdas_con_hueco": 1,
+   "tiene_asociacion": true,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0,
+   "positivos_total": 531,
+   "positivos_en_celdas_con_hueco": 175
+  }
+ },
+ "16229547658178627464_380_000_400_000 · solo archivo 1": {
+  "zip_sha256": "f8ac329244a9ba4e7ef2abb7e3dca21e73ab95a50c82a2c3c6fc5df7c197ccb9",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "8ba04ef106d545bcfd27d8093388f097a43bdf48c9b8bf29fd115321acdfe0c3"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "—",
+    "",
+    "no se buscaron: falta el archivo 2"
+   ],
+   [
+    "Cajas puntuadas",
+    "3.161",
+    "",
+    "peatones y ciclistas, población principal"
+   ],
+   [
+    "Cajas en la cola",
+    "3.161",
+    "",
+    "todas las puntuadas, sin celdas apartadas"
+   ]
+  ],
+  "cajas": 3161,
+  "celdas_marcadas": 0,
+  "n_celdas": 0,
+  "tiene_asociacion": false,
+  "cola": 3161,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 3161,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 3161,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": false,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0
+  }
+ },
+ "2551868399007287341_3100_000_3120_000 · archivos 1 y 2": {
+  "zip_sha256": "a2c2e78894832f86fbe688f72278e04d27e242b0c4976e5cdf7e0bf71cb5413e",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "2e94d45bd7b0679875d8e24f2e22086a77ed56eaabd5fc6fe3491cb2ef19a4d9"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "0",
+    "de 5",
+    "segmento × cámara con posible hueco"
+   ],
+   [
+    "Cajas afectadas",
+    "0",
+    "",
+    "en las celdas marcadas"
+   ],
+   [
+    "Sin pareja en esas celdas",
+    "0",
+    "",
+    "no hay cajas en celdas marcadas"
+   ]
+  ],
+  "cajas": 5314,
+  "celdas_marcadas": 0,
+  "n_celdas": 5,
+  "tiene_asociacion": true,
+  "cola": 5314,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 5314,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 5314,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": true,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0,
+   "positivos_total": 1718,
+   "positivos_en_celdas_con_hueco": 0
+  }
+ },
+ "2551868399007287341_3100_000_3120_000 · solo archivo 1": {
+  "zip_sha256": "176407c9afb8ae3ea32f233f6f65d2ad6ec5800dcb013abbea200d3abac27292",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "d511e38c62068dfea0abc8eecd393682ad474f17c51299bd50e2d7fed5958304",
+   "lista_B_nueva.csv": "0df44ec356ca5248fea9e11b6cda514767631c3068a60cce2d6e9a65fb9e4bd5"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "—",
+    "",
+    "no se buscaron: falta el archivo 2"
+   ],
+   [
+    "Cajas puntuadas",
+    "5.314",
+    "",
+    "peatones y ciclistas, población principal"
+   ],
+   [
+    "Cajas en la cola",
+    "5.314",
+    "",
+    "todas las puntuadas, sin celdas apartadas"
+   ]
+  ],
+  "cajas": 5314,
+  "celdas_marcadas": 0,
+  "n_celdas": 0,
+  "tiene_asociacion": false,
+  "cola": 5314,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 5314,
+   "cajas_en_celdas_con_hueco": 0,
+   "cajas_en_lista_B": 5314,
+   "celdas_con_hueco": 0,
+   "tiene_asociacion": false,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0
+  }
+ },
+ "ejemplo de desarrollo 911012534050": {
+  "zip_sha256": "6cfc89b1399591c3e6b9c60e57adea6656a2fe8e7fb2a6fe65e49965f55dc758",
+  "csv_sha256": {
+   "lista_A_nueva.csv": "a6f83069d7366c162902b6e23b38f9e404e7264e076fce74932e35c3639662f1",
+   "lista_B_nueva.csv": "1455a510580fe8875e687f70a00e3e525750bad801a4c30650442374ae085ec6"
+  },
+  "tarjetas": [
+   [
+    "Celdas marcadas",
+    "1",
+    "de 5",
+    "segmento × cámara con posible hueco"
+   ],
+   [
+    "Cajas afectadas",
+    "268",
+    "",
+    "en las celdas marcadas"
+   ],
+   [
+    "Sin pareja en esas celdas",
+    "227",
+    "",
+    "84,7 % de las cajas de esas celdas"
+   ]
+  ],
+  "cajas": 1715,
+  "celdas_marcadas": 1,
+  "n_celdas": 5,
+  "tiene_asociacion": true,
+  "cola": 1447,
+  "resumen": {
+   "cajas_vru_poblacion_principal": 1715,
+   "cajas_en_celdas_con_hueco": 268,
+   "cajas_en_lista_B": 1447,
+   "celdas_con_hueco": 1,
+   "tiene_asociacion": true,
+   "umbral_A": -32.0,
+   "umbral_B": -11.0,
+   "positivos_total": 316,
+   "positivos_en_celdas_con_hueco": 227
+  }
+ }
+}

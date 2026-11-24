@@ -55,19 +55,20 @@ def test_matriz_calor_distingue_sin_datos_de_tasa_cero() -> None:
     assert matriz_calor(celdas, min_cajas=50)["sin_datos"].tolist() == [False, True, True, False, False]      # 40 cajas sigue siendo poco con min 50; 99 ya alcanza
 
 
-def test_auditoria_trae_leyenda_con_el_gris_rayado_y_los_detalles_en_un_expander(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_auditoria_trae_una_leyenda_con_el_gris_plano_y_la_definicion_en_un_expander(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Auditoría de cámaras")
     html = " ".join(m.value for m in at.markdown)
-    assert "aud-sw rayado" in html and "Sin cajas o menos de 100 en el rango" in html and "aud-sw hueco" in html and "no es lo mismo que 0 %" in html
-    assert html.count('class="aud-leyenda"') == 1                                                # F20-P5: UNA sola leyenda (la de la escala de Altair se quitó)
-    assert any("Detalle de las celdas marcadas" in m.value for m in at.markdown)         # el detalle ya no va en un acordeón
+    assert "aud-sw sin-datos" in html and "rayado" not in html and "sin cajas o menos de 100 en el rango" in html.lower() and "aud-sw hueco" in html and "no es lo mismo que 0 %" in html.lower()
+    assert html.count('class="aud-leyenda fila"') == 1                                          # F20-P5/F31: UNA sola leyenda (la de la escala de Altair se quitó)
+    assert not any("Detalle de las celdas marcadas" in m.value for m in at.markdown)              # F31: la tabla única reemplaza la Lista A y su detalle
+    assert [e.label for e in at.expander] == ["¿Qué es un hueco?"]
     assert not any("falsas alarmas" in m.value.lower() for m in at.markdown)
 
 
 def test_el_mapa_dibuja_todas_las_etiquetas_de_segmento_y_conserva_el_rojo_con_x() -> None:
     fuente = (R / "app" / "secciones.py").read_text(encoding="utf-8")
-    assert "labelOverlap=False" in fuente and "22 * n_seg" in fuente                                  # altura por segmento suficiente y sin ocultar etiquetas
-    assert "st.container(height=" in fuente and "seg_corto" in fuente                                  # F20-P5: mapa con altura fija y desplazamiento; etiquetas a 6 dígitos
+    assert "labelOverlap=False" in fuente and "alto_fila = 24 if n_seg <= 15 else 16" in fuente        # filas de 16 px con muchos segmentos (24 con pocos), sin ocultar etiquetas
+    assert 'st.container(key="mapa_calor")' in fuente and "slice(datum.value, -6)" in fuente          # F24/F31: mapa sin desplazamiento interno; etiquetas a 6 dígitos sobre el segmento completo
     assert 'text="X"' in fuente and "E.TOKENS[\"hueco\"]" in fuente and "alt.datum.sin_datos" in fuente
 
 
@@ -87,15 +88,13 @@ def test_cola_pone_clase_y_tipo_de_caso_antes_de_los_identificadores_y_cuenta_fo
     top = d["cajas"].head(6).copy().assign(es_ciclista=0, az_signed=0.0)
     top["key.laser_object_id"] = ["a", "a", "b", "a", "c", "b"]
     top["seg"] = "s1"
-    t = tabla_cola(top, 100, {1: (-20.0, 20.0)}, presentacion=False)
+    t = tabla_cola(top, 100, {1: (-20.0, 20.0)})
     cols = list(t.columns)
     assert cols.index("Clase") < cols.index("Marca de tiempo") and cols.index("Tipo de caso") < cols.index("Identificador de objeto") and cols[-2:] == ["Marca de tiempo", "Identificador de objeto"]
     assert t[COLUMNA_FOTOGRAMAS].tolist() == [3, 3, 2, 3, 1, 2]                                              # cuantas filas de la cola tiene el mismo objeto
     # no cambia el orden de las filas ni la prioridad
     assert t["Posición"].tolist() == [1, 2, 3, 4, 5, 6] and "Prioridad" not in t.columns
-    sin = tabla_cola(top, 100, {1: (-20.0, 20.0)}, presentacion=True)
-    assert COLUMNA_FOTOGRAMAS in sin.columns and "Identificador de objeto" not in sin.columns
-    assert tabla_cola(top.head(2), 100, {1: (-20.0, 20.0)}, presentacion=False)[COLUMNA_FOTOGRAMAS].tolist() == [2, 2]   # sobre la cola completa que se le pasa
+    assert tabla_cola(top.head(2), 100, {1: (-20.0, 20.0)})[COLUMNA_FOTOGRAMAS].tolist() == [2, 2]   # sobre la cola completa que se le pasa
 
 
 def test_el_conteo_de_fotogramas_no_cambia_las_cifras_de_la_cola(tmp_path: Path) -> None:
@@ -103,12 +102,14 @@ def test_el_conteo_de_fotogramas_no_cambia_las_cifras_de_la_cola(tmp_path: Path)
     d = cargar_datos(tmp_path / "d")
     r = resumen_cola(d["cajas"], d["curva"], "sol", "Todos", 0.2, 20)
     antes = (r["cajas_a_revisar"], r["hallados"], r["positivos_total"])
-    tabla_cola(r["top"], r["cajas_cola_total"], {}, False)
+    tabla_cola(r["top"], r["cajas_cola_total"], {})
     assert (r["cajas_a_revisar"], r["hallados"], r["positivos_total"]) == antes
 
 
 def test_la_pagina_de_cola_muestra_la_columna_y_su_nota(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Cola de revisión")
+    assert COLUMNA_FOTOGRAMAS not in at.dataframe[0].value.columns                                      # F23: la tabla trae las seis columnas de decisión; los fotogramas van en el detalle y en la vista agrupada
+    next(t for t in at.toggle if t.label == "Agrupar por objeto").set_value(True).run()
     assert COLUMNA_FOTOGRAMAS in at.dataframe[0].value.columns
     assert any("Las cifras de arriba no cambian con los filtros" in c.value for c in at.caption)
 
@@ -147,11 +148,11 @@ def test_ninguna_tabla_de_evidencia_tiene_formatos_enganosos() -> None:
 
 
 @pytest.mark.skipif(not REAL.exists(), reason="faltan los datos de la página")
-def test_el_recall_de_ciclistas_de_las_preguntas_frecuentes_sigue_siendo_0_443() -> None:
+def test_el_recall_de_ciclistas_de_las_preguntas_frecuentes_sigue_siendo_44_3_por_ciento() -> None:
     from waymo_evaluacion.ep3.app_logica import preguntas_frecuentes
 
     eq = pd.read_csv(REAL / "evidencia" / "posthoc__equidad.csv")
-    assert "0,443" in dict(preguntas_frecuentes(eq))["¿Qué pasa con los ciclistas?"]
+    assert "44,3 %" in dict(preguntas_frecuentes(eq))["¿Qué pasa con los ciclistas?"].replace(" ", " ")                  # F26-C1: el mismo valor (0,443), en porcentaje como el resto de la página
 
 
 # ------------------------------------------------------------------------------------------------------------ B6: cargador en español
@@ -175,8 +176,7 @@ def test_las_curvas_dos_pasos_y_un_paso_se_distinguen_en_color_y_trazo() -> None
     assert c["Dos pasos"] != c["Un paso"] and r["Dos pasos"] != r["Un paso"]
     assert len(set(E.CURVAS_COLORES)) == len(E.CURVAS_COLORES)
     # contraste entre los dos colores principales (no basta el tono: tambien difieren en luminosidad o trazo) y contra el fondo
-    assert E.contraste(c["Dos pasos"], "#FFFFFF") >= 4.5 and E.contraste(c["Un paso"], "#FFFFFF") >= 3.0
-    assert E.contraste(c["Dos pasos"], c["Un paso"]) >= 1.2
+    assert E.contraste(c["Dos pasos"], E.TOKENS["panel"]) >= 4.5 and E.contraste(c["Un paso"], E.TOKENS["panel"]) >= 3.0                 # F24: sobre el panel oscuro; la separación entre curvas la valida dataviz (f24_paleta_validacion.json)
     fuente = (R / "app" / "secciones.py").read_text(encoding="utf-8")
     assert "alt.Stroke(" in fuente and "alt.StrokeDash(" in fuente          # leyenda tomada de la linea
     # La banda NO codifica «nombre» (con fill + legend=None Vega-Lite fusiona las leyendas y borra la de las lineas: se vio en el DOM, F19-B7): una banda por curva con color fijo
@@ -185,10 +185,12 @@ def test_las_curvas_dos_pasos_y_un_paso_se_distinguen_en_color_y_trazo() -> None
 
 
 # ------------------------------------------------------------------------------------------------------------ B8: horas de Inicio
-def test_resumen_muestra_las_horas_de_los_tres_flujos_leidas_del_mismo_origen(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_validacion_muestra_las_horas_de_los_tres_flujos_leidas_del_mismo_origen(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Resumen")
+    assert "Estimación:" not in textos(at)                                                                  # F30: el Resumen ya no muestra el impacto estimado
+    at = _abrir(entorno, monkeypatch, "Validación")
     html = textos(at)
-    assert "Estimación en muestra" in html and "(supuesto" in html and "80 %" in html and "aud-muestra" in html            # etiqueta «en muestra» al lado de la cifra de dos pasos
+    assert "Estimación:" in html and "Estimación en muestra" not in html and "(supuesto" in html and "80 %" in html and 'class="aud-muestra"' not in html            # F25: la nota «Estimación en muestra» ya lo dice; sin etiqueta aparte
     assert html.count("≈ ") >= 3
 
 
@@ -254,7 +256,7 @@ def test_el_lanzador_existe_y_los_arranques_lo_usan_con_las_opciones_de_segurida
 
 
 # ------------------------------------------------------------------------------------------------------------ B10: capturas
-def test_hay_capturas_completas_de_las_8_secciones_y_del_modo_presentacion_a_1366_y_1920() -> None:
+def test_hay_capturas_completas_de_las_8_secciones_a_1366_y_1920() -> None:
     carpeta = R / "images/ep3/pagina"
     res = R / "data/08_reporting_ep3/capturas_resultado.json"
     if not res.exists():
@@ -265,6 +267,6 @@ def test_hay_capturas_completas_de_las_8_secciones_y_del_modo_presentacion_a_136
     assert all(x["listo"] for x in r), [x["archivo"] for x in r if not x["listo"]]
     for ancho in (1366, 1920):
         png = sorted(carpeta.glob(f"*_{ancho}.png"))
-        assert len(png) == 15, (ancho, [p.name for p in png])           # F21: 8 páginas, cola sin selección, 6 pestañas de Validación y el modo presentación (Validación no tiene captura aparte)
+        assert len(png) == 13, (ancho, [p.name for p in png])           # F21/F30: 8 páginas, cola sin selección y 5 pestañas de Validación (F34: antes 6)
         assert all(p.stat().st_size > 20_000 for p in png), [p.name for p in png if p.stat().st_size <= 20_000]       # un esqueleto en blanco pesa ~9 KB
-    assert any("explica" in p.name for p in carpeta.glob("*_1366.png")) and any("presentacion" in p.name for p in carpeta.glob("*_1920.png"))
+    assert any("explica" in p.name for p in carpeta.glob("*_1366.png")) and not list(carpeta.glob("*presentacion*"))              # F30: ninguna captura del modo presentación

@@ -1,0 +1,13 @@
+{
+ "comando": "python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider",
+ "antes": {
+  "pasaron": 271
+ },
+ "despues": {
+  "pasaron": 277,
+  "fallaron": 0,
+  "omitidas": 0,
+  "duracion_s": 55.36,
+  "nuevas_f29": 18
+ }
+}

@@ -187,3 +187,6 @@ entrega_EP2.zip
 entrega_EP3.zip
 docs/ep3/revision/
 entrega_EP3.sha256
+
+# Datos de la demostracion en vivo (F37): segmentos reales descargados del bucket y variantes simuladas; no se versionan ni van en la imagen
+datos_demo/

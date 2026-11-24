@@ -1,0 +1,29 @@
+[
+ {
+  "alto_ventana": 768,
+  "alto_contenido_barra": 768,
+  "alto_visible_barra": 768,
+  "desborde_px": 0,
+  "rol": {
+   "arriba": 689,
+   "abajo": 753
+  },
+  "primer_enlace": {
+   "arriba": 103,
+   "abajo": 141
+  },
+  "ultimo_enlace": {
+   "arriba": 562,
+   "abajo": 599
+  },
+  "enlaces": 8,
+  "encabezado": {
+   "arriba": 0,
+   "abajo": 56
+  },
+  "scroll_horizontal_px": 0,
+  "modo": "normal",
+  "rol_visible": true,
+  "imagen": "f25_barra_normal_1366x768.png"
+ }
+]

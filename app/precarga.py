@@ -62,7 +62,7 @@ def _calentar(carpeta_datos: str, carpeta_modelos: str) -> None:
         D = datos(carpeta_datos)
         rg = rangos(carpeta_modelos)
         resumen = resumen_cola(D["cajas"], D["curva"], D["kpis"].get("nombre_curva", "solucion"), "Todos", 0.2, 20)
-        tabla_cola(resumen["top"], resumen["cajas_cola_total"], rg, False)
+        tabla_cola(resumen["top"], resumen["cajas_cola_total"], rg)
         art = artefactos(carpeta_modelos)
         fila = D["cajas"][V16].median().to_frame().T
         s = art.puntuador.puntuar(fila)

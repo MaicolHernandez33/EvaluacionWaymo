@@ -12,7 +12,7 @@ El viewport se ajusta al alto real del contenido (entre 700 y 3600 px) y se vuel
 ``data/08_reporting_ep3/captura_linea_tiempo_<seccion>.json`` para ver cuando la pagina esta realmente completa y que habria visto el criterio antiguo (texto del primer elemento + sin spinner).
 
 Requiere la pagina corriendo en localhost (por ejemplo: .venv\\Scripts\\python app\\lanzar.py --server.port 8512 --server.headless true).
-Escribe images/ep3/pagina/NN_seccion_<ancho>.png (rol Analista de revision, modo normal) y 09_resumen_modo_presentacion_<ancho>.png, y
+Escribe images/ep3/pagina/NN_seccion_<ancho>.png (rol Analista de revision, modo normal), y
 data/08_reporting_ep3/capturas_resultado.json con el tiempo hasta estar lista cada captura.
 Uso: .venv\\Scripts\\python scripts/ep3/capturar_pagina.py --puerto 8512 --anchos 1366 1920 [--secciones "Explica una caja"] [--sin-guardar] [--linea-de-tiempo "Ética y límites"]
 """
@@ -37,41 +37,43 @@ from waymo_evaluacion.ep3.app_logica import SECCIONES, URL_PAGINA  # noqa: E402
 
 NAVEGADORES = [r"C:\Program Files\Google\Chrome\Application\chrome.exe", r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"]
 # alto minimo (px) del contenido de cada seccion: una captura mas baja es una pagina incompleta (la de «Etica» salio con 1 bloque de 6)
-ALTO_MIN = {"Resumen": 600, "Cola de revisión": 700, "Explica una caja": 600, "Auditoría de cámaras": 700, "Validación": 450, "Puntuar datos nuevos": 550, "Ética y límites": 450, "Ayuda y glosario": 900}
+ALTO_MIN = {"Resumen": 600, "Cola de revisión": 700, "Explica una caja": 600, "Auditoría de cámaras": 700, "Validación": 450, "Puntuar datos nuevos": 480, "Ética y límites": 450, "Ayuda y glosario": 900}
 # el ULTIMO elemento que dibuja cada seccion (texto) y conteos de elementos que deben existir (selector CSS, minimo)
-CLAVE = {"Resumen": {"texto": "Validación externa pendiente", "conteos": [(".aud-metrica", 4), (".vega-embed", 1)]},
-         "Cola de revisión": {"texto": "Detalle de la caja en la posición 1", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1)]},
-         "Explica una caja": {"texto": "Es una ilustración del modelo", "conteos": [(".vega-embed", 1), ("[data-testid=stSlider]", 3)]},
-         "Auditoría de cámaras": {"texto": "Las celdas se llaman", "conteos": [(".vega-embed", 1), (".aud-metrica", 4), ("[data-testid=stTable]", 1)]},
-         "Validación": {"texto": "Ver tabla completa", "conteos": [(".vega-embed", 1), ("[role=tab]", 6)]},
-         "Puntuar datos nuevos": {"texto": "Sin archivos cargados", "conteos": [("[data-testid=stFileUploader]", 2), ("[data-testid=stTable]", 1)]},
-         "Ética y límites": {"texto": "No debe exponerse en una red sin autenticación", "conteos": [(".aud-ficha", 6)]},
-         "Ayuda y glosario": {"texto": "¿Cuánto tarda revisar una caja?", "conteos": [(".aud-tabla", 1), ("[data-testid=stExpander]", 5)]}}
+CLAVE = {"Resumen": {"texto": "nunca repita filas", "conteos": [(".aud-anillo", 1), (".aud-kpi", 4)]},
+         "Cola de revisión": {"texto": "Explicar esta caja", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1), (".aud-kpi", 3)]},
+         "Explica una caja": {"texto": "Notas del modelo", "conteos": [(".vega-embed", 1), ("[data-testid=stSlider]", 3), (".aud-calculo", 1)]},
+         "Auditoría de cámaras": {"texto": "¿Qué es un hueco?", "conteos": [(".vega-embed", 1), (".aud-kpi", 3), ("[data-testid=stDataFrame]", 1)]},
+         "Validación": {"texto": "Tablas de apoyo", "conteos": [("[role=tab]", 5), (".aud-kpi", 4)]},
+         "Puntuar datos nuevos": {"texto": "Todavía no hay un segmento cargado", "conteos": [("[data-testid=stFileUploader]", 2), (".aud-flujo", 1)]},
+         "Ética y límites": {"texto": "Dónde corre", "conteos": [(".aud-tf", 4), (".aud-hero", 1)]},
+         "Ayuda y glosario": {"texto": "¿Cuánto tarda revisar una caja?", "conteos": [(".aud-gl", 1), (".aud-guia3", 3), ("[data-testid=stExpander]", 5)]}}
 # la cola se fotografia con la pestana «Cola de cajas» abierta y la primera fila elegida (maestro-detalle): primero se espera la pagina base (clave previa), luego se prepara y se espera lo final
-CLAVE_PREVIA = {"Cola de revisión": {"texto": "Solo cola: unas", "conteos": [("[role=tab]", 2), (".vega-embed", 1)]}}
+CLAVE_PREVIA = {"Cola de revisión": {"texto": "Supuestos y confiabilidad", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1), (".aud-kpi", 3)]}}
 JS_PESTANA = "(() => { const t = Array.from(document.querySelectorAll('[role=tab]')).find(x => x.textContent.includes('Cola de cajas')); if (t) t.click(); return !!t; })()"
 JS_TABLA = "(() => { const d = document.querySelector('[data-testid=\"stDataFrame\"]'); if (!d) return null; const r = d.getBoundingClientRect(); return JSON.stringify({x: r.left, y: r.top, w: r.width, h: r.height}); })()"
 # F21: variantes de una pagina que tambien se fotografian. Cola sin fila elegida; las seis pestanas de Validacion (cada una con su texto propio, que solo esta visible con la pestana abierta)
-PESTANAS_VALIDACION = [("Hiperparámetros", "hiperparametros", "Cambio de PR-AUC al optimizar"), ("Ensambles", "ensambles", "Diferencia de AUC entre cada ensamble"), ("Generalización", "generalizacion", "Punto azul: AUC"),
-                       ("Selección", "seleccion", "Resultados de la solución elegida"), ("No supervisado", "no_supervisado", "Proporción de cajas sin pareja en cada tipo de caso"),
-                       ("En muestra", "en_muestra", "Fracción de las cajas que hay que revisar")]
-CLAVE_COLA_SIN_FILA = {"texto": "Seleccione una fila", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1)]}
+PESTANAS_VALIDACION = [("Modelo elegido", "modelo_elegido", "Resultados de la solución elegida"), ("Generalización", "generalizacion", "AUC de cada candidato en validación cruzada por segmentos"),
+                       ("Alternativas", "alternativas", "¿Combinar modelos ayuda?"), ("Tipos de caso", "tipos_de_caso", "Proporción de cajas sin pareja en cada tipo de caso"),
+                       ("En muestra", "en_muestra", "De dónde viene la mejora de la auditoría")]
+CLAVE_COLA_SIN_FILA = {"texto": "Descargar la cola (CSV)", "conteos": [("[role=tab]", 2), ("[data-testid=stDataFrame]", 1), (".aud-kpi", 3)]}
 JS_GEOMETRIA = """(() => {
   const q = s => document.querySelector(s);
-  const chip = q('.st-key-chip_estado button'), cont = q('[data-testid="stMainBlockContainer"]');
-  const r = chip ? chip.getBoundingClientRect() : null, c = cont ? cont.getBoundingClientRect() : null;
+  const cont = q('[data-testid="stMainBlockContainer"]');
+  const c = cont ? cont.getBoundingClientRect() : null;
   const pad = cont ? parseFloat(getComputedStyle(cont).paddingRight) : 0;
   const alertas = Array.from(document.querySelectorAll('[class*="st-key-alerta_"]')).map(a => {
     const tx = a.querySelector('.aud-fila'), en = a.querySelector('a');
     if (!tx || !en) return null;
-    const rt = tx.getBoundingClientRect(), re = en.getBoundingClientRect();
-    return {texto_centro: (rt.top + rt.bottom) / 2, enlace_centro: (re.top + re.bottom) / 2, dy: Math.abs((rt.top + rt.bottom) / 2 - (re.top + re.bottom) / 2)};
+    const rt = tx.getBoundingClientRect(), re = en.getBoundingClientRect(), rc = a.getBoundingClientRect();
+    const estilo = getComputedStyle(en);
+    return {texto_abajo: rt.bottom, enlace_arriba: re.top, enlace_debajo_del_texto: re.top >= rt.bottom - 2, enlace_dentro_de_la_alerta: re.bottom <= rc.bottom + 1,
+            enlace_subrayado: estilo.textDecorationLine.includes('underline'), enlace_color: estilo.color, solape_px: Math.max(0, rt.bottom - re.top)};
   }).filter(x => x);
   const ancho_pagina = document.documentElement.scrollWidth, ancho_ventana = window.innerWidth;
-  return JSON.stringify({chip_derecha: r && r.right, contenido_derecha: c && c.right - pad, alertas, scroll_horizontal_px: ancho_pagina - ancho_ventana});
+  return JSON.stringify({contenido_derecha: c && c.right - pad, alertas, scroll_horizontal_px: ancho_pagina - ancho_ventana});
 })()"""
 JS_PESTANA_ROTULO = "((rotulo) => { const t = Array.from(document.querySelectorAll('[role=tab]')).find(x => x.textContent.trim() === rotulo); if (t) t.click(); return !!t; })(%s)"
-PIE = "Waymo Open Dataset v2, uso académico"            # el pie lo dibuja el marco DESPUES de la seccion: si esta, el script termino
+PIE = "Waymo Dataset License Agreement"            # la atribucion del pie (F26) la dibuja el marco DESPUES de la seccion: si esta, el script termino
 JS_ESTADO = """((clave, pie, conteos) => {
   const app = document.querySelector('[data-testid="stApp"]');
   const estado = app ? app.getAttribute('data-test-script-state') : null;
@@ -241,17 +243,15 @@ def main() -> None:
     try:
         secs = [(i, s) for i, s in enumerate(SECCIONES, 1) if a.secciones is None or s in a.secciones]
         for ancho in a.anchos:
-            trabajos: list[tuple[str, str, bool, str | None]] = []
+            trabajos: list[tuple[str, str, str | None]] = []
             for i, s in secs:
                 if s == "Validación":
-                    trabajos += [(f"{nombre_archivo(i, s)}_{sufijo}", s, False, f"tab:{rotulo}|{texto}") for rotulo, sufijo, texto in PESTANAS_VALIDACION]
+                    trabajos += [(f"{nombre_archivo(i, s)}_{sufijo}", s, f"tab:{rotulo}|{texto}") for rotulo, sufijo, texto in PESTANAS_VALIDACION]
                 else:
-                    trabajos.append((nombre_archivo(i, s), s, False, "cola_con_fila" if s == "Cola de revisión" else None))
+                    trabajos.append((nombre_archivo(i, s), s, "cola_con_fila" if s == "Cola de revisión" else None))
                     if s == "Cola de revisión":
-                        trabajos.append((nombre_archivo(i, s) + "_sin_seleccion", s, False, "cola_sin_fila"))
-            if a.secciones is None:
-                trabajos.append(("09_resumen_modo_presentacion", "Resumen", True, None))
-            for nombre, seccion, pres, variante in trabajos:
+                        trabajos.append((nombre_archivo(i, s) + "_sin_seleccion", s, "cola_sin_fila"))
+            for nombre, seccion, variante in trabajos:
                 nav.eventos.clear()
                 geometria = None
                 nav.cmd("Emulation.setDeviceMetricsOverride", width=ancho, height=900, deviceScaleFactor=1, mobile=False)
@@ -276,22 +276,10 @@ def main() -> None:
                     rotulo, texto = variante[4:].split("|", 1)
                     nav.js(JS_PESTANA_ROTULO % json.dumps(rotulo))
                     time.sleep(1.5)
-                    clave_tab = {"texto": texto, "conteos": [("[role=tab]", 6)] + ([(".vega-embed", 1)] if rotulo != "Selección" else [("[data-testid=stDataFrame]", 1)])}
+                    clave_tab = {"texto": texto, "conteos": [("[role=tab]", 5)] + ([(".vega-embed", 1)] if rotulo != "Modelo elegido" else [(".aud-crit", 1)])}
                     ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable, clave_tab)
-                if ok and pres:
-                    # clic REAL del raton sobre el interruptor del modo presentacion (al pie de la barra lateral): un label.click() de JavaScript no cambia el estado del interruptor
-                    pos = nav.js("(() => { const l = document.querySelector('[data-testid=\"stSidebar\"] [data-testid=\"stCheckbox\"] label'); if (!l) return null; const r = l.getBoundingClientRect(); return JSON.stringify({x: r.left + 18, y: r.top + r.height / 2}); })()")
-                    if pos:
-                        for tipo in ("mousePressed", "mouseReleased"):
-                            nav.cmd("Input.dispatchMouseEvent", type=tipo, x=pos["x"], y=pos["y"], button="left", clickCount=1)
-                    t1 = time.time()
-                    while time.time() - t1 < 15 and not nav.js("document.documentElement.outerHTML.includes('--escala: 1.18')"):      # el rerun es asincrono: primero se espera el cambio de estilos
-                        time.sleep(0.3)
-                    ok, e, motivo, _, _c = esperar(nav, seccion, a.maximo, a.estable)
-                    if ok and not nav.js("document.documentElement.outerHTML.includes('--escala: 1.18')"):
-                        ok, motivo = False, "el modo presentacion no se activo (falta --escala: 1.18)"
                 clave_final = (CLAVE_COLA_SIN_FILA if variante == "cola_sin_fila" else
-                               ({"texto": variante[4:].split("|", 1)[1], "conteos": [("[role=tab]", 6)] + ([(".vega-embed", 1)] if "Selección|" not in variante else [("[data-testid=stDataFrame]", 1)])} if variante and variante.startswith("tab:") else None))
+                               ({"texto": variante[4:].split("|", 1)[1], "conteos": [("[role=tab]", 5)] + ([(".vega-embed", 1)] if "Modelo elegido|" not in variante and "Resultados de la solución elegida" not in variante else [(".aud-crit", 1)])} if variante and variante.startswith("tab:") else None))
                 if ok:                                                    # ajusta el viewport al alto real del contenido y vuelve a esperar la estabilidad
                     alto = int(min(max(e.get("alto", 900) + 40, 700), 3600))
                     nav.cmd("Emulation.setDeviceMetricsOverride", width=ancho, height=alto, deviceScaleFactor=1, mobile=False)
@@ -306,10 +294,11 @@ def main() -> None:
                          if x.get("method") == "Runtime.exceptionThrown" or (x.get("method") == "Log.entryAdded" and x["params"]["entry"].get("level") == "error")]
                 # Streamlit pide /<pagina>/_stcore/health y /host-config relativos a la subruta y recibe 404 (lo resuelve solo): se cuentan aparte, no son errores de la pagina
                 internos = [x for x in todos if "status of 404" in x]
+                urls_404 = sorted({x["params"]["entry"].get("url", "") for x in nav.eventos if x.get("method") == "Log.entryAdded" and "status of 404" in (x["params"]["entry"].get("text") or "")})
                 errores = [x for x in todos if x not in internos]
                 fallo |= not ok
                 resultado.append({"seccion": seccion, "ancho": ancho, "archivo": f"{nombre}_{ancho}.png", "listo": ok, "segundos_hasta_listo": listo_en, "segundos_hasta_completa": completa, "variante": variante, "geometria": geometria, "motivo_si_no": motivo, "estado_final": e,
-                                  "errores_consola": errores, "404_internos_de_streamlit": len(internos)})
+                                  "errores_consola": errores, "404_internos_de_streamlit": len(internos), "404_urls": urls_404})
                 if ok and not a.sin_guardar:
                     img = nav.cmd("Page.captureScreenshot", format="png")
                     (destino / f"{nombre}_{ancho}.png").write_bytes(base64.b64decode(img["data"]))

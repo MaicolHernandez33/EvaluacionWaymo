@@ -1,0 +1,11 @@
+ANTES (copia temporal, estado de cierre de F38; pytest -q completo):
+479 passed, 65 warnings in 314.30s (0:05:14)  [81 de EP2 + 398 de EP3]
+
+DESPUES, primera corrida (copia temporal):
+1 failed, 487 passed, 67 warnings in 138.14s (0:02:18)
+FAILED tests/ep3/test_pagina_f24.py::test_puntuar_tiene_el_ejemplo_como_boton_discreto_y_subir_el_archivo_como_accion_principal
+
+DESPUES, final (copia temporal; pytest -q completo):
+488 passed, 67 warnings in 137.89s (0:02:17)
+
+tests/ep3 en el repo real: 406 passed, 1 failed (test_readme_f38 del numero de pruebas del README: se actualiza al regenerar el README; ver REPORTE_F39.md)

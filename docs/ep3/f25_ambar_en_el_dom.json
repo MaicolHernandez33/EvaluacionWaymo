@@ -1,0 +1,69 @@
+{
+ "vistas": [
+  {
+   "vista": "Resumen",
+   "completa": true,
+   "hallazgos": 0
+  },
+  {
+   "vista": "Auditoría de cámaras",
+   "completa": true,
+   "hallazgos": 0
+  },
+  {
+   "vista": "Cola de revisión",
+   "completa": true,
+   "hallazgos": 0
+  },
+  {
+   "vista": "Validación",
+   "completa": true,
+   "hallazgos": 3
+  },
+  {
+   "vista": "Explica una caja",
+   "completa": true,
+   "hallazgos": 0
+  },
+  {
+   "vista": "Puntuar datos nuevos",
+   "completa": true,
+   "hallazgos": 0
+  },
+  {
+   "vista": "Ética y límites",
+   "completa": true,
+   "hallazgos": 0
+  },
+  {
+   "vista": "Ayuda y glosario",
+   "completa": true,
+   "hallazgos": 0
+  }
+ ],
+ "ambar": [
+  {
+   "vista": "Validación",
+   "elemento": "span.aud-punto «»",
+   "pseudo": "",
+   "propiedad": "backgroundColor",
+   "color": "ámbar #F5B73B"
+  },
+  {
+   "vista": "Validación",
+   "elemento": "div.aud-aviso «La propia regla tampoco cumple»",
+   "pseudo": "::before",
+   "propiedad": "backgroundColor",
+   "color": "ámbar #F5B73B"
+  },
+  {
+   "vista": "Validación",
+   "elemento": "div.aud-aviso «En muestra: 41 segmentos, pará»",
+   "pseudo": "::before",
+   "propiedad": "backgroundColor",
+   "color": "ámbar #F5B73B"
+  }
+ ],
+ "antiguos_fondo_borde_hover": [],
+ "solo_en_puntos_de_ciclistas": true
+}

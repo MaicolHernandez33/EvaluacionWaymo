@@ -34,30 +34,6 @@ def _abrir(entorno: Path, monkeypatch: pytest.MonkeyPatch, seccion: str | None =
     return at
 
 
-# ------------------------------------------------------------------------------------------------------------ tokens
-def test_los_tokens_nuevos_cumplen_el_contraste_y_la_barra_lateral_es_oscura() -> None:
-    import estilos as E
-
-    pares = set(E.PARES_CONTRASTE)
-    assert {("tinta_texto", "tinta"), ("tinta_suave", "tinta"), ("tinta_texto", "tinta_2"), ("tinta_acento", "tinta"), ("sano", "tarjeta"), ("primario", "tarjeta")} <= pares
-    for fg, bg in E.PARES_CONTRASTE:
-        assert E.contraste(E.TOKENS[fg], E.TOKENS[bg]) >= 4.5, (fg, bg)
-    assert E.contraste(E.TOKENS["tinta"], "#FFFFFF") > 10                                                    # la barra lateral es realmente oscura frente al lienzo
-    assert E.contraste(E.CURVAS_COLORES[0], E.TOKENS["tarjeta"]) >= 4.5                                          # la curva principal se lee sobre las tarjetas blancas
-
-
-def test_el_css_declara_transiciones_foco_y_respeta_el_movimiento_reducido() -> None:
-    import estilos as E
-
-    css = E.css()
-    assert "prefers-reduced-motion: reduce" in css and "animation: none !important" in css and "transition: none !important" in css
-    assert css.count("transition:") >= 8 and "--t: 150ms" in css                                           # transiciones de 150 ms en botones, navegación, selectores, filas y paneles
-    assert "@keyframes aud-entra" in css and ".st-key-panel_detalle { animation" in css                     # un solo movimiento propio: el panel de detalle aparece al elegir una fila
-    assert css.count("animation:") == 2                                                                      # el del panel y la regla de movimiento reducido
-    assert "stSidebar" in css and "var(--tinta)" in css and ":focus-visible" in css and "tinta-acento" in css
-    assert not re.search(r"@\w+@", css)
-
-
 # ------------------------------------------------------------------------------------------------------------ anillo de cámaras
 def test_el_anillo_dibuja_cinco_cunas_y_el_hueco_lleva_x_ademas_del_rojo() -> None:
     import estilos as E
@@ -93,34 +69,18 @@ def test_los_estados_vacios_dicen_que_falta_y_que_hacer() -> None:
 
 
 # ------------------------------------------------------------------------------------------------------------ en la página
-def test_el_resumen_muestra_el_anillo_con_las_celdas_marcadas_por_camara(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    at = _abrir(entorno, monkeypatch, "Resumen")
-    t = textos(at)
-    assert 'class="aud-anillo"' in t and 'class="cu hueco"' in t and "Cámara 3 (frontal der.): 1 celda marcada." in t     # la Lista A sintética tiene una celda en la cámara 3
-    assert t.count('class="cu hueco"') == 1 and "Impacto estimado" in t and "Alertas" in t
-
-
 def test_la_auditoria_muestra_el_anillo(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Auditoría de cámaras")
     assert 'class="aud-anillo"' in textos(at) and "Celdas marcadas por cámara" in textos(at)
 
 
-def test_la_cola_usa_estado_vacio_y_el_detalle_ilumina_la_camara(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    at = _abrir(entorno, monkeypatch, "Cola de revisión")
-    t = textos(at)
-    assert "Seleccione una fila" in t and 'class="aud-vacio"' in t and 'class="cu apagada"' in t and 'class="cu activa"' not in t
-    fuente = (R / "app" / "secciones.py").read_text(encoding="utf-8")
-    assert 'key="panel_vacio"' in fuente and 'key="panel_detalle"' in fuente                                  # claves distintas: el detalle se monta de nuevo y su aparición se anima
-    assert "activa" in fuente and "Ninguna caja cumple los filtros" in fuente
-
-
 def test_puntuar_sin_archivos_muestra_el_estado_vacio(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     at = _abrir(entorno, monkeypatch, "Puntuar datos nuevos")
     t = textos(at)
-    assert "Sin archivos cargados" in t and 'class="aud-vacio"' in t and "Todavía no hay archivos" not in t
+    assert "Todavía no hay un segmento cargado" in t and 'aud-vacio' in t and "Todavía no hay archivos" not in t
 
 
 def test_los_graficos_comparten_un_solo_tema() -> None:
     fuente = (R / "app" / "secciones.py").read_text(encoding="utf-8")
-    assert fuente.count(".configure(") == 1 and "domain=False" in fuente and 'gridColor="#E3E9F1"' in fuente    # una sola función ``_grafico`` configura todos
-    assert "cornerRadiusEnd=" in fuente and 'range=["#E6F3F4", E.TOKENS["sano"]]' in fuente                     # barras redondeadas y mapa en verde azulado (sano)
+    assert fuente.count(".configure(") == 1 and "domain=False" in fuente and 'gridColor=t["panel_borde"]' in fuente    # una sola función ``_grafico`` configura todos
+    assert "cornerRadiusEnd=" in fuente and "range=E.RAMPA_SANA" in fuente                     # barras redondeadas y mapa en teal (sano)

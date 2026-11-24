@@ -6,13 +6,13 @@ congelados de ``data/06_models_ep3``. Ningún dato sale del equipo.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
 
-IDENTIFICADORES = ["key.frame_timestamp_micros", "key.laser_object_id"]
 CAMARAS = {1: "1 (frontal)", 2: "2 (frontal izq.)", 3: "3 (frontal der.)", 4: "4 (lateral izq.)", 5: "5 (lateral der.)"}
 ARCHIVOS = ("cajas_oof.parquet", "celdas.csv", "lista_A.csv", "curva_cola.csv", "kpis.json")
 AVISO_EN_MUESTRA = (
@@ -25,19 +25,16 @@ PERFILES = {
         "pregunta": "¿Qué se revisa primero y cuánto cuesta?",
         "seccion": "Cola de revisión",
         "mensaje": "La cola indica por dónde empezar; la decisión sobre cada caja es de la persona que revisa.",
-        "alerta": "ciclistas",
     },
     "Responsable de calidad de datos": {
         "pregunta": "¿Qué cámaras o segmentos tienen un problema sistemático?",
         "seccion": "Auditoría de cámaras",
         "mensaje": "Una cámara con tasa de pares muy baja suele ser un problema de etiquetado o de datos, no de cajas sueltas: se atiende aparte.",
-        "alerta": "celdas",
     },
     "Ingeniero consumidor de datos": {
         "pregunta": "¿Se puede confiar en las etiquetas 2D de un segmento nuevo?",
         "seccion": "Puntuar datos nuevos",
         "mensaje": "Un segmento nuevo se puntúa en el equipo y entrega la lista de celdas sospechosas y la cola de cajas.",
-        "alerta": "validacion",
     },
 }
 
@@ -56,11 +53,6 @@ def cargar_datos(carpeta: Path) -> dict[str, Any]:
         "clusters": pd.read_csv(carpeta / "clusters.csv") if (carpeta / "clusters.csv").exists() else pd.DataFrame(),
         "evidencia": {p.stem: pd.read_csv(p) for p in sorted((carpeta / "evidencia").glob("*.csv"))} if (carpeta / "evidencia").exists() else {},
     }
-
-
-def ocultar_identificadores(df: pd.DataFrame, ocultar: bool) -> pd.DataFrame:
-    """Modo presentación: quita ``laser_object_id`` y la marca de tiempo."""
-    return df.drop(columns=[c for c in IDENTIFICADORES if c in df.columns]) if ocultar else df
 
 
 MIN_CAJAS_RANGO = 100        # el detector solo juzga una celda con al menos 100 cajas en el rango (detector_params_v3.json: min_cajas)
@@ -97,6 +89,68 @@ def orden_segmentos(m: pd.DataFrame, marcadas_primero: bool = True) -> list[str]
         return segs
     con = set(m.loc[m["hueco"], "seg_corto"])
     return [s for s in segs if s in con] + [s for s in segs if s not in con]
+
+
+def estado_camaras_segmento(m: pd.DataFrame, seg: str) -> dict[int, str]:
+    """Estado de cada cámara en un segmento para el anillo del Resumen (F23): ``hueco``, ``sin_datos`` o ``sana``, los mismos tres estados del mapa de calor.
+
+    ``m`` es la salida de ``matriz_calor``. No calcula nada nuevo: lee las columnas ``hueco`` y ``sin_datos`` que ya trae. Una cámara sin fila en ese segmento sale como ``sin_datos``.
+    """
+    fila = m[m["seg"] == seg]
+    out: dict[int, str] = {}
+    for cam, nombre in CAMARAS.items():
+        f = fila[fila["camara"] == nombre]
+        if f.empty:
+            out[cam] = "sin_datos"
+        elif bool(f["hueco"].iloc[0]):
+            out[cam] = "hueco"
+        elif bool(f["sin_datos"].iloc[0]):
+            out[cam] = "sin_datos"
+        else:
+            out[cam] = "sana"
+    return out
+
+
+def camaras_con_celdas_marcadas(lista_a: pd.DataFrame) -> dict[int, int]:
+    """Cuántas celdas marcadas (Lista A) tiene cada cámara, por número de cámara."""
+    cuenta: dict[int, int] = {}
+    if lista_a is not None and "camara" in lista_a.columns:
+        for c in lista_a["camara"].astype(str):
+            if c[:1].isdigit():
+                cuenta[int(c[0])] = cuenta.get(int(c[0]), 0) + 1
+    return cuenta
+
+
+PLAN_V3 = Path(__file__).resolve().parents[3] / "docs" / "ep3" / "plan_v3.json"
+CRITERIOS_SELECCION = (("O1", "Discrimina"), ("O2", "Vale la pena"), ("O3", "Recall en el punto A"), ("O4", "Estable y calibrada"))
+
+
+def criterios_seleccion(plan: dict[str, Any] | None = None) -> list[tuple[str, str, str]]:
+    """Los criterios de selección O1 a O4 con nombre propio y su definición (F23): (clave, nombre, definición).
+
+    Los umbrales se leen del plan v3 congelado (``docs/ep3/plan_v3.json``, solo lectura); si el plan no está a mano, la definición sale sin números. No decide nada: el cumplimiento de cada
+    candidato sale de la tabla de selección de EP3.
+    """
+    from waymo_evaluacion.ep3 import formato as F
+
+    if plan is None:
+        try:
+            plan = json.loads(PLAN_V3.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            plan = {}
+    try:
+        o = plan["P8"]["objetivos"]
+        e = plan["P7"]["estabilidad"]
+        d = {
+            "O1": f"AUC de al menos {F.decimal(o['O1']['auc_min'], 2)} y PR-AUC menos prevalencia de al menos {F.decimal(o['O1']['pr_auc_menos_prevalencia_min'], 2)}.",
+            "O2": (f"La fracción de cajas para encontrar el 80 % baja al menos {F.entero(o['O2']['fraccion_80_baja_min_puntos'])} puntos frente a la regla, con intervalo pareado que excluye 0, "
+                   f"y el AUC sube al menos {F.decimal(o['O2']['auc_sube_min'], 2)}."),
+            "O3": f"Recall de al menos {F.decimal(o['O3']['recall_punto_A_min'], 2)} en el punto A.",
+            "O4": f"AUC mínimo por partición de al menos {F.decimal(e['auc_min_fold'], 2)} y ECE de a lo sumo {F.decimal(o['O4']['ece_max'], 2)}.",
+        }
+    except (KeyError, TypeError):
+        d = {"O1": "AUC y PR-AUC mínimos del plan.", "O2": "Vale la pena frente a la regla, según el plan.", "O3": "Recall mínimo en el punto A, según el plan.", "O4": "Estabilidad por partición y calibración, según el plan."}
+    return [(k, nombre, d[k]) for k, nombre in CRITERIOS_SELECCION]
 
 
 def recall_en_presupuesto(curva: pd.DataFrame, solucion: str, presupuesto: float) -> dict[str, float]:
@@ -194,15 +248,89 @@ import json as _json  # noqa: E402
 
 from waymo_evaluacion.ep3 import formato as F  # noqa: E402
 
-PRODUCTO = "Auditor de etiquetas 3D"
+# F26: identidad de la página. Cada texto vive en UNA constante; se cambia aquí y la página, el favicon, la guía y los documentos lo siguen.
+NOMBRE_PRODUCTO = "Lente"
+SUBLINEA_MARCA = "Waymo Open Dataset v2"
+TITULO_RESUMEN = "Estado de las cámaras"                       # título grande del Resumen; la etiqueta del menú sigue siendo SECCIONES[0] («Resumen»)
+SUBTITULO_RESUMEN = "Etiquetas 2D de peatones y ciclistas en {n} segmentos."
+# F29: Resumen para uso diario (indicadores, alertas de cámara, cola y segmentos prioritarios). La hipótesis sigue siendo «posible hueco», no «cámara defectuosa».
+KICKER_ALERTAS = "Alertas de cámara"
+TITULAR_ALERTAS = "Hay {huecos} en los últimos datos sin revisar."            # {huecos}: «N posibles huecos de cámara», en color de alerta
+TITULAR_ALERTAS_UNO = "Hay {huecos} en los últimos datos sin revisar."
+TITULAR_SIN_ALERTAS = "Todas las cámaras sanas."
+SUBTITULO_ALERTAS = "Se revisaron {n} segmentos. Estas celdas se auditan aparte de la cola."
+SUBTITULO_SIN_ALERTAS = "Última actualización de los datos: {hora}."
+ACCION_AUDITAR = "Auditar"
+ESTADO_HUECO = "Hueco"
+TITULO_COLA_RESUMEN = "Cola de revisión"
+SUBTITULO_COLA_RESUMEN = "Qué caja revisar primero, ordenadas por probabilidad de no tener par 2D en ninguna cámara."
+ENLACE_COLA = "Abrir la cola completa"
+ACCION_ABRIR = "Abrir"
+ETIQUETA_CICLISTA = "Regla poco confiable"
+NOTA_ORDEN_COLA = "Las cajas con igual probabilidad se ordenan por segmento y número de caja, para que la lista nunca repita filas idénticas."
+TITULO_SEGMENTOS_PRIORITARIOS = "Segmentos con más cajas prioritarias"
+SUBTITULO_SEGMENTOS_PRIORITARIOS = "Útil para repartir el trabajo del turno."
+# F27: el menú sigue el orden del proceso (la hipótesis sigue siendo «posible hueco», no «cámara defectuosa»).
+# F31: Auditoría de cámaras (franja de resumen, una sola tabla de celdas marcadas, anillo, mapa con las filas peores y desplegable de la definición).
+AUD_DEFINICION = "Hueco: cámara que, en un segmento, tiene menos del {frac} de los pares 2D que le corresponden. Es una hipótesis para revisar, no una conclusión."
+AUD_TITULAR = "{huecos} en los últimos datos sin revisar."                      # {huecos}: «N posibles huecos de cámara»
+AUD_TITULAR_CERO = "Ninguna cámara tiene posibles huecos en los últimos datos sin revisar."
+AUD_NOTA_DESARROLLO = "Las cifras salen de los {n} segmentos de desarrollo."
+AUD_TITULO_TABLA = "Celdas marcadas"
+AUD_AYUDA_TABLA = "Ordenadas por cajas afectadas. Qué hacer: completar las etiquetas 2D o reportar el dato faltante."
+AUD_AVISO_CELDA = "Celda resaltada en el mapa: segmento {segmento}, cámara {camara} ({nombre}). {origen}"
+AUD_ORIGEN_RESUMEN = "Llegó desde «Auditar» del Resumen o con un clic en esta fila."
+AUD_ORIGEN_FILA = "Un clic en otra fila de la tabla resalta otra celda."
+AUD_TITULO_ANILLO = "Celdas marcadas por cámara"
+AUD_TITULO_MAPA = "Mapa segmento × cámara"
+AUD_AYUDA_MAPA = "Sirve para ver si falla una cámara en muchos segmentos o solo una celda. Primero van los segmentos con celdas marcadas."
+AUD_QUE_ES = "¿Qué es un hueco?"
+ENLACE_COLA_DESDE_AUDITORIA = "Ir a la cola de revisión →"
+# F32: Cola de revisión (plan arriba, tres tarjetas, «Cola de cajas» primero, tabla de 50 en 50, panel de detalle y supuestos plegados).
+COLA_TAB_LISTA = "Cola de cajas"
+COLA_TAB_CURVA = "Curva de priorización"
+COLA_SUPUESTOS = "Supuestos y confiabilidad"
+COLA_BOTON_EXPLICAR = "Explicar esta caja →"
+COLA_TITULO_CURVA = "Cajas sin pareja que se encuentran según cuánto se revisa"
+COLA_NOTA_BANDA = "Banda sombreada: intervalo del 95 % por segmentos (ancho porque son solo {n} segmentos)."
+COLA_LLAMADA = "Revisando el {presupuesto}: {dos} (dos pasos), {uno} (un paso)"
+FILAS_PAGINA_COLA = 50                                           # filas de la tabla por página (en vez de 500 con desplazamiento interno)
+# F33: Explica una caja (ejemplos como botones, un solo control decide, resultado y veredicto primero, lugar en una barra, cuatro pasos con valores vivos, gráfico con rótulos directos).
+EXP_VEREDICTO_SI = "Se revisaría con un presupuesto del {presupuesto}"
+EXP_VEREDICTO_NO = "No se revisaría con un presupuesto del {presupuesto}"
+EXP_DETALLE_SI = "Está dentro del {presupuesto} que se revisa primero."
+EXP_DETALLE_NO = "Entraría si se revisara más del {posicion} de la cola."
+EXP_LUGAR_TEXTO = "El {posicion} de las cajas de la cola queda antes que esta."
+EXP_LUGAR_EMPATE = "Está entre las primeras {n} cajas de la cola: todas tienen {puntos} puntos del sensor superior y empatan en la prioridad máxima."
+EXP_ROTULO_REVISA = "Se revisa hasta aquí"
+EXP_ROTULO_80 = "Para hallar el 80 % de las sin pareja"
+EXP_ETIQUETA_COLA = "De la cola · caja {caja}"
+EXP_AVISO_ORIGEN = "Valores cargados desde {origen}: caja {caja}, prioridad {prioridad}."
+EXP_ENLACE_VOLVER = "← Volver a {destino}"
+EXP_PASOS = ("1 · Entrada", "2 · Puntaje", "3 · Probabilidad", "4 · Lugar")
+EXP_PASOS_DETALLE = ("del sensor superior", "menos los puntos del sensor superior", "la calibración lo convierte en probabilidad", "fracción de las cajas que quedan antes")
+EXP_AVISO_CICLISTA = "{etiqueta} en ciclistas."
+FILAS_MAPA_INICIO = 10                                           # filas del mapa que se ven al abrir (las peores)
+PASO_MAPA = 50                                                   # cuántas filas más se agregan por clic cuando hay muchos segmentos
+UMBRAL_TODOS_MAPA = 60                                           # hasta este número de segmentos, un clic muestra todos
+PRESUPUESTO_VISTA_RESUMEN = 0.20                                 # el mismo 20 % con que abre «Cola de revisión»
+FILAS_COLA_RESUMEN = 5
+FILAS_ALERTAS_RESUMEN = 5
+SEGMENTOS_PRIORITARIOS_RESUMEN = 5
+# Texto provisional de la licencia (reconstruido): contrastarlo con waymo.com/open/terms antes de entregar.
+ATRIBUCION_WAYMO = ("This application was made using the Waymo Open Dataset, provided by Waymo LLC under the Waymo Dataset License Agreement for Non-Commercial Use "
+                    "(see waymo.com/open/terms).")
+PRODUCTO = NOMBRE_PRODUCTO
 ESLOGAN = "Revisión priorizada de cajas 3D de peatones y ciclistas sin par 2D."
 VERSION_PRODUCTO = "EP3"
-CHIP_ESTADO = "Datos de desarrollo · sin validación externa"
 AVISO_CORTO = "En muestra: 41 segmentos; el detector se ajustó con los mismos datos y aún no hay prueba ciega."
 ETIQUETA_EN_MUESTRA = "en muestra"
 # F20-P1: navegación agrupada (st.navigation). El orden de SECCIONES es el de la barra lateral.
-GRUPOS_NAV = {"Revisión": ["Resumen", "Cola de revisión", "Explica una caja"], "Calidad de datos": ["Auditoría de cámaras"], "Análisis": ["Validación"],
-              "Herramientas": ["Puntuar datos nuevos"], "Ayuda": ["Ética y límites", "Ayuda y glosario"]}
+# F27: el menú sigue el orden del proceso: primero el filtro de cámaras (paso 1) y después la priorización de cajas (paso 2). Los nombres de las secciones no cambian.
+PASO_FILTRO = "1 · Filtro"
+PASO_PRIORIZACION = "2 · Priorización"
+GRUPOS_NAV = {"Visión general": ["Resumen"], PASO_FILTRO: ["Auditoría de cámaras"], PASO_PRIORIZACION: ["Cola de revisión"], "Análisis": ["Validación"],
+              "Herramientas": ["Explica una caja", "Puntuar datos nuevos"], "Ayuda": ["Ética y límites", "Ayuda y glosario"]}          # F33: «Explica una caja» pasa a «Herramientas» (no es parte del recorrido diario; se entra desde la Cola)
 SECCIONES = [s for g in GRUPOS_NAV.values() for s in g]
 ICONOS = {"Resumen": ":material/dashboard:", "Cola de revisión": ":material/format_list_numbered:", "Explica una caja": ":material/manage_search:", "Auditoría de cámaras": ":material/videocam:",
           "Validación": ":material/fact_check:", "Puntuar datos nuevos": ":material/upload_file:", "Ética y límites": ":material/balance:", "Ayuda y glosario": ":material/help:"}
@@ -210,13 +338,54 @@ ARCHIVO_PAGINA = {"Resumen": "paginas/resumen.py", "Cola de revisión": "paginas
                   "Validación": "paginas/validacion.py", "Puntuar datos nuevos": "paginas/puntuar.py", "Ética y límites": "paginas/etica.py", "Ayuda y glosario": "paginas/ayuda.py"}
 URL_PAGINA = {"Resumen": "resumen", "Cola de revisión": "cola", "Explica una caja": "explica", "Auditoría de cámaras": "auditoria", "Validación": "validacion",
               "Puntuar datos nuevos": "puntuar", "Ética y límites": "etica", "Ayuda y glosario": "ayuda"}
-DESCRIPCION_PAGINA = {"Cola de revisión": "Cajas 3D ordenadas por la probabilidad de no tener par 2D; se revisa de arriba hacia abajo.",
-                      "Explica una caja": "Posición que ocupa una caja en la cola según sus puntos del sensor y su distancia.",
-                      "Auditoría de cámaras": "Proporción de cajas con par 2D por segmento y cámara; las celdas con hueco se atienden aparte.",
-                      "Validación": "Resultados guardados de EP3: hiperparámetros, ensambles, generalización, selección y análisis post hoc.",
-                      "Puntuar datos nuevos": "Puntaje de un segmento nuevo con la solución congelada; el procesamiento es local y en memoria.",
+DESCRIPCION_PAGINA = {"Cola de revisión": "Qué cajas revisar y en qué orden. Se revisa de arriba hacia abajo.",
+                      "Explica una caja": "Cambiando los datos de una caja se ve qué lugar ocuparía en la cola y si se revisaría.",
+                      "Auditoría de cámaras": "Qué cámaras tienen huecos en qué segmentos; esas celdas se atienden aparte de la cola.",
+                      "Validación": "Qué se probó para elegir la regla, qué tan bien funciona y qué falta por demostrar.",
                       "Ética y límites": "Ficha del sistema: propósito, datos, desempeño, límites, consideraciones éticas y entorno de ejecución.",
                       "Ayuda y glosario": "Flujo de revisión, glosario y preguntas frecuentes."}
+# F26-B1 y F36: textos que dependen de cómo se despliega la página. UNA sola constante, ``MODO_DESPLIEGUE``, decide cuáles se muestran: ``local`` (por defecto) dice lo que es verdad en el equipo de la persona;
+# ``publicado`` es la variante para cuando la página se publique en internet. **No está activada**: sus textos son borradores («borrador: verificar») y llevan un hueco, ``[nombre del servicio]``, que hay que
+# completar y comprobar antes de usarla. Para probarla sin tocar el archivo se puede fijar la variable de entorno ``EP3_ENTORNO=publicado`` (también acepta ``servidor``); la variable manda sobre la constante.
+# Los archivos cargados NO se escriben a disco: ``puntuar_segmento`` trabaja en memoria y la página no llama a ``guardar`` (lo vigila una prueba).
+MODO_DESPLIEGUE = "local"
+MODOS_DESPLIEGUE = ("local", "publicado")
+TEXTOS_ENTORNO = {
+    "local": {
+        "donde_corre": "Solo en este equipo (localhost), sin conexión a internet. No debe exponerse en una red sin autenticación.",
+        "puntuar_subtitulo": "Un segmento nuevo se puntúa con la solución congelada y se obtienen sus celdas marcadas y su cola de cajas.",
+        "puntuar_etiqueta": "Procesamiento local y en memoria",
+        "puntuar_etiqueta_2": "No se guarda nada",
+        "consideracion_etica": "Las tablas locales tienen identificadores de objeto y marcas de tiempo. Nada se guarda ni se envía.",
+        "faq_archivos": "No. Nada se guarda ni se envía: «Puntuar datos nuevos» procesa el archivo en memoria y la aplicación no hace ninguna conexión a internet.",
+        "borrador": "",
+    },
+    "publicado": {
+        "donde_corre": "En un servidor conectado a internet ([nombre del servicio]). Cualquiera que tenga el enlace puede abrir la aplicación. No se deben subir datos que no puedan compartirse con ese servicio.",
+        "puntuar_subtitulo": "Un segmento nuevo se puntúa con la solución congelada y se obtienen sus celdas marcadas y su cola de cajas; en esta página el procesamiento ocurre en el servidor.",
+        "puntuar_etiqueta": "Procesamiento en el servidor y en memoria",
+        "puntuar_etiqueta_2": "No se guarda nada",
+        "consideracion_etica": "Las tablas tienen identificadores de objeto y marcas de tiempo. Los archivos que se suben en «Puntuar datos nuevos» se procesan en la memoria del servidor durante la sesión y no se guardan.",
+        "faq_archivos": "Los archivos que se suben se procesan en la memoria del servidor durante la sesión y no se guardan. Salen del equipo hacia el servidor, así que no se deben subir datos que no puedan compartirse con él.",
+        "borrador": "borrador: verificar",
+    },
+}
+
+
+def entorno_pagina() -> str:
+    """``local`` o ``publicado``: el valor de ``MODO_DESPLIEGUE`` salvo que la variable de entorno ``EP3_ENTORNO`` diga otra cosa (``publicado`` o ``servidor``, sin distinguir mayúsculas; ``local`` u otro valor da ``local``).
+    Es el único lugar que decide el modo; se lee en cada llamada."""
+    valor = os.environ.get("EP3_ENTORNO")
+    if valor is None:
+        return MODO_DESPLIEGUE if MODO_DESPLIEGUE in MODOS_DESPLIEGUE else "local"
+    return "publicado" if valor.strip().lower() in ("publicado", "servidor") else "local"
+
+
+def texto_entorno(clave: str) -> str:
+    """Texto de ``TEXTOS_ENTORNO`` para el modo de despliegue actual."""
+    return TEXTOS_ENTORNO[entorno_pagina()][clave]
+
+
 CLASE_ADVERTENCIA = "Ciclista: poco confiable"
 CLASE_NORMAL = "Peatón"
 SUPUESTO_SEGUNDOS = 20
@@ -299,16 +468,16 @@ def resumen_cola(cajas: pd.DataFrame, curva: pd.DataFrame, solucion: str, segmen
 def texto_resultado_cola(r: dict[str, Any]) -> str:
     """Frase principal (F20-P4b): SIEMPRE los dos flujos, el de dos pasos rotulado «en muestra». Distinta para todos los segmentos y para uno solo (sin IC)."""
     if r["todos"]:
-        return (f"Con auditoría previa (en muestra): unas **{F.de_cada_100(r['cobertura_dos'])}** · Solo cola: unas **{F.de_cada_100(r['cobertura_uno'])}** "
+        return (f"Con auditoría previa (en muestra): unas **{F.de_cada_100(r['cobertura_dos'])}** cajas sin pareja. Solo cola: unas **{F.de_cada_100(r['cobertura_uno'])}** "
                 f"cajas sin pareja, en los {r['n_segmentos']} segmentos.")
     return (f"En el segmento {r['segmento']}: con auditoría previa (en muestra) se encontraron {F.entero(r['hallados_dos'])} de {F.entero(r['positivos_total'])} cajas sin pareja "
-            f"({F.porcentaje(r['cobertura_dos'])}) · solo cola, {F.entero(r['hallados_uno'])} ({F.porcentaje(r['cobertura_uno'])}). Un solo segmento: no hay intervalo de confianza por segmentos.")
+            f"({F.porcentaje(r['cobertura_dos'])}). Solo cola, {F.entero(r['hallados_uno'])} ({F.porcentaje(r['cobertura_uno'])}). Un solo segmento: no hay intervalo de confianza por segmentos.")
 
 
 def texto_esfuerzo_cola(r: dict[str, Any]) -> str:
     """Segunda línea: cajas a revisar y horas del flujo elegido."""
     nombre = "Auditoría + cola" if r["flujo"] == "dos" else "Solo cola"
-    return (f"{nombre}: {F.entero(r['cajas_a_revisar'])} cajas a revisar ({F.porcentaje(r['presupuesto'], 0)} de {F.entero(r['cajas_cola_total'])} en la cola) · "
+    return (f"{nombre}: {F.entero(r['cajas_a_revisar'])} cajas a revisar ({F.porcentaje(r['presupuesto'], 0)} de {F.entero(r['cajas_cola_total'])} en la cola). "
             f"{F.horas(r['horas'], 1)} con {F.entero(r['segundos'])} s por caja (supuesto).")
 
 
@@ -317,8 +486,8 @@ NOTA_FOTOGRAMAS = ("Fotogramas del mismo objeto que hay en la cola: un mismo obj
                    "Cuenta cuántas filas de la cola son del mismo objeto: revisar una ayuda a revisar las otras. No cambia el orden de la cola.")
 
 
-def tabla_cola(top: pd.DataFrame, cola_total: int, rangos: dict[int, tuple[float, float]], presentacion: bool, max_filas: int = 500) -> pd.DataFrame:
-    """Tabla de la cola lista para mostrar (nombres legibles, formato es-CL). En modo presentación no lleva identificadores (ni el segmento).
+def tabla_cola(top: pd.DataFrame, cola_total: int, rangos: dict[int, tuple[float, float]], max_filas: int = 500) -> pd.DataFrame:
+    """Tabla de la cola lista para mostrar (nombres legibles, formato es-CL).
 
     Orden de columnas (F21-P1b), pensado para que a 1366 px se vea lo que decide sin desplazar: posición, **probabilidad calibrada de no tener pareja**, puntos del sensor superior, clase,
     fotogramas del mismo objeto, cámara, tipo de caso, distancia y, al final, el segmento y los identificadores. No cambia el orden de las filas ni ninguna cifra. ``cola_total`` se conserva
@@ -338,11 +507,10 @@ def tabla_cola(top: pd.DataFrame, cola_total: int, rangos: dict[int, tuple[float
     out["Cámara"] = camara_de_azimut(t["az_signed"], rangos).to_numpy() if "az_signed" in t.columns else "—"
     out["Tipo de caso"] = t["tipo_caso"].to_numpy() if "tipo_caso" in t.columns else "—"
     out["Distancia"] = t["distancia_m"].map(lambda v: f"{F.decimal(v, 1)} m").to_numpy() if "distancia_m" in t.columns else "—"
-    if not presentacion:
-        out["Segmento"] = t["seg"].to_numpy()
-        for col, nombre in (("key.frame_timestamp_micros", "Marca de tiempo"), ("key.laser_object_id", "Identificador de objeto")):
-            if col in t.columns:
-                out[nombre] = t[col].to_numpy()
+    out["Segmento"] = t["seg"].to_numpy()
+    for col, nombre in (("key.frame_timestamp_micros", "Marca de tiempo"), ("key.laser_object_id", "Identificador de objeto")):
+        if col in t.columns:
+            out[nombre] = t[col].to_numpy()
     return out
 
 
@@ -350,10 +518,10 @@ COLUMNA_PROBABILIDAD = "Prob. sin pareja"
 NOTA_AGRUPADO = "Vista agrupada: una fila por objeto. Es solo una vista; el conteo de cajas a revisar no cambia."
 
 
-def tabla_por_objeto(top: pd.DataFrame, presentacion: bool, rangos: dict[int, tuple[float, float]] | None = None, max_filas: int = 500) -> pd.DataFrame:
+def tabla_por_objeto(top: pd.DataFrame, rangos: dict[int, tuple[float, float]] | None = None, max_filas: int = 500) -> pd.DataFrame:
     """Vista «Agrupar por objeto» (F20-P4f): una fila por objeto (segmento + identificador) con su mejor posición, su máxima probabilidad y los fotogramas en la cola.
 
-    Solo reagrupa la cola que se le pasa: no cambia el orden ni el número de cajas a revisar. En modo presentación no hay identificadores (los objetos van numerados).
+    Solo reagrupa la cola que se le pasa: no cambia el orden ni el número de cajas a revisar.
     """
     if top.empty or "key.laser_object_id" not in top.columns:
         return pd.DataFrame(columns=["Objeto", "Mejor posición", COLUMNA_PROBABILIDAD + " máxima", COLUMNA_FOTOGRAMAS])
@@ -371,9 +539,8 @@ def tabla_por_objeto(top: pd.DataFrame, presentacion: bool, rangos: dict[int, tu
     if "az" in g.columns:
         out["Cámara"] = camara_de_azimut(g["az"].reset_index(drop=True), rangos or {}).to_numpy()
     out["Tipo de caso"] = g["tipo"].to_numpy() if "tipo" in g.columns else "—"
-    out["Objeto"] = np.arange(1, len(g) + 1) if presentacion else g["key.laser_object_id"].to_numpy()
-    if not presentacion:
-        out["Segmento"] = g["seg"].to_numpy()
+    out["Objeto"] = g["key.laser_object_id"].to_numpy()
+    out["Segmento"] = g["seg"].to_numpy()
     return out
 
 
@@ -462,22 +629,292 @@ def inicio_resumen(D: dict[str, Any], segundos: float = SUPUESTO_SEGUNDOS) -> di
             "fraccion_80_un_paso": frac_a, "segmentos": int(cajas["seg"].nunique())}
 
 
-def alertas_resumen(r: dict[str, Any], ciclistas: dict[str, float], perfil: str | None = None) -> list[dict[str, str]]:
-    """Las tres alertas del Resumen (F20-P3): celdas marcadas, ciclistas y validación externa pendiente. Primero la del rol; cada una con la sección a la que lleva."""
-    c = ciclistas or {}
-    hay = all(isinstance(c.get(k), float) and c[k] == c[k] for k in ("ciclista", "peaton", "positivos", "segmentos"))
-    txt_c = (f"En ciclistas la regla encuentra {F.decimal(c['ciclista'], 3)} de los casos contra {F.decimal(c['peaton'], 3)} en peatones ({F.entero(c['positivos'])} casos en {F.entero(c['segmentos'])} segmentos)."
-             if hay else "En ciclistas la regla es poco confiable.")
-    alertas = {
-        "celdas": {"clave": "celdas", "titulo": "Celdas marcadas", "texto": f"{F.entero(r['celdas_marcadas'])} celdas (segmento × cámara) en {F.entero(r['segmentos_con_hueco'])} segmentos se atienden aparte de la cola.",
-                   "seccion": "Auditoría de cámaras", "tono": "hueco"},
-        "ciclistas": {"clave": "ciclistas", "titulo": "Ciclistas: regla poco confiable", "texto": txt_c, "seccion": "Ética y límites", "tono": "aviso"},
-        "validacion": {"clave": "validacion", "titulo": "Validación externa pendiente", "texto": "La validación con segmentos nuevos está preparada y sellada; todavía no se ejecutó. Todas las cifras salen de los 41 segmentos de desarrollo.",
-                       "seccion": "Validación", "tono": "aviso"},
-    }
-    primera = PERFILES.get(perfil or "", {}).get("alerta")
-    orden = ([primera] if primera in alertas else []) + [k for k in ("celdas", "ciclistas", "validacion") if k != primera]
-    return [alertas[k] for k in orden]
+# ------------------------------------------------------------------------------------------------------------ F29: lógica del Resumen para uso diario
+def segmentos_sin_revisar(D: dict[str, Any]) -> int:
+    """Segmentos «sin revisar» del primer indicador. Mientras no exista un flujo en vivo es el total cargado; esta es la ÚNICA función que decide qué es «sin revisar» (cambiarla aquí cuando llegue ese flujo)."""
+    return int(D["cajas"]["seg"].nunique())
+
+
+def cambio_respecto_de_ayer(D: dict[str, Any]) -> float | None:
+    """Cambio del % de cajas sin pareja respecto del corte anterior; ``None`` mientras no exista un corte anterior (hoy los datos son un solo corte: no se inventa la cifra)."""
+    return None
+
+
+def indicadores_resumen(D: dict[str, Any], r: dict[str, Any], cajas_en_cola: int) -> list[dict[str, str]]:
+    """Los cuatro indicadores del Resumen (``r`` es la salida de ``inicio_resumen``; ``cajas_en_cola`` sale de ``cola_prioritaria``). Todas las cifras ya existían: solo cambian de lugar.
+
+    El cambio respecto de ayer se agrega a la nota del último solo si ``cambio_respecto_de_ayer`` devuelve un valor (hoy no hay corte anterior y no se muestra nada).
+    """
+    k, n_seg = int(r["celdas_marcadas"]), int(r["segmentos_con_hueco"])
+    if k == 0:
+        nota_alerta = "ninguna requiere auditoría"
+    else:
+        nota_alerta = f"en {F.entero(n_seg)} {'segmento' if n_seg == 1 else 'segmentos'}, {'requiere' if k == 1 else 'requieren'} auditoría"
+    cambio = cambio_respecto_de_ayer(D)
+    nota_prev = "sin par en ninguna cámara" if cambio is None else f"{'+' if cambio >= 0 else '−'}{F.decimal(abs(cambio) * 100, 1)} puntos respecto de ayer"
+    return [
+        {"clave": "segmentos", "etiqueta": "Segmentos nuevos", "valor": F.entero(segmentos_sin_revisar(D)), "nota": "cargados, sin revisar", "tono": ""},
+        {"clave": "camaras", "etiqueta": "Cámaras con alerta", "valor": F.entero(k), "nota": nota_alerta, "tono": "hueco" if k > 0 else ""},
+        {"clave": "cola", "etiqueta": "Cajas en la cola", "valor": F.entero(cajas_en_cola), "nota": "peatones y ciclistas por revisar", "tono": ""},
+        {"clave": "prevalencia", "etiqueta": "Cajas sin pareja", "valor": F.porcentaje(r["prevalencia"]), "nota": nota_prev, "tono": ""},
+    ]
+
+
+def preparar_cola(top: pd.DataFrame, cajas: pd.DataFrame, rangos: dict[int, tuple[float, float]]) -> pd.DataFrame:
+    """La cola de una selección (``top``, tal como la elige ``cola_segmento``) en un orden DETERMINISTA y con las columnas que muestran el Resumen y la Cola.
+
+    Orden: probabilidad calibrada descendente, luego segmento, luego identificador del objeto y luego fotograma. Solo reordena las cajas ya elegidas por la regla (no cambia cuáles ni cuántas: el conjunto y
+    los positivos son los mismos para cualquier presupuesto y flujo). ``caja`` es el final del identificador del objeto y su número de fotograma dentro del segmento (única con el segmento, así que no
+    hay filas idénticas); ``camara`` y ``clase`` son el texto que se muestra.
+    """
+    t = top.sort_values(["prob_cal", "seg", "key.laser_object_id", "key.frame_timestamp_micros"], ascending=[False, True, True, True], kind="stable").reset_index(drop=True)
+    orden = cajas.groupby(["seg", "key.laser_object_id"])["key.frame_timestamp_micros"].rank(method="dense").astype(int)
+    num = dict(zip(zip(cajas["seg"], cajas["key.laser_object_id"], cajas["key.frame_timestamp_micros"]), orden.to_numpy()))
+    t["fotograma"] = [num[k] for k in zip(t["seg"], t["key.laser_object_id"], t["key.frame_timestamp_micros"])]
+    t["caja"] = [f"{str(o)[-4:]}-{int(k):02d}" for o, k in zip(t["key.laser_object_id"], t["fotograma"])]
+    t["camara"] = camara_de_azimut(t["az_signed"], rangos).to_numpy() if "az_signed" in t.columns else "—"
+    t["clase"] = np.where(t["es_ciclista"].to_numpy() == 1, "Ciclista", "Peatón") if "es_ciclista" in t.columns else "Peatón"
+    return t
+
+
+def cola_prioritaria(cajas: pd.DataFrame, rangos: dict[int, tuple[float, float]], presupuesto: float = PRESUPUESTO_VISTA_RESUMEN) -> tuple[pd.DataFrame, int]:
+    """La cola prioritaria del Resumen: las mismas cajas que elige ``cola_segmento`` (flujo en dos pasos, todos los segmentos, ``presupuesto`` de la cola) con el orden de ``preparar_cola``.
+
+    Devuelve la tabla y el total de cajas de la cola (el de «Cajas en la cola»).
+    """
+    top, info = cola_segmento(cajas, "Todos", presupuesto, "dos")
+    return preparar_cola(top, cajas, rangos), int(info["cajas_cola_total"])
+
+
+def tarjetas_cola(r: dict[str, Any], segundos: float) -> list[dict[str, str]]:
+    """Las tres tarjetas de la Cola (F32): cajas a revisar, cajas sin pareja que se encuentran (con «en muestra» y la cifra del otro flujo debajo) y tiempo estimado.
+
+    ``r`` es la salida de ``resumen_cola`` para todos los segmentos. Son las mismas cifras que decían el párrafo largo y la línea de esfuerzo: salen de las mismas claves.
+    """
+    dos = r["flujo"] == "dos"
+    propio, otro = (r["cobertura_dos"], r["cobertura_uno"]) if dos else (r["cobertura_uno"], r["cobertura_dos"])
+    nota = f"solo cola: {F.de_cada_100(otro)}" if dos else f"con auditoría previa: {F.de_cada_100(otro)}"
+    return [
+        {"clave": "revisar", "etiqueta": "Cajas a revisar", "valor": F.entero(r["cajas_a_revisar"]), "nota": f"{F.porcentaje(r['presupuesto'], 0)} de las {F.entero(r['cajas_cola_total'])} de la cola"},
+        {"clave": "encuentran", "etiqueta": "Cajas sin pareja que se encuentran", "en_muestra": True, "valor": F.entero(round(100 * propio)), "sufijo": "de cada 100", "nota": nota},
+        {"clave": "tiempo", "etiqueta": "Tiempo estimado", "valor": F.horas(r["horas"], 1), "nota": f"{F.entero(segundos)} s por caja (supuesto)"},
+    ]
+
+
+def aviso_empate(top: pd.DataFrame) -> str | None:
+    """Aviso sobre la tabla de la Cola: cuántas de las primeras cajas empatan en la prioridad máxima, con sus puntos y el rango real de probabilidad, y cómo se ordenan entre sí. ``None`` si no hay empate.
+
+    ``top`` debe estar en el orden de la regla (el de ``cola_segmento``), que es el que define el empate.
+    """
+    e = empate_inicial(top)
+    if e is None:
+        return None
+    detalle = []
+    if e["puntos"] is not None:
+        detalle.append(f"{F.entero(e['puntos'])} puntos del sensor superior")
+    if e["prob_min"] is not None:
+        a, b = F.porcentaje(e["prob_min"], 1), F.porcentaje(e["prob_max"], 1)
+        detalle.append(a if a == b else f"entre {a} y {b}")
+    sujeto = f"Las {F.entero(e['n'])} cajas de la cola empatan" if e["toda_la_cola"] else f"Las primeras {F.entero(e['n'])} cajas empatan"
+    cuerpo = f" ({'; '.join(detalle)})" if detalle else ""
+    return f"{sujeto} en la prioridad máxima{cuerpo}. Su orden entre sí no es informativo: se ordenan por probabilidad, segmento y caja."
+
+
+def pagina_cola(total: int, pagina: int, por_pagina: int = FILAS_PAGINA_COLA) -> dict[str, int]:
+    """Datos de la página ``pagina`` (desde 1) de una lista de ``total`` filas: la página corregida a [1, n], el rango «Mostrando X a Y de N» (base 1) y los índices de corte (base 0)."""
+    n_paginas = max(1, -(-total // por_pagina))
+    pagina = min(max(int(pagina), 1), n_paginas)
+    ini = (pagina - 1) * por_pagina
+    fin = min(ini + por_pagina, total)
+    return {"pagina": pagina, "paginas": n_paginas, "desde": ini + 1 if total else 0, "hasta": fin, "ini": ini, "fin": fin, "total": total}
+
+
+def clase_con_etiqueta(clase: str) -> str:
+    """Texto de la columna «Clase» de la tabla: en ciclistas lleva «Regla poco confiable» en la propia fila."""
+    return f"{clase} · {ETIQUETA_CICLISTA}" if clase == "Ciclista" else clase
+
+
+def filtrar_cola_resumen(t: pd.DataFrame, clase: str = "Todas", camara: str = "Todas", segmento: str = "Todos") -> pd.DataFrame:
+    """Filtra la cola prioritaria del Resumen por clase, cámara y segmento (cada uno acepta «Todas»/«Todos»). No cambia el orden."""
+    out = t
+    if clase != "Todas":
+        out = out[out["clase"] == clase]
+    if camara != "Todas":
+        out = out[out["camara"] == camara]
+    if segmento != "Todos":
+        out = out[out["seg"] == segmento]
+    return out
+
+
+def segmentos_prioritarios(t: pd.DataFrame, n: int = SEGMENTOS_PRIORITARIOS_RESUMEN) -> list[tuple[str, int]]:
+    """Los ``n`` segmentos con más cajas en la cola prioritaria (cuántas cajas de la cola tiene cada uno), de más a menos; a igual número, por segmento."""
+    c = t.groupby("seg").size().reset_index(name="cajas").sort_values(["cajas", "seg"], ascending=[False, True], kind="stable").head(n)
+    return [(str(s), int(k)) for s, k in zip(c["seg"], c["cajas"])]
+
+
+def celdas_marcadas_lista(lista_a: pd.DataFrame) -> list[dict[str, Any]]:
+    """Las celdas marcadas (Lista A) como filas de la lista de alertas del Resumen: más cajas afectadas primero y, a igual número, por segmento (orden determinista).
+
+    Cada fila trae el segmento (completo y sus 6 últimos dígitos), el número y el nombre de la cámara, el estado «Hueco» y las cajas afectadas. Solo reordena y rotula la Lista A.
+    """
+    filas = []
+    for r in lista_a.itertuples(index=False):
+        cam = str(r.camara)
+        num = int(cam[0]) if cam[:1].isdigit() else 0
+        nombre = cam[cam.index("(") + 1:cam.rindex(")")] if "(" in cam and ")" in cam else cam
+        v = getattr(r, "cajas_afectadas_poblacion_principal", 0)
+        afectadas = int(v) if pd.notna(v) else 0
+        sin = getattr(r, "positivos_afectados", 0)
+        tasa, normal = getattr(r, "tasa", float("nan")), getattr(r, "mediana_camara", float("nan"))
+        lugar = _UBICACION.get(getattr(r, "ubicacion", ""), getattr(r, "ubicacion", "")) or ""
+        momento = _MOMENTO.get(getattr(r, "momento", ""), getattr(r, "momento", "")) or ""
+        filas.append({"segmento": str(r.segmento), "seg_corto": str(r.segmento)[-6:], "camara": cam, "camara_num": num, "camara_nombre": nombre, "estado": ESTADO_HUECO, "cajas_afectadas": afectadas,
+                      "sin_pareja": int(sin) if pd.notna(sin) else 0, "tasa": float(tasa) if pd.notna(tasa) else float("nan"), "normal": float(normal) if pd.notna(normal) else float("nan"),
+                      "contexto": ", ".join(x for x in (lugar, str(momento).lower()) if x)})
+    return sorted(filas, key=lambda f: (-f["cajas_afectadas"], f["segmento"], f["camara_num"]))
+
+
+def valores_para_explicar(fila: Any) -> dict[str, Any]:
+    """Los valores de una caja de la cola que «Explica una caja» recibe al pulsar «Abrir»: puntos del LiDAR y del sensor superior, distancia y clase."""
+    return {"pts": int(fila["num_lidar_points"]), "top": int(fila["num_top_lidar_points"]), "dist": float(fila["distancia_m"]), "clase": "Ciclista" if fila["clase"] == "Ciclista" else "Peatón"}
+
+
+def hora_de_los_datos(carpeta: Path) -> str | None:
+    """Fecha y hora de la última modificación de los archivos de la página (para «Última actualización de los datos»); ``None`` si no se puede leer."""
+    from datetime import datetime
+
+    try:
+        m = max((Path(carpeta) / a).stat().st_mtime for a in ARCHIVOS)
+    except (OSError, ValueError):
+        return None
+    return datetime.fromtimestamp(m).strftime("%d-%m-%Y %H:%M")
+
+
+# ------------------------------------------------------------------------------------------------------------ F31: lógica de la Auditoría de cámaras
+def cargar_fraccion_hueco(carpeta: Path) -> float:
+    """Fracción de la tasa normal de una cámara bajo la cual una celda es hueco (``frac`` del detector congelado; solo lectura; 0,25 si no está el archivo)."""
+    ruta = Path(carpeta) / "detector_params_v3.json"
+    if not ruta.exists():
+        return 0.25
+    return float(_json.loads(ruta.read_text(encoding="utf-8")).get("frac", 0.25))
+
+
+def resumen_auditoria(m: pd.DataFrame, lista_a: pd.DataFrame) -> dict[str, Any]:
+    """Cifras de la franja de la Auditoría: celdas (segmento × cámara) y cuántas están marcadas, cajas afectadas (población principal, dentro del rango de la cámara) y cuántas no tienen pareja.
+
+    Solo suma lo que ya trae la Lista A y cuenta las filas de ``matriz_calor``: no calcula nada nuevo. Con una Lista A sin las columnas de cajas, ambas sumas son 0.
+    """
+    afectadas = int(lista_a["cajas_afectadas_poblacion_principal"].sum()) if "cajas_afectadas_poblacion_principal" in lista_a.columns else 0
+    sin = int(lista_a["positivos_afectados"].sum()) if "positivos_afectados" in lista_a.columns else 0
+    return {"celdas_total": int(len(m)), "celdas_marcadas": int(len(lista_a)), "cajas_afectadas": afectadas, "sin_pareja": sin, "pct_sin_pareja": (sin / afectadas) if afectadas else float("nan"),
+            "segmentos": int(m["seg"].nunique()) if len(m) else 0}
+
+
+def orden_gravedad(m: pd.DataFrame) -> list[str]:
+    """Segmentos del mapa de lo más grave a lo menos: primero los que tienen más celdas marcadas, luego los de menor tasa de pares entre sus celdas con datos suficientes, luego por identificador.
+
+    Es un orden determinista y barato (una pasada): sirve con cientos de segmentos.
+    """
+    if m.empty:
+        return []
+    g = m.groupby("seg").apply(lambda d: pd.Series({"marcadas": int(d["hueco"].sum()), "tasa_min": float(d.loc[~d["sin_datos"], "tasa"].min()) if (~d["sin_datos"]).any() else 1.0}), include_groups=False)
+    g = g.reset_index().sort_values(["marcadas", "tasa_min", "seg"], ascending=[False, True, True], kind="stable")
+    return [str(s) for s in g["seg"]]
+
+
+def siguiente_filas_mapa(actual: int, total: int) -> int:
+    """Cuántas filas del mapa se ven después del clic en el botón: con ``total`` hasta ``UMBRAL_TODOS_MAPA`` se pasa de las primeras a todas; con más, de a ``PASO_MAPA``; al llegar al final, se vuelve al inicio."""
+    if actual >= total:
+        return min(FILAS_MAPA_INICIO, total)
+    return total if total <= UMBRAL_TODOS_MAPA else min(total, actual + PASO_MAPA)
+
+
+def rotulo_boton_mapa(actual: int, total: int) -> str:
+    """Texto del botón del mapa: «Ver los N segmentos», «Mostrar 50 más (X de N)» o «Ver solo las primeras filas»."""
+    if actual >= total:
+        return "Ver solo las primeras filas"
+    siguiente = siguiente_filas_mapa(actual, total)
+    return f"Ver los {F.entero(total)} segmentos" if siguiente >= total else f"Mostrar {PASO_MAPA} más ({F.entero(actual)} de {F.entero(total)})"
+
+
+def titular_auditoria(k: int) -> str:
+    """Texto del titular pequeño de la Auditoría, con «N posibles huecos de cámara» (singular y plural) o el de «ninguna»."""
+    if k == 0:
+        return AUD_TITULAR_CERO
+    return AUD_TITULAR.format(huecos=f"{F.entero(k)} {'posible hueco' if k == 1 else 'posibles huecos'} de cámara")
+
+
+def tabla_celdas_auditoria(celdas: list[dict[str, Any]]) -> pd.DataFrame:
+    """La única tabla de celdas marcadas (segmento, cámara, cajas afectadas, sin pareja, cajas con par 2D frente a lo normal y contexto), en el orden de ``celdas_marcadas_lista``."""
+    def par(c: dict[str, Any]) -> str:
+        if c["tasa"] != c["tasa"]:
+            return "—"
+        return f"{F.porcentaje(c['tasa'], 0)} (normal {F.porcentaje(c['normal'], 0)})" if c["normal"] == c["normal"] else F.porcentaje(c["tasa"], 0)
+
+    return pd.DataFrame({"Segmento": ["…" + c["seg_corto"] for c in celdas], "Cámara": [f"{c['camara_num']} · {c['camara_nombre']}" for c in celdas],
+                         "Cajas afectadas": [c["cajas_afectadas"] for c in celdas], "Sin pareja": [c["sin_pareja"] for c in celdas],
+                         "Cajas con par 2D (normal)": [par(c) for c in celdas], "Contexto": [c["contexto"] for c in celdas]})
+
+
+def texto_umbral_hueco(lista_a: pd.DataFrame, frac: float, min_cajas: int) -> str:
+    """Frase del desplegable «¿Qué es un hueco?» con el umbral real: la fracción de lo normal, el mínimo de cajas y el umbral de cada celda marcada (redondeado a 0 decimales)."""
+    base = f"El umbral es el {F.porcentaje(frac, 0)} de lo normal de esa cámara, con al menos {F.entero(min_cajas)} cajas en el rango."
+    if "umbral" in lista_a.columns and len(lista_a):
+        us = sorted({round(float(u) * 100) for u in lista_a["umbral"]})
+        base += f" En {'la celda marcada' if len(lista_a) == 1 else 'las celdas marcadas'} equivale a {' y '.join(str(u) + ' %' for u in us) if us else ''} de pares 2D.".replace("  ", " ")
+    return base
+
+
+# ------------------------------------------------------------------------------------------------------------ F33: lógica de «Explica una caja»
+def referencia_cola(cajas: pd.DataFrame, flujo: str = "dos") -> np.ndarray:
+    """Puntajes de la cola contra la que se compara una caja: la del flujo elegido (dos pasos: sin las cajas de celdas marcadas, que se auditan aparte; un paso: todas)."""
+    base = cajas if flujo == "uno" else cajas[~cajas["en_hueco"]]
+    return base["score"].to_numpy(dtype=float)
+
+
+def empatadas_arriba(ref: np.ndarray) -> int:
+    """Cuántas cajas de la cola tienen el puntaje máximo (empatan en la prioridad máxima)."""
+    return int((ref == ref.max()).sum()) if len(ref) else 0
+
+
+def umbral_presupuesto(ref: np.ndarray, presupuesto: float) -> dict[str, float]:
+    """Puntaje y puntos del sensor superior del último lugar que entra con ``presupuesto`` (fracción de la cola): se calcula de la cola real con la misma regla que ``cola_segmento`` (se revisan las
+    ``ceil(presupuesto × N)`` primeras). «Entra» una caja con puntaje mayor o igual; con los mismos puntos que el umbral puede quedar dentro o fuera según el desempate de la cola."""
+    n = int(np.ceil(presupuesto * len(ref)))
+    n = min(max(n, 1), len(ref))
+    score = float(np.sort(ref)[::-1][n - 1])
+    return {"cajas_a_revisar": n, "score": score, "puntos": int(round(-score))}
+
+
+def veredicto_caja(score: float, ref: np.ndarray, presupuesto: float) -> dict[str, Any]:
+    """Qué pasaría con una caja de puntaje ``score``: su lugar en la cola (fracción de cajas que quedan antes: 0 = primera, 1 = última, el mismo de ``percentil_en_cola``), si entra con el
+    ``presupuesto`` actual, el umbral de puntos y si cae entre las cajas empatadas en la prioridad máxima."""
+    u = umbral_presupuesto(ref, presupuesto)
+    pos = float((ref > score).mean())
+    empatada = bool(len(ref) and score == ref.max())
+    return {"entra": bool(score >= u["score"]), "posicion": pos, "umbral_puntos": int(u["puntos"]), "cajas_a_revisar": int(u["cajas_a_revisar"]), "empatada": empatada, "empatadas": empatadas_arriba(ref),
+            "puntos_empate": int(round(-ref.max())) if len(ref) else 0, "fraccion_empate": empatadas_arriba(ref) / max(len(ref), 1)}
+
+
+def textos_veredicto(v: dict[str, Any], presupuesto: float) -> tuple[str, str]:
+    """Texto del veredicto y su línea de detalle (con el presupuesto y el lugar formateados es-CL)."""
+    pres = F.porcentaje(presupuesto, 0)
+    if v["entra"]:
+        return EXP_VEREDICTO_SI.format(presupuesto=pres), EXP_DETALLE_SI.format(presupuesto=pres)
+    return EXP_VEREDICTO_NO.format(presupuesto=pres), EXP_DETALLE_NO.format(posicion=F.porcentaje(v["posicion"], 0))
+
+
+def texto_lugar(v: dict[str, Any]) -> tuple[str, str]:
+    """Valor y frase del «Lugar en la cola»: con la prioridad máxima empatada no se inventa un lugar exacto, se dice entre cuántas cajas está; si no, el porcentaje y cuántas quedan antes."""
+    if v["empatada"]:
+        return f"0 a {F.porcentaje(v['fraccion_empate'], 0)}", EXP_LUGAR_EMPATE.format(n=F.entero(v["empatadas"]), puntos=F.entero(v["puntos_empate"]))
+    return F.porcentaje(v["posicion"], 0), EXP_LUGAR_TEXTO.format(posicion=F.porcentaje(v["posicion"], 0))
+
+
+def opciones_puntos(extra: tuple[float, ...] = ()) -> list[int]:
+    """Valores del control «Puntos del sensor superior»: una escala comprimida fina (cada paso multiplica los puntos) que incluye la de referencia, los umbrales y los valores de los ejemplos."""
+    base = set(ESCALA_PUNTOS) | {int(round(x)) for x in np.geomspace(1, 2000, 60)} | {int(round(x)) for x in extra} | {e[k] for e in EJEMPLOS_CAJA.values() for k in ("pts", "top")}
+    return sorted(base)
 
 
 ACCION_SUGERIDA = "Completar etiquetas 2D o reportar el dato faltante"
@@ -640,7 +1077,7 @@ def ejemplo_lidar_box(cajas: pd.DataFrame, segmento: str) -> pd.DataFrame:
     """Un lidar_box mínimo reconstruido desde las variables derivadas de ``cajas_oof`` para un segmento de desarrollo (F20-P8): no son datos crudos de Waymo.
 
     Trae solo lo que ``puntuar_segmento`` necesita (llaves, tipo, caja, puntos, rumbo y velocidad). El archivo de asociación con cámaras NO se puede reconstruir sin inventar a qué
-    cámara pertenece cada caja, así que el ejemplo se puntúa sin él (no hay auditoría de cámaras).
+    cámara pertenece cada caja, así que ``puntuar_segmento`` lo puntúa sin él; la página le suma después (``puntuar.completar_ejemplo``, F37) las celdas marcadas de desarrollo que ya tiene calculadas.
     """
     d = cajas[cajas["seg"] == segmento]
     pre = "[LiDARBoxComponent]."
@@ -676,16 +1113,18 @@ def preguntas_frecuentes(equidad: pd.DataFrame | None = None) -> list[tuple[str,
         try:
             c = equidad[(equidad["grupo"] == "CYCLIST") & (equidad["celdas_con_hueco"] == "incluidas")].iloc[0]
             p = equidad[(equidad["grupo"] == "PEDESTRIAN") & (equidad["celdas_con_hueco"] == "incluidas")].iloc[0]
-            ciclistas = (f"En ciclistas la regla es poco confiable: encuentra {F.decimal(c['recall_A'], 3)} de los casos contra {F.decimal(p['recall_A'], 3)} en peatones, "
+            ciclistas = (f"En ciclistas la regla es poco confiable: encuentra {F.porcentaje(c['recall_A'])} de los casos contra {F.porcentaje(p['recall_A'])} en peatones, "
                          f"con solo {F.entero(c['positivos'])} casos en {F.entero(c['segmentos'])} segmentos. Conviene revisarlos con más cuidado.")
         except (KeyError, IndexError):
             pass
     return [
         ("¿El sistema decide qué cajas están mal?", "No. Solo ordena. Una persona revisa y decide; ninguna caja se descarta sin revisarla."),
-        ("¿Qué significa «en muestra»?", "Que el resultado se calculó con 41 segmentos y el detector de huecos se ajustó con esos mismos datos; todavía no hay una prueba con segmentos nuevos."),
+        ("¿Qué significa «en muestra»?", "Que el resultado se calculó con 41 segmentos y el detector de huecos se ajustó con esos mismos datos; todavía no hay una prueba con segmentos nuevos. "
+         "Por eso las cifras de este flujo son optimistas y no deben leerse como una prueba ciega. La validación con segmentos nuevos está preparada y sellada, y todavía no se ejecutó. "
+         "La ganancia del flujo en dos pasos sale de 2 celdas cámara x segmento, una de ellas en el segmento donde se descubrió el hueco."),
         ("¿Qué pasa con los ciclistas?", ciclistas),
-        ("¿Se guardan o se envían los archivos?", "No. Nada se guarda ni se envía: «Puntuar datos nuevos» procesa el archivo en memoria y la aplicación no hace ninguna conexión a internet."),
-        ("¿Cuánto tarda revisar una caja?", f"No se midió: se usa un supuesto de {SUPUESTO_SEGUNDOS} segundos por caja, editable en «Supuestos» de la cola de revisión."),
+        ("¿Se guardan o se envían los archivos?", texto_entorno("faq_archivos")),
+        ("¿Cuánto tarda revisar una caja?", f"No se midió: se usa un supuesto de {SUPUESTO_SEGUNDOS} segundos por caja, editable en «{COLA_SUPUESTOS}» de la cola de revisión."),
     ]
 
 
@@ -721,7 +1160,7 @@ def validar_lidar_box(df: pd.DataFrame) -> str | None:
     """Mensaje amigable (en español) si al archivo de lidar_box le faltan columnas; ``None`` si está completo."""
     faltan = [c for c in COLUMNAS_LIDAR_BOX if not any(col.endswith(c) for col in df.columns)]
     if faltan:
-        return ("Este archivo no parece un lidar_box de Waymo v2: faltan las columnas " + ", ".join(f"«{c}»" for c in faltan[:4]) + (" y otras" if len(faltan) > 4 else "") +
+        return ("Este archivo no parece un lidar_box de Waymo v2: faltan las columnas " + ", ".join(f"«{c}»" for c in faltan) +
                 ". Se espera el parquet del componente lidar_box de un segmento.")
     return None
 

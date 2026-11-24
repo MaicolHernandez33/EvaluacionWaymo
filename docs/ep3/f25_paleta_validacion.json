@@ -1,0 +1,47 @@
+{
+ "herramienta": "validate_palette.js de la skill dataviz (CVD Machado 2009, OKLab x100)",
+ "modo": "dark",
+ "superficie": "#121C30",
+ "mapa_entidad_color": {
+  "Revisión sin orden": "#8696B0",
+  "Solo cola (un paso)": "#C77B1E",
+  "Auditoría + cola (dos pasos)": "#4C82F2",
+  "Solo celdas sanas, sin auditoría": "#B0508A"
+ },
+ "flujos_cromaticos": {
+  "paleta": [
+   "#C77B1E",
+   "#4C82F2",
+   "#B0508A"
+  ],
+  "todos_los_pares": "Palette (dark, surface #121C30, categorical): 3 slots\n  [PASS] Lightness band         all 3 inside L 0.48–0.67\n  [PASS] Chroma floor           all 3 >= 0.1\n  [PASS] CVD separation         worst all-pairs #B0508A↔#4C82F2 ΔE 16.8 (deutan) · tritan 8.9\n  [PASS] Normal-vision floor    worst all-pairs #B0508A↔#C77B1E ΔE 19.5 (normal)\n  [PASS] Contrast vs surface    all 3 >= 3:1\n\n  → ALL CHECKS PASS  (CVD in the 6–8 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)\n  scope: categorical palettes only. For a lone status/text color check text contrast with this script's apca() or contrast(); for a sequential ramp, lightness monotonicity."
+ },
+ "gris_linea_base": {
+  "color": "#8696B0",
+  "contraste_contra_el_panel": 5.67,
+  "nota": "el gris es la línea base neutra: no entra a la prueba de croma de una paleta categórica; se distingue de los tres por croma y lleva rótulo en cada barra",
+  "salida": "Palette (dark, surface #121C30, categorical): 1 slots\n  [PASS] Lightness band         all 1 inside L 0.48–0.67\n  [FAIL] Chroma floor           below floor (reads gray): [[\"#8696B0\",0.043]]\n  [PASS] CVD separation         n/a\n  [PASS] Normal-vision floor    n/a\n  [PASS] Contrast vs surface    all 1 >= 3:1\n\n  → FAILED — fix the marked checks  (CVD in the 6–8 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)\n  scope: categorical palettes only. For a lone status/text color check text contrast with this script's apca() or contrast(); for a sequential ramp, lightness monotonicity."
+ },
+ "curvas_de_la_cola_sin_cambios": {
+  "paleta": [
+   "#4C82F2",
+   "#C77B1E",
+   "#0F7C55",
+   "#8F4AB4",
+   "#D75893"
+  ],
+  "todos_los_pares": "Palette (dark, surface #121C30, categorical): 5 slots\n  [PASS] Lightness band         all 5 inside L 0.48–0.67\n  [PASS] Chroma floor           all 5 >= 0.1\n  [PASS] CVD separation         worst all-pairs #0F7C55↔#C77B1E ΔE 9.4 (protan) · tritan 5.3\n  [PASS] Normal-vision floor    worst all-pairs #D75893↔#8F4AB4 ΔE 15.7 (normal)\n  [PASS] Contrast vs surface    all 5 >= 3:1\n\n  → ALL CHECKS PASS  (CVD in the 6–8 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)\n  scope: categorical palettes only. For a lone status/text color check text contrast with this script's apca() or contrast(); for a sequential ramp, lightness monotonicity."
+ },
+ "union_informativa": {
+  "paleta": [
+   "#C77B1E",
+   "#4C82F2",
+   "#B0508A",
+   "#0F7C55",
+   "#8F4AB4",
+   "#D75893"
+  ],
+  "todos_los_pares": "Palette (dark, surface #121C30, categorical): 6 slots\n  [PASS] Lightness band         all 6 inside L 0.48–0.67\n  [PASS] Chroma floor           all 6 >= 0.1\n  [FAIL] CVD separation         worst all-pairs #D75893↔#B0508A ΔE 5.2 (protan) · tritan 5.3\n  [FAIL] Normal-vision floor    worst all-pairs #D75893↔#B0508A ΔE 7.8 (normal) — below 15, hard to tell apart even with full color vision\n  [PASS] Contrast vs surface    all 6 >= 3:1\n\n  → FAILED — fix the marked checks  (CVD in the 6–8 floor band is legal ONLY with secondary encoding: direct labels, gaps, or texture)\n  scope: categorical palettes only. For a lone status/text color check text contrast with this script's apca() or contrast(); for a sequential ramp, lightness monotonicity.",
+  "lectura": "el color de «solo celdas sanas» no repite ninguno de los de las curvas; queda cerca del rosa de E2 (ΔE 7,8 en visión normal), pero no comparten gráfico: E2 solo se dibuja en las curvas de la Cola y las barras de Validación llevan leyenda con rótulo"
+ }
+}

@@ -1,0 +1,7 @@
+{
+ "_nota": "Datos que completa el equipo y lee scripts/generar_readme.py. Un campo vacío omite esa parte del README (no se inventa nada). La URL del despliegue vive en docs/despliegue.json.",
+ "retroalimentacion_ep1": "",
+ "retroalimentacion_ep2": "",
+ "caso_acordado": "Waymo Open Dataset v2 (acordado con el docente)",
+ "confirmacion_del_caso": ""
+}
