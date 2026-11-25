@@ -1,0 +1,27 @@
+# git status --short (resumen) — 2026-11-24 21:15
+      3 ??
+    248 D
+     10 M
+      2 MM
+
+# Archivos de F40 (sin commit)
+MM CLAUDE.md
+ M README.md
+ M docs/ep3/ESTADO.md
+MM docs/ep3/MAPA_DE_ARCHIVOS.md
+ M docs/ep3/readme_entradas.json
+ M images/app/lente_auditoria.png
+ M images/app/lente_cola.png
+ M images/app/lente_puntuar_ejemplo.png
+ M scripts/ep3/generar_mapa.py
+ M scripts/ep3/readme_f38.py
+ M scripts/generar_readme.py
+ M tests/ep3/test_readme_f38.py
+?? docs/ep3/prueba_segmentos_nuevos.json
+?? images/ep3/readme/para_revision_f40/
+?? scripts/ep3/f40_prueba_segmentos_nuevos.py
+
+# git log -3
+b3fa469 feat(ep3): flujo Puntuar segmento con boton explicito (F39), README F38 y datos demo
+5b37c74 EP3 F21-F22: pulido y rediseno visual de la pagina
+ca1e652 Agregando cambios

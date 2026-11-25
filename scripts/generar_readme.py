@@ -236,6 +236,8 @@ def sec_contexto():
 
 {kpi}
 
+{rm.nota_kpi(slug)}
+
 **Valor cuantificado (ilustración con supuestos).** {inf.frase_20s()}
 
 {tabla(valor, raw=True)}
@@ -810,7 +812,9 @@ Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 - **Monitoreo.** Vigilar el recall por segmento (no solo el promedio), la tasa de `sin_camara` y la tasa de pares de cada cámara; recalibrar el corte si el recall por segmento baja de {es(C10.get('D', {}).get('tol', 0))}.
 - **Datos que ayudarían.** `camera_calibration` (validar el borde de 100° y los rangos por cámara), más segmentos, más ciclistas y etiquetas por cámara.
 
-> **Lo que NO afirmamos.** Que `sin_camara` mida visibilidad física; que el resultado generalice más allá de {len(inf.SPLIT_TEST)} segmentos de test; nada sólido sobre ciclistas ni sobre Night y Dawn/Dusk (un segmento cada uno); que el hueco de cámara sea de etiquetado y no de los datos de esa cámara; ni que un modelo supere a la regla, porque con el criterio fijado antes no ocurrió."""
+> **Lo que NO afirmamos.** Que `sin_camara` mida visibilidad física; que el resultado generalice más allá de {len(inf.SPLIT_TEST)} segmentos de test; nada sólido sobre ciclistas ni sobre Night y Dawn/Dusk (un segmento cada uno); que el hueco de cámara sea de etiquetado y no de los datos de esa cámara; ni que un modelo supere a la regla, porque con el criterio fijado antes no ocurrió.
+
+> **Lo que tampoco afirmamos en EP3.** La frecuencia ni la causa de los huecos de cámara, ni que la solución generalice más allá de los 41 segmentos de desarrollo y de los 4 segmentos nuevos de la prueba de funcionamiento (sección 16, sin validación estadística)."""
 
 
 def sec_etica():
@@ -868,25 +872,20 @@ python -m venv .venv
 .venv/Scripts/python.exe -X utf8 scripts/generar_readme.py
 ```
 
-Linux y Mac (no los probamos; son los mismos pasos con el ejecutable del entorno):
+Linux y Mac (no los probamos): los mismos pasos con el ejecutable del entorno (`generar_informe_tecnico.py` y `generar_readme.py` se ejecutan igual con `.venv/bin/python`):
 
 ```
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m ipykernel install --prefix .venv --name ep2
 .venv/bin/python scripts/verificar_congelados.py
 .venv/bin/python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.kernel_name=ep2 notebooks/10_evaluacion_final_sin_camara.ipynb
-.venv/bin/python scripts/generar_informe_tecnico.py
-.venv/bin/python scripts/generar_readme.py
 ```
 
 `verificar_congelados.py` comprueba los sha256 del plan v2 antes de ejecutar el 10, que hace la misma comprobación. En la verificación en copia limpia, el 10 dio los 15 CSV idénticos por sha256 a los de la primera ejecución; repetirlo es una re-ejecución sobre el test, no una evaluación nueva.
 
-**Reentrenar (opcional; no hace falta para el resultado oficial).** Los notebooks 08 (variables), 09 (modelos) y 09b (plan v2) se pueden volver a ejecutar, pero **sobrescriben** `data/05_model_input` y `data/06_models`, incluidos los modelos y el plan congelados. Hay que hacerlo en una copia (descomprimir el zip en otra carpeta), con los mismos comandos `nbconvert` sobre `notebooks/08_analisis_observabilidad_sin_camara.ipynb`, `notebooks/09_modelos_supervisados_sin_camara.ipynb` y `notebooks/09b_enmiendas_plan_test_v2.ipynb`, en ese orden.
-
-**Advertencia sobre el sha256:** en la verificación en copia limpia, el 09 reentrenó los modelos con archivos idénticos, pero un umbral del Random Forest cambió en el último decimal; el sha256 de `hiperparametros_B.json` dejó de coincidir con el del plan y el 09b y el 10 se detuvieron. Si se reentrena, hay que devolver los archivos congelados antes del 10.
-
-**Desde datos crudos:** descargar los segmentos de Waymo (licencia no comercial) y ejecutar `kedro run`, como se explica en el [README de EP1](docs/README_EP1.md).
+- **Reentrenar (opcional; no hace falta para el resultado oficial).** Los notebooks 08 (variables), 09 (modelos) y 09b (plan v2) se pueden volver a ejecutar, pero **sobrescriben** `data/05_model_input` y `data/06_models`, incluidos los modelos y el plan congelados. Hay que hacerlo en una copia (descomprimir el zip en otra carpeta), con los mismos comandos `nbconvert` sobre `notebooks/08_analisis_observabilidad_sin_camara.ipynb`, `notebooks/09_modelos_supervisados_sin_camara.ipynb` y `notebooks/09b_enmiendas_plan_test_v2.ipynb`, en ese orden.
+- **Advertencia sobre el sha256:** en la verificación en copia limpia, el 09 reentrenó los modelos con archivos idénticos, pero un umbral del Random Forest cambió en el último decimal; el sha256 de `hiperparametros_B.json` dejó de coincidir con el del plan y el 09b y el 10 se detuvieron. Si se reentrena, hay que devolver los archivos congelados antes del 10.
+- **Desde datos crudos:** descargar los segmentos de Waymo (licencia no comercial) y ejecutar `kedro run`, como se explica en el [README de EP1](docs/README_EP1.md).
 
 **Pruebas y cobertura** (`scripts/medir_pruebas.py`): {pj['pasadas']} pasadas, {pj['falladas']} falladas, {pj['omitidas']} omitidas; cobertura total {n1(pj['cobertura_total_pct'])} %. Se ejecutan con `.venv/Scripts/python.exe -m pytest -q` (Linux y Mac: `.venv/bin/python -m pytest -q`); las del informe y del README se omiten si faltan los archivos de `data/`. Cubren los nodos de ingesta y preprocesamiento, el informe y este README. **Ignorado por git:** {', '.join('`' + l + '`' for l in ign)}."""
 
@@ -963,6 +962,7 @@ def main():
     # F38: notas de corrección sobre el texto de EP2 (el texto original no se borra)
     s1 = agregar_a_linea(s1, "- **Qué hicimos.**", "(" + rm.nota_test_sellado() + ")")
     s1 = agregar_a_linea(s1, "- **Hallazgo (post hoc, no pre-declarado).**", rm.nota_54_8())
+    s1 = s1.rstrip() + "\n\n" + rm.actualizacion_alcance()
     s4 = agregar_a_linea(s4, "- **Test sellado.**", rm.nota_test_sellado())
     s9 = agregar_despues_de_linea(s9, "> Con k = 2,", rm.nota_k2())
     s11 = agregar_a_linea(s11, "- **El segmento.**", rm.nota_54_8())
@@ -974,9 +974,17 @@ def main():
     s12 = s12.rstrip() + "\n\n" + rm.sec_121()
     s13 = s13.rstrip() + "\n\n" + rm.parrafo_etica_app()
     s14 = agregar_despues_de_linea(s14, "**Pruebas y cobertura**", rm.parrafo_pruebas_ep3())
+    ini = s14.index("```\nwaymo-evaluacion/")                                          # F40: el árbol y la tabla de notebooks salen del sistema de archivos real
+    fin = s14.index("```", ini + 3) + 3
+    s14 = s14[:ini] + rm.arbol_repo() + "\n\n" + rm.tabla_notebooks(PUENTE_06) + s14[fin:]
     s16 = rm.sec_16(lambda n, pie: fig(n, pie), slug)
     cuerpo = [cabecera(), s1, sec_contexto(), sec_ep1(), s4, sec_eda(), sec_prep(), sec_metodo(), s8, s9, s10, s11, s12, s13, s14, sec_pauta(), s16, rm.sec_17()]
     texto = "\n\n".join(c.strip() for c in cuerpo) + "\n"
+    texto = re.sub(r"(!\[[^\n]*\]\([^\n]*\))\n\n(\*Figura:)", r"\1\n\2", texto)          # F40: la imagen y su pie van seguidos (misma figura, 14 líneas menos para el tope de 800)
+    for etiqueta in ("Lectura rápida:", "Costo de no usarlo.", "Por qué importa a escala.", "Lectura de negocio.", "Límites.", "Por qué es la óptima.", "Por qué no un modelo más complejo.", "Pruebas de EP3.",
+                     "Limitaciones.", "Lectura honesta en el test.", "Datos de EP1.", "Qué aprendimos y qué cambió.", "De EP1 a EP2.", "Por qué baselines simples.", "Cómo se hace en vivo.", "Despliegue en AWS Academy.", "Fase 6 de CRISP-DM."):               # F40: párrafos seguidos que empiezan con negrita van sin línea en blanco (tope de 800 líneas)
+        texto = texto.replace("\n\n**" + etiqueta, "\n**" + etiqueta)
+    texto = texto.replace("\n\n\n", "\n\n")
     (R / "README.md").write_text(texto, encoding="utf-8")
     n_fig = len(re.findall("!" + chr(92) + "[", texto))
     print(f"README escrito: {len(texto.splitlines())} lineas, {n_fig} figuras. Cifras o archivos faltantes: {len(set(inf.FALTAN))}")

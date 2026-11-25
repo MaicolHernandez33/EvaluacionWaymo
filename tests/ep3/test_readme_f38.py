@@ -88,7 +88,7 @@ def test_las_notas_de_correccion_del_texto_de_ep2_estan() -> None:
     assert texto.count("la única prueba ciega son los segmentos nuevos") >= 2 and "datos de desarrollo" in texto
     assert "**Dos resultados con k = 2, dos poblaciones.**" in texto and "68.555 filas" in texto and "80.571 cajas" in texto and "sin oclusión" in texto
     assert "Parcial N°2" not in texto.split("\n## 1. Resumen")[0]
-    assert "Pendiente: completar con la retroalimentación del docente" in texto or json.loads((R / "docs/ep3/readme_entradas.json").read_text(encoding="utf-8")).get("retroalimentacion_ep1")
+    assert "Pendiente: completar con la retroalimentación del docente" not in texto                      # F40: la sección 17 ya no muestra el aviso de pendiente
 
 
 # ------------------------------------------------------------------------------------------------------------ enlaces
@@ -178,7 +178,9 @@ def test_las_entradas_vacias_omiten_su_parte_y_el_readme_lo_dice() -> None:
     e = rm.entradas()
     assert set(e) >= {"retroalimentacion_ep1", "retroalimentacion_ep2", "caso_acordado"}
     if not e["retroalimentacion_ep1"] and not e["retroalimentacion_ep2"]:
-        assert "**Pendiente: completar con la retroalimentación del docente** (EP1 y EP2)" in _texto()
+        s17 = _sec(_texto(), "## 17.")
+        assert "Pendiente" not in s17 and "Retroalimentación recibida" not in s17                   # F40: sin retroalimentación escrita no hay texto de relleno ni aviso de pendiente
+        assert "Esta tabla recoge las mejoras documentadas en el repositorio" in s17
     assert e["caso_acordado"] in _texto()
 
 
@@ -186,3 +188,107 @@ def test_las_entradas_vacias_omiten_su_parte_y_el_readme_lo_dice() -> None:
 def test_el_numero_de_pruebas_de_ep3_del_readme_es_el_recolectado() -> None:
     conteo = json.loads((R / "data/08_reporting_ep3/pruebas_ep3_conteo.json").read_text(encoding="utf-8"))
     assert f"{_miles(conteo['recolectadas_ep3'])} pruebas recolectadas en `tests/ep3`" in _texto(), "regenerar el README (scripts/generar_readme.py) tras contar las pruebas"
+
+
+
+# ------------------------------------------------------------------------------------------------------------ F40: prueba con segmentos nuevos, cifras de 8.1, árbol, notebooks y tope de líneas
+def _prueba() -> dict:
+    return json.loads((R / "docs/ep3/prueba_segmentos_nuevos.json").read_text(encoding="utf-8"))
+
+
+def test_el_readme_no_supera_800_lineas_ni_deja_marcadores_de_relleno() -> None:
+    texto = _texto()
+    assert len(texto.splitlines()) <= 800
+    assert not re.search(r"\bTODO\b|\bPendiente\b|\bpendiente:|xxx|\[nombre del servicio\]", texto)
+    limpio = re.sub(r"</?(details|summary)>|<=", "", texto)
+    assert "<" not in limpio.replace("<br>", "")
+    for linea in texto.splitlines():
+        if "borrador" in linea.lower():
+            assert "modo publicado" in linea and "sin activar" in linea                                # la única mención es el aviso del modo publicado (docs/despliegue.json)
+
+
+def test_la_prueba_con_segmentos_nuevos_del_readme_sale_del_json_y_no_inventa_cifras() -> None:
+    d = _prueba()
+    texto = _texto()
+    sub = texto.split("### Prueba con segmentos nuevos")[1].split("\n## 17.")[0]
+    assert len(d["segmentos"]) == 4 and "prueba de funcionamiento" in sub.lower() and "no una validación estadística" in sub
+    for s in d["segmentos"]:
+        assert f"`{s['segmento']}`" in sub and s["id_abreviado"] in sub and _miles(s["cajas_puntuadas"]) in sub, s["segmento"]
+        assert s["celdas_marcadas"] == len(s["celdas"]) and s["sha256"]
+    marcadas = [s for s in d["segmentos"] if s["celdas_marcadas"]]
+    assert len(marcadas) == 1 and f"{len(marcadas)} de {len(d['segmentos'])}" in sub
+    z = marcadas[0]["celdas"][0]
+    assert _miles(z["cajas_en_rango"]) in sub and _miles(z["cajas_afectadas"]) in sub and _miles(marcadas[0]["sin_pareja_en_celdas_marcadas"]) in sub
+    assert "Puntuar segmento" in sub and "cualquier orden" in sub and "archivo 2 primero" not in texto    # el flujo de F39 reemplaza el orden obligatorio de F37
+    assert "sigue sin ejecutarse" in sub and "validación externa" in sub
+
+
+def test_el_json_de_la_prueba_coincide_con_los_archivos_de_entrada() -> None:
+    base = R / "datos_demo/candidatos"
+    if not base.exists():
+        pytest.skip("datos_demo/ no está (no se versiona)")
+    import hashlib
+
+    for s in _prueba()["segmentos"]:
+        for nombre, h in s["sha256"].items():
+            ruta = base / s["segmento"] / nombre
+            if ruta.exists():
+                assert hashlib.sha256(ruta.read_bytes()).hexdigest() == h, ruta
+
+
+def test_el_recuadro_de_8_1_usa_los_auc_calculados_de_los_datos() -> None:
+    import pandas as pd
+    from sklearn.metrics import roc_auc_score
+
+    cajas = pd.read_parquet(R / "data/09_app_ep3/cajas_oof.parquet", columns=["grupo", "sin_camara", "score"])
+    sec = _texto().split("### 8.1 ")[1].split("### 8.2 ")[0]
+    recuadro = sec.split("> Optimizar mejora")[0]
+    for x in (cajas, cajas[cajas["grupo"] == "train"], cajas[cajas["grupo"] == "test"]):
+        assert f"{roc_auc_score(x['sin_camara'], x['score']):.3f}".replace(".", ",") in recuadro
+    assert "StratifiedGroupKFold" in recuadro and "`tiene_camara`" in recuadro and "`sin_camara`" in recuadro
+    assert recuadro.count("| EP2:") == 1 and recuadro.count("| EP3:") == 1 and "no son comparables" in recuadro
+    assert "recuadro de [8.1](#" in _sec(_texto(), "### 8.3") and "sección [8.1](#" in _sec(_texto(), "## 2.")                       # referencias cruzadas desde 8.3 y desde los KPI de la sección 2
+    assert "`GroupKFold` de 5" not in _texto()                                                          # el README de F38 describía mal los folds externos de EP3
+
+
+def test_la_tabla_de_notebooks_lista_los_archivos_reales_en_su_orden() -> None:
+    from readme_f38 import ORDEN_NB
+
+    reales = sorted(p.stem for p in (R / "notebooks").glob("*.ipynb"))
+    assert sorted(ORDEN_NB) == reales and len(reales) == 19
+    sec14 = _sec(_texto(), "## 14.")
+    enlaces = re.findall(r"\[`([^`]+)\.ipynb`\]\(notebooks/", sec14)
+    assert enlaces == ORDEN_NB
+    for stem in enlaces:
+        assert (R / "notebooks" / f"{stem}.ipynb").exists()
+    assert "salidas guardadas" in sec14 and "sin salidas guardadas" in sec14                            # solo se afirma ejecución donde los archivos o los registros lo muestran
+
+
+def test_el_arbol_del_readme_cubre_cada_carpeta_de_la_raiz() -> None:
+    sec14 = _sec(_texto(), "## 14.")
+    arbol = sec14.split("waymo-evaluacion/")[1].split("```")[0]
+    ocultos = {".git", ".venv", "__pycache__", ".pytest_cache", ".ipynb_checkpoints", ".viz", ".mypy_cache", "node_modules"}
+    for p in R.iterdir():
+        if p.name not in ocultos and not p.name.startswith(".coverage") and p.name != "info.log":
+            assert p.name in arbol, p.name
+
+
+def test_la_seccion_17_agrega_las_opciones_del_docente_y_la_validacion_nueva() -> None:
+    import readme_f38 as rm
+
+    s17 = _sec(_texto(), "## 17.")
+    opciones = rm.entradas().get("opciones_docente", "")
+    assert opciones and "tres opciones" in opciones and "el esquema propuesto por el equipo" in opciones
+    assert "El docente ofreció tres opciones ante el segmento anómalo" in s17 and "El equipo adoptó su esquema" in s17
+    assert "prueba_segmentos_nuevos.json" in s17 and "validación externa sellada" in s17
+
+
+def test_la_remedicion_de_las_pruebas_del_readme_es_la_registrada() -> None:
+    ruta = R / "data/08_reporting_ep3/pruebas_ep2_remedicion.json"
+    if not ruta.exists():
+        pytest.skip("sin remedición de EP2 registrada")
+    q = json.loads(ruta.read_text(encoding="utf-8"))
+    s14 = _sec(_texto(), "## 14.")
+    assert f"{q['pasadas']} pasadas, {q['falladas']} falladas" in s14
+    r = json.loads((R / "data/08_reporting_ep3/pruebas_ep3_resultado.json").read_text(encoding="utf-8"))
+    assert f"{r['pasadas']} pasadas, {r['falladas']} falladas" in s14

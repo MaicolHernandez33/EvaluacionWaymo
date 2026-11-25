@@ -1,0 +1,10 @@
+Cifra | Página (Resumen, mismas funciones) | README | Coincide
+---|---|---|---
+Cajas de peatones y ciclistas (población principal) | 80.571 | 80.571 | sí
+Celdas segmento × cámara | 205 | 205 | sí
+Celdas marcadas por el detector | 2 | 2 | sí
+Cajas en las celdas marcadas | 1.945 | 1.945 | sí
+Cajas en la cola | 78.626 | 78.626 | sí
+Segmentos de desarrollo | 41 | 41 | sí
+
+Resultado: las 6 cifras coinciden (diferencia 0)

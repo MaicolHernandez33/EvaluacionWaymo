@@ -3,5 +3,6 @@
  "retroalimentacion_ep1": "",
  "retroalimentacion_ep2": "",
  "caso_acordado": "Waymo Open Dataset v2 (acordado con el docente)",
- "confirmacion_del_caso": ""
+ "confirmacion_del_caso": "",
+ "opciones_docente": "El docente ofreció tres opciones ante el segmento anómalo: excluirlo; usarlo como filtro de errores; o el esquema propuesto por el equipo (filtro de cámaras aparte, con su lista de revisión, y luego la priorización sobre los segmentos normales). El equipo adoptó el esquema en dos pasos."
 }
