@@ -1,4 +1,4 @@
-# Pagina de EP3 (solo local). NO se hornean datos en la imagen: data/ se monta como volumen de solo lectura.
+# Pagina de EP3 (local o en EC2). NO se hornean datos en la imagen: data/ se monta como volumen de solo lectura (en EC2: -v $PWD/data:/app/data:ro).
 FROM python:3.10-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -23,6 +23,8 @@ COPY app ./app
 COPY app/.streamlit ./.streamlit
 COPY src/waymo_evaluacion/__init__.py ./src/waymo_evaluacion/__init__.py
 COPY src/waymo_evaluacion/ep3 ./src/waymo_evaluacion/ep3
+# plan v3 congelado (un solo archivo de solo lectura): la pagina lee de el los umbrales que muestra; sin el, esas definiciones salen sin numeros
+COPY docs/ep3/plan_v3.json ./docs/ep3/plan_v3.json
 
 USER app
 EXPOSE 8501

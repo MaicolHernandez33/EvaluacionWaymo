@@ -24,3 +24,6 @@ tests/
 # Datos de la demostracion en vivo (F37): nunca dentro de la imagen
 datos_demo/
 **/datos_demo/
+
+# unico archivo de docs/ que entra a la imagen (F43): el plan v3 congelado, que la pagina lee en solo lectura
+!docs/ep3/plan_v3.json

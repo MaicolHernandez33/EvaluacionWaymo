@@ -1,0 +1,11 @@
+RESULTADO DE PYTEST (F43, 2026-11-24)
+
+python -m pytest tests/ep3 -q --no-cov -p no:cacheprovider
+  431 passed, 67 warnings in 77.34s (antes de F43: 415 de 415; +16 de tests/ep3/test_empaquetar_despliegue.py)
+
+Pruebas del empaquetador solas: 16 passed (rechazo de parquet crudo, datos_demo, .venv, .git, zips, llaves, data/ fuera de la lista, cajas_oof con columnas crudas; contenido del zip = lista mínima)
+
+verificar_congelados.py: Plan v2 congelado el 2026-10-18T13:42:13-03:00: coinciden 14 de 14 archivos
+verificar_congelados_v3.py: v3 congelado el 2026-11-14T12:15:26 (candidato Regla top): coinciden 5 de 5 archivos
+
+No se ejecutó 'pytest' sin ruta (reescribe README e informe de EP2); los textos que cambiaron del modo publicado y la configuración no afectan a las pruebas de EP2.

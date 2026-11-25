@@ -269,7 +269,7 @@ def test_el_arbol_del_readme_cubre_cada_carpeta_de_la_raiz() -> None:
     arbol = sec14.split("waymo-evaluacion/")[1].split("```")[0]
     ocultos = {".git", ".venv", "__pycache__", ".pytest_cache", ".ipynb_checkpoints", ".viz", ".mypy_cache", "node_modules"}
     for p in R.iterdir():
-        if p.name not in ocultos and not p.name.startswith(".coverage") and p.name != "info.log":
+        if p.name not in ocultos and not p.name.startswith(".coverage") and p.name not in ("info.log", "despliegue_lente.zip"):
             assert p.name in arbol, p.name
 
 

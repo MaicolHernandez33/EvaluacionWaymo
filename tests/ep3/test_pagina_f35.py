@@ -197,7 +197,7 @@ def test_la_pagina_vacia_tiene_pasos_entradas_ejemplo_discreto_y_estado_vacio_co
 def test_la_etiqueta_cambia_con_el_entorno_para_no_decir_algo_falso(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:   # noqa: F811
     monkeypatch.setenv("EP3_ENTORNO", "servidor")
     t = _sin_css(textos(_abrir(entorno, monkeypatch, "Puntuar datos nuevos")))
-    assert "Procesamiento en el servidor y en memoria" in t and "Procesamiento local y en memoria" not in t and "No se guarda nada" in t
+    assert "Procesamiento en el servidor y en memoria" in t and "Procesamiento local y en memoria" not in t and "No se guardan los archivos" in t and "No se guarda nada" not in t
 
 
 def test_con_el_ejemplo_el_resultado_sale_en_la_misma_pagina_y_cargar_otro_vuelve_al_vacio(entorno: Path, monkeypatch: pytest.MonkeyPatch) -> None:   # noqa: F811

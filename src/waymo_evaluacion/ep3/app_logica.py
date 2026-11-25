@@ -345,8 +345,8 @@ DESCRIPCION_PAGINA = {"Cola de revisión": "Qué cajas revisar y en qué orden. 
                       "Ética y límites": "Ficha del sistema: propósito, datos, desempeño, límites, consideraciones éticas y entorno de ejecución.",
                       "Ayuda y glosario": "Flujo de revisión, glosario y preguntas frecuentes."}
 # F26-B1 y F36: textos que dependen de cómo se despliega la página. UNA sola constante, ``MODO_DESPLIEGUE``, decide cuáles se muestran: ``local`` (por defecto) dice lo que es verdad en el equipo de la persona;
-# ``publicado`` es la variante para cuando la página se publique en internet. **No está activada**: sus textos son borradores («borrador: verificar») y llevan un hueco, ``[nombre del servicio]``, que hay que
-# completar y comprobar antes de usarla. Para probarla sin tocar el archivo se puede fijar la variable de entorno ``EP3_ENTORNO=publicado`` (también acepta ``servidor``); la variable manda sobre la constante.
+# ``publicado`` es la variante para la instancia EC2 de AWS Academy (F43: redactada contra cómo corre ahí). **No está activada** hasta que el equipo apruebe sus textos: mientras tanto llevan la marca visible «borrador: verificar» (clave ``borrador``), que hay que
+# quitar (dejarla vacía) al aprobarlos. Para probarla sin tocar el archivo se puede fijar la variable de entorno ``EP3_ENTORNO=publicado`` (también acepta ``servidor``); la variable manda sobre la constante.
 # Los archivos cargados NO se escriben a disco: ``puntuar_segmento`` trabaja en memoria y la página no llama a ``guardar`` (lo vigila una prueba).
 MODO_DESPLIEGUE = "local"
 MODOS_DESPLIEGUE = ("local", "publicado")
@@ -361,12 +361,12 @@ TEXTOS_ENTORNO = {
         "borrador": "",
     },
     "publicado": {
-        "donde_corre": "En un servidor conectado a internet ([nombre del servicio]). Cualquiera que tenga el enlace puede abrir la aplicación. No se deben subir datos que no puedan compartirse con ese servicio.",
+        "donde_corre": "En un servidor de AWS (instancia EC2 de AWS Academy, región us-east-1), no en su equipo. La aplicación no tiene inicio de sesión: solo la abre quien llegue a su dirección, y el acceso lo restringe el grupo de seguridad de la instancia. La dirección es temporal y cambia si la instancia se detiene. No se deben subir datos que no puedan compartirse con ese servidor.",
         "puntuar_subtitulo": "Un segmento nuevo se puntúa con la solución congelada y se obtienen sus celdas marcadas y su cola de cajas; en esta página el procesamiento ocurre en el servidor.",
         "puntuar_etiqueta": "Procesamiento en el servidor y en memoria",
-        "puntuar_etiqueta_2": "No se guarda nada",
-        "consideracion_etica": "Las tablas tienen identificadores de objeto y marcas de tiempo. Los archivos que se suben en «Puntuar datos nuevos» se procesan en la memoria del servidor durante la sesión y no se guardan.",
-        "faq_archivos": "Los archivos que se suben se procesan en la memoria del servidor durante la sesión y no se guardan. Salen del equipo hacia el servidor, así que no se deben subir datos que no puedan compartirse con él.",
+        "puntuar_etiqueta_2": "No se guardan los archivos",
+        "consideracion_etica": "Las tablas de la página tienen identificadores de objeto y marcas de tiempo, sin imágenes. El servidor SÍ recibe los archivos que se suben en «Puntuar datos nuevos»: los procesa en memoria durante la sesión, no los escribe a disco y no registra su contenido. Salen de su equipo hacia el servidor: no se deben subir datos que no puedan compartirse con él.",
+        "faq_archivos": "Los archivos que se suben salen de su equipo y llegan al servidor de la aplicación (una instancia de AWS). Allí se procesan en memoria durante la sesión: no se escriben a disco ni se registra su contenido, y se descartan al cerrar la sesión. No se deben subir datos que no puedan compartirse con ese servidor.",
         "borrador": "borrador: verificar",
     },
 }
