@@ -1,0 +1,27 @@
+# git status --short — 2026-11-24 22:23
+ M .dockerignore
+ M .gitignore
+ M CLAUDE.md
+ M Dockerfile
+ M app/.streamlit/config.toml
+ M docs/ep3/ESTADO.md
+ M docs/ep3/MAPA_DE_ARCHIVOS.md
+ M scripts/ep3/generar_mapa.py
+ M scripts/ep3/readme_f38.py
+ M src/waymo_evaluacion/ep3/app_logica.py
+ M tests/ep3/test_pagina_f26.py
+ M tests/ep3/test_pagina_f35.py
+ M tests/ep3/test_pagina_f36.py
+ M tests/ep3/test_readme_f38.py
+?? images/ep3/pagina/para_revision_f43/
+?? scripts/ep3/empaquetar_despliegue.py
+?? tests/ep3/test_empaquetar_despliegue.py
+
+# git log -3
+7511e5e docs(readme): README de cierre con prueba de segmentos nuevos (F40)
+c687052 chore(limpieza): archivar andamiaje de fases F18 a F39 (F41)
+b3fa469 feat(ep3): flujo Puntuar segmento con boton explicito (F39), README F38 y datos demo
+
+# despliegue_lente.zip (fuera de git)
+.gitignore:192:despliegue_lente.zip	despliegue_lente.zip
+9223029 despliegue_lente.zip

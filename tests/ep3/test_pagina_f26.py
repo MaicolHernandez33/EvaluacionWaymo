@@ -95,9 +95,9 @@ def test_sin_la_variable_los_textos_son_los_de_siempre_y_con_servidor_son_la_var
     for valor in (" Servidor ", "publicado", "PUBLICADO"):                                                                    # F36: «servidor» sigue valiendo como alias de «publicado»
         monkeypatch.setenv("EP3_ENTORNO", valor)
         assert entorno_pagina() == "publicado", valor
-    assert texto_entorno("donde_corre").startswith("En un servidor conectado a internet ([nombre del servicio]). Cualquiera que tenga el enlace puede abrir la aplicación.")
-    assert "se procesan en la memoria del servidor durante la sesión y no se guardan" in texto_entorno("consideracion_etica")
-    assert dict(preguntas_frecuentes())["¿Se guardan o se envían los archivos?"].startswith("Los archivos que se suben se procesan en la memoria del servidor durante la sesión y no se guardan")
+    assert texto_entorno("donde_corre").startswith("En un servidor de AWS (instancia EC2 de AWS Academy, región us-east-1), no en su equipo.") and "[nombre del servicio]" not in texto_entorno("donde_corre")
+    assert "los procesa en memoria durante la sesión, no los escribe a disco y no registra su contenido" in texto_entorno("consideracion_etica") and "SÍ recibe los archivos" in texto_entorno("consideracion_etica")
+    assert dict(preguntas_frecuentes())["¿Se guardan o se envían los archivos?"].startswith("Los archivos que se suben salen de su equipo y llegan al servidor de la aplicación")
     assert texto_entorno("borrador") == "borrador: verificar"
     assert set(TEXTOS_ENTORNO["local"]) == set(TEXTOS_ENTORNO["publicado"])
     for clave in TEXTOS_ENTORNO["publicado"]:
@@ -115,9 +115,9 @@ def test_las_paginas_usan_la_variante_del_entorno(entorno: Path, monkeypatch: py
     puntuar = textos(_abrir(entorno, monkeypatch, "Puntuar datos nuevos"))
     ayuda = textos(_abrir(entorno, monkeypatch, "Ayuda y glosario"))
     assert ("Solo en este equipo (localhost)" in etica) is locales and ("Nada se guarda ni se envía" in etica) is locales
-    assert ("En un servidor conectado a internet" in etica) is not locales and ("se procesan en la memoria del servidor durante la sesión" in etica) is not locales
+    assert ("En un servidor de AWS" in etica) is not locales and ("los procesa en memoria durante la sesión" in etica) is not locales
     assert ("Procesamiento local y en memoria" in puntuar) is locales and ("Procesamiento en el servidor y en memoria" in puntuar) is not locales
-    assert ("No. Nada se guarda ni se envía" in ayuda) is locales and ("Los archivos que se suben se procesan en la memoria del servidor durante la sesión y no se guardan" in ayuda) is not locales
+    assert ("No. Nada se guarda ni se envía" in ayuda) is locales and ("Allí se procesan en memoria durante la sesión: no se escriben a disco" in ayuda) is not locales
 
 
 def test_los_archivos_cargados_no_se_escriben_a_disco() -> None:

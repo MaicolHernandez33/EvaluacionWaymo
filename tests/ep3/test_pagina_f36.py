@@ -136,11 +136,11 @@ def test_los_cuatro_textos_cambian_con_la_constante_y_salen_de_un_solo_lugar(ent
     monkeypatch.setattr(A, "MODO_DESPLIEGUE", "publicado")
     assert A.entorno_pagina() == "publicado" and A.texto_entorno("borrador") == "borrador: verificar"
     etica = _sin_css(textos(_abrir(entorno, monkeypatch, "Ética y límites")))
-    assert "En un servidor conectado a internet ([nombre del servicio])" in etica and "se procesan en la memoria del servidor durante la sesión y no se guardan" in etica
+    assert "En un servidor de AWS (instancia EC2 de AWS Academy" in etica and "los procesa en memoria durante la sesión, no los escribe a disco" in etica
     assert etica.count("borrador: verificar") == 2 and "Solo en este equipo (localhost)" not in etica and "Nada se guarda ni se envía" not in etica
     ayuda = _sin_css(textos(_abrir(entorno, monkeypatch, "Ayuda y glosario")))
     ayuda += " ".join(m.value for e in _abrir(entorno, monkeypatch, "Ayuda y glosario").expander for m in e.markdown)
-    assert "Los archivos que se suben se procesan en la memoria del servidor durante la sesión y no se guardan" in ayuda
+    assert "Allí se procesan en memoria durante la sesión: no se escriben a disco ni se registra su contenido" in ayuda
     puntuar = _sin_css(textos(_abrir(entorno, monkeypatch, "Puntuar datos nuevos")))
     assert "Procesamiento en el servidor y en memoria" in puntuar and "Procesamiento local y en memoria" not in puntuar
     monkeypatch.setattr(A, "MODO_DESPLIEGUE", "local")

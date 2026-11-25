@@ -188,5 +188,8 @@ entrega_EP3.zip
 docs/ep3/revision/
 entrega_EP3.sha256
 
+# Paquete de despliegue en EC2 (scripts/ep3/empaquetar_despliegue.py)
+despliegue_lente.zip
+
 # Datos de la demostracion en vivo (F37): segmentos reales descargados del bucket y variantes simuladas; no se versionan ni van en la imagen
 datos_demo/

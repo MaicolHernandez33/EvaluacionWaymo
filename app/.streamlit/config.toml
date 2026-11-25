@@ -6,6 +6,9 @@ headless = true
 enableXsrfProtection = true
 maxUploadSize = 500
 
+[client]
+toolbarMode = "minimal"
+
 # Tema (F24): oscuro, generado desde TOKENS de app/estilos.py con scripts/ep3/generar_config_tema.py (no editar a mano); tipografia del sistema, sin fuentes externas.
 [theme]
 base = "dark"

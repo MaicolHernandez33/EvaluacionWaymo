@@ -546,7 +546,7 @@ GRUPOS_ARCHIVOS = [(["Dockerfile", "docker-compose.yml", ".dockerignore", "requi
 def arbol_repo() -> str:
     """Árbol de la raíz generado del sistema de archivos: si aparece una carpeta o un archivo sin descripción, el generador falla en vez de omitirlo."""
     ocultos = {".git", ".venv", "__pycache__", ".pytest_cache", ".ipynb_checkpoints", ".viz", ".mypy_cache", "node_modules"}
-    reales = [p for p in RAIZ.iterdir() if p.name not in ocultos and not p.name.startswith(".coverage") and p.name != "info.log"]      # restos de ejecutar pytest (cobertura y registro de Kedro), no del proyecto
+    reales = [p for p in RAIZ.iterdir() if p.name not in ocultos and not p.name.startswith(".coverage") and p.name not in ("info.log", "despliegue_lente.zip")]      # restos de ejecutar pytest (cobertura y registro de Kedro), no del proyecto
     claves = {p.name + ("/" if p.is_dir() else "") for p in reales}
     agrupados = {a for g, _ in GRUPOS_ARCHIVOS for a in g}
     sin_desc = sorted(claves - set(DIRS_RAIZ) - agrupados)
