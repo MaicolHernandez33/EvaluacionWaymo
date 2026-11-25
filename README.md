@@ -17,6 +17,8 @@
 - **Qué hace Lente.** Flujo en dos pasos: un detector marca las cámaras con hueco (se atienden aparte) y una regla ordena el resto de las cajas por menos puntos del sensor superior; una persona revisa y decide.
 - **Resultado (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos).** Para encontrar el 80 % de las cajas sin pareja se revisa el 29,6 % de las cajas en dos pasos, en vez del 44,6 % en uno; revisando el 20 %, se encuentran 70,9 de cada 100 frente a 61,9. Con un supuesto de 20 s por caja (supuesto, no medido): 358 h sin orden, 200 h en un paso y 132 h en dos.
 - **Límites.** El recall de la regla es 80,6 % en peatones y 44,3 % en ciclistas (115 casos en 14 segmentos); un segmento concentra el 54,8 % de los positivos del test de EP2; los dos pasos se midieron en muestra; con 4 segmentos nuevos reales solo se probó que la aplicación funciona (1 de 4 trae un posible hueco; no se estima su frecuencia) y la validación externa sellada sigue sin ejecutarse.
+- **ML.**"Usamos Machine Learning para comprobar si un modelo complejo —como Random Forest o XGBoost— de verdad rendía mejor que una regla simple: ordenar primero las cajas con menos puntos del LiDAR superior.
+Entrenamos varios modelos, probamos ensambles separando por video para no hacer trampa y usamos clustering para entender qué casos fallaban más. Como ningún modelo superó de forma clara a la regla simple, nos quedamos con ella más el filtro de cámaras con hueco, respaldados por esas pruebas."
 
 **Cómo verlo**
 
