@@ -6,7 +6,7 @@
 
 | Ficha del proyecto | Dato |
 |---|---|
-| Caso | Waymo Open Dataset v2 (acordado con el docente) |
+| Caso | Waymo Open Dataset v2 |
 | Equipo | Maicol Hernández (rama `maicolhernandez`) y Francis Moya (rama `francismoya`) |
 | Solución | v3 congelada el 2026-11-14 (regla «menos puntos top» en dos pasos; hashes en [`artefactos_ep3/manifest_v3.json`](artefactos_ep3/manifest_v3.json)) |
 | Aplicación | Lente (Streamlit), sección [16](#16-lente-la-aplicación-y-su-despliegue) |
