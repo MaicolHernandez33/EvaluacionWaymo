@@ -16,8 +16,7 @@
 - **Problema.** Algunas cajas 3D de peatones y ciclistas no tienen su par 2D de cámara (`sin_camara`: 21,2 % de las 80.571 cajas de 41 segmentos) y solo se sabe cuáles son revisándolas una por una.
 - **Qué hace Lente.** Flujo en dos pasos: un detector marca las cámaras con hueco (se atienden aparte) y una regla ordena el resto de las cajas por menos puntos del sensor superior; una persona revisa y decide.
 - **Resultado (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos).** Para encontrar el 80 % de las cajas sin pareja se revisa el 29,6 % de las cajas en dos pasos, en vez del 44,6 % en uno; revisando el 20 %, se encuentran 70,9 de cada 100 frente a 61,9. Con un supuesto de 20 s por caja (supuesto, no medido): 358 h sin orden, 200 h en un paso y 132 h en dos.
-- **Límites.** El recall de la regla es 80,6 % en peatones y 44,3 % en ciclistas (115 casos en 14 segmentos); un segmento concentra el 54,8 % de los positivos del test de EP2; los dos pasos se probaron solo en muestra y la validación con segmentos nuevos está sellada y sin ejecutar.
-
+- **Límites.** El recall de la regla es 80,6 % en peatones y 44,3 % en ciclistas (115 casos en 14 segmentos); un segmento concentra el 54,8 % de los positivos del test de EP2; los dos pasos se midieron en muestra; con 4 segmentos nuevos reales solo se probó que la aplicación funciona (1 de 4 trae un posible hueco; no se estima su frecuencia) y la validación externa sellada sigue sin ejecutarse.
 
 **Cómo verlo**
 
@@ -67,10 +66,9 @@
 | IE12: Selección de la solución óptima | 10 % | 30 % | [12.1](#121-solución-elegida-y-justificación-ie12) | tabla y prueba automática |
 
 **Índice:** [Resumen](#1-resumen) · [Contexto](#2-contexto-valor-de-negocio-objetivos-y-kpis) · [Qué hicimos en EP1](#3-qué-hicimos-en-ep1) · [Datos](#4-datos) · [EDA y calidad de datos](#5-eda-y-calidad-de-datos) · [Preparación y transformación](#6-preparación-y-transformación) · [Metodología (CRISP-DM)](#7-metodología-crisp-dm) · [Modelos supervisados](#8-modelos-supervisados) · [Aprendizaje no supervisado](#9-aprendizaje-no-supervisado) · [Evaluación final en el test](#10-evaluación-final-en-el-test) · [Hallazgo post hoc](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara) · [Interpretación y recomendaciones](#12-interpretación-y-recomendaciones) · [Ética](#13-ética-sesgos-y-privacidad) · [Estructura del repositorio](#14-estructura-del-repositorio-reproducción-y-pruebas) · [Mapa de la pauta](#15-mapa-de-la-pauta-referencias-equipo-y-limitaciones) · [Lente](#16-lente-la-aplicación-y-su-despliegue) · [Mejoras incorporadas desde EP1 y EP2](#17-mejoras-incorporadas-desde-ep1-y-ep2)
-
 **Lectura rápida:** secciones [1](#1-resumen), [8.1](#81-optimización-de-hiperparámetros-ie9), [8.2](#82-técnicas-de-ensamble-ie10), [8.3](#83-capacidad-de-generalización-ie11), [12.1](#121-solución-elegida-y-justificación-ie12) y [16](#16-lente-la-aplicación-y-su-despliegue).
 
-*Generado por `scripts/generar_readme.py` el 2026-11-24 11:38. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`, `artefactos_ep3/`) o de las funciones de la aplicación; los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
+*Generado por `scripts/generar_readme.py` el 2026-11-24 20:38. Cada cifra sale de los CSV, JSON y notebooks ejecutados (`data/08_reporting/`, `artefactos_ep3/`) o de las funciones de la aplicación; los resultados post hoc llevan la etiqueta «post hoc, no pre-declarado».*
 
 ## 1. Resumen
 
@@ -97,14 +95,14 @@
 
 **Nota sobre el IC de la Fracción para 80 % del test (14,8 % a 88,3 %).** Es muy ancho y bimodal: depende de si la réplica del bootstrap por segmentos incluye el segmento `257766998801`. El notebook 10 (K.2) lo midió para la regresión logística (IC 15,4 % a 88,4 %): en las 657 réplicas que incluyen el segmento la mediana es 83,4 % y en las 343 que no lo incluyen es 23,1 %. Para la regla top el notebook no desglosa las réplicas; la tabla muestra una separación del mismo tipo: 79,0 % con el segmento y 22,1 % sin él (post hoc, no pre-declarado). Por eso las conclusiones se apoyan en las diferencias pareadas modelo menos regla y no en el IC de un método solo.
 
+> **Actualización de EP3 sobre el alcance.** El «alcance» de arriba es el de EP2. En EP3 el paso 1 (detector de huecos) se midió con los 41 segmentos de desarrollo y se probó en la aplicación con 4 segmentos nuevos reales: 1 de 4 trae un posible hueco (sección [16](#16-lente-la-aplicación-y-su-despliegue)). Esa prueba de funcionamiento no valida el paso 1 estadísticamente; la validación externa sellada sigue sin ejecutarse.
+
 ## 2. Contexto, valor de negocio, objetivos y KPIs
 
 > Quien revisa y valida las etiquetas de percepción gana tiempo si revisa primero las cajas que probablemente no tienen par 2D, pero esa ganancia fue clara en train y no se sostuvo en el test oficial.
 
 **Quién lo usaría.** Un equipo que revisa y audita los datos etiquetados de percepción y necesita saber qué cajas 3D quedaron sin su par 2D antes de entrenar o de comparar métricas por cámara.
-
 **Costo de no usarlo.** Sin una lista priorizada, la única opción es revisar al azar: para encontrar el 80 % de las cajas sin par hay que revisar el 80 % de todas las cajas. Con la regla de puntos top, en train bastaba revisar el 37,8 %. Es como buscar un expediente incompleto abriendo carpetas sin orden.
-
 **Por qué importa a escala.** Un segmento dura 20 segundos (cerca de 200 frames) y el inventario del conjunto de entrenamiento de Waymo que revisamos tiene 798 segmentos, es decir, unas 4,4 horas de video (798 × 20 s). La revisión a mano crece en línea recta con los datos: el doble de segmentos, el doble de horas. Como ilustración de train, con el supuesto de 20 s por revisión (no medido): revisar todas las cajas de un segmento de nuestra muestra (64.509 cajas ÷ 33 segmentos) tomaría unas 10,9 h, y ordenar con la regla de puntos top en lugar de revisar al azar ahorraría unas 4,6 h por segmento. Esa ganancia no se sostuvo en el test oficial. El paso 1 (auditoría por cámara) es el que mejor escala: basta contar pares por segmento y cámara, y detecta problemas que afectan a muchas cajas a la vez (el hueco del segmento 257766998801 reúne el 35,8 % de los positivos del test).
 
 **Objetivo general.** Construir y evaluar, con validación por segmento y un test sellado, una lista priorizada de las cajas 3D etiquetadas de peatones y ciclistas, para encontrar las que no tienen par 2D de cámara revisando menos que al azar, y decir con intervalos de confianza si un modelo aporta algo frente a una regla simple.
@@ -127,6 +125,8 @@
 | Estabilidad por fold | AUC mínimo entre los 5 folds de train | Un resultado que depende de un fold no se puede esperar en datos nuevos | AUC mínimo por fold >= 0,75 (09) | Regla top 0,821; LR 0,811 | No aplica: el test no tiene folds |
 | Estabilidad por segmento | Mediana del AUC dentro de cada segmento | Los segmentos son escenas distintas; el promedio puede esconder segmentos donde falla | Mediana >= 0,80 (09) | Regla top 0,890; LR 0,888 (14 segmentos) | Regla top 0,903; LR 0,885 (mediana de 4 segmentos con al menos 50 positivos; mínimo 0,443 y 0,459) |
 
+> **Cómo leer estos KPI en EP3.** Las metas de esta tabla son las de EP2, que evaluó 33 segmentos de entrenamiento. Las cifras de EP3 (41 segmentos, otra validación) están en la sección [8.1](#81-optimización-de-hiperparámetros-ie9) y en las secciones 8.3 y 12; no son comparables una a una con las de la sección 8 (ver el recuadro de 8.1).
+
 **Valor cuantificado (ilustración con supuestos).** Las horas son cajas × 20 s ÷ 3.600. Los 20 s por revisión no se calcularon ni se midieron: son un supuesto editable que fijamos en el notebook 07 (`SEGUNDOS_POR_REVISION`), sin fuente citada, y que el 09 y el 10 repiten como constante; las horas son solo una ilustración.
 
 | Escenario (train, población principal) | Cajas a revisar | Horas con 20 s por revisión |
@@ -136,7 +136,6 @@
 | Regla por puntos top, punto A (recall 0,806) | 24.449 (37,9 %) | 135,8 |
 
 **Unidad de revisión: la caja, no el frame.** Las fracciones y las horas se calculan por fila de la tabla de modelado, es decir, por **caja** (un peatón o ciclista etiquetado en un frame): 64.509 cajas repartidas en 5.302 frames de train de la población principal. Los notebooks 07, 09 y 10 y sus CSV llaman «frame» a esa fila (en el 07, «frame (caja 3D etiquetada)»); aquí decimos caja. Revisar una caja no equivale a revisar un frame completo, y el esfuerzo por frame no se midió.
-
 **Lectura honesta en el test.** En el resultado oficial la ganancia no se sostiene: la regla necesita revisar el 79,0 % de las cajas para encontrar el 80 % de las cajas sin par, frente a 80 % al azar, y el punto A queda en recall 0,590 (IC 0,383 a 0,924). En el test, el punto A cuesta 29,5 h frente a 89,2 h de revisar todo, pero con menos recall del prometido. El motivo (un segmento) está en la [sección 11](#11-hallazgo-post-hoc-el-segmento-anómalo-y-la-auditoría-por-cámara).
 
 ## 3. Qué hicimos en EP1
@@ -155,9 +154,7 @@
 - `05_etica_sesgos_privacidad.ipynb`: Sesgo de muestreo, de procesamiento y de clase en el target, riesgo de reidentificación, y la ficha de dataset (datasheet) completa.
 
 **Notebook 06 (de EP1, prepara EP2):** `06_eda_y_preparacion_modelamiento.ipynb` repite el EDA de EP1 (target `tiene_camara`) con los 41 segmentos de EP2 y deja el split por segmento; el cambio de target lo decide el 07.
-
 **Datos de EP1.** 4 segmentos reales de Waymo elegidos por contraste, 34.098 detecciones y 15,7 % de positivos de `tiene_camara` (5.352 de 34.098). La selección de segmentos, la ética y los benchmarks de almacenamiento (Parquet frente a CSV) quedaron en los notebooks 00, 03, 04 y 05.
-
 **Qué aprendimos y qué cambió.** `tiene_camara` en todos los objetos queda dominado por la clase: en train, los vehículos y las señales nunca son positivos (cifra del notebook 07, sin archivo de salida). La pregunta con incertidumbre es qué peatones y ciclistas no tienen par: ese es `sin_camara`, el target de EP2 (notebook 07). El detalle de EP1 está en [docs/README_EP1.md](docs/README_EP1.md).
 
 ## 4. Datos
@@ -200,15 +197,12 @@ Reparto de ramas: `git branch -a` lista `main`, `maicolhernandez` y `francismoya
 4. **Dentro de un mismo objeto.** El 80,0 % de los objetos que a veces tienen par y a veces no tienen más puntos en los frames con par (Wilcoxon p = 1,9e-29): el efecto no es solo del tipo de objeto.
 
 ![Tasa de sin_camara por puntos LiDAR, clase y distancia (08, población de 120°)](images/08_tasa_por_puntos_clase_distancia.png)
-
 *Figura: Tasa de sin_camara por puntos LiDAR, clase y distancia (08, población de 120°). Archivo: `images/08_tasa_por_puntos_clase_distancia.png`.*
 
 ![Tasa de sin_camara por azimut: el salto está entre 100° y 120° (08)](images/08_tasa_por_azimut.png)
-
 *Figura: Tasa de sin_camara por azimut: el salto está entre 100° y 120° (08). Archivo: `images/08_tasa_por_azimut.png`.*
 
 ![Dentro de los objetos que a veces tienen par: más puntos en los frames con par (08)](images/08_pareado_objetos_mixtos.png)
-
 *Figura: Dentro de los objetos que a veces tienen par: más puntos en los frames con par (08). Archivo: `images/08_pareado_objetos_mixtos.png`.*
 
 **Calidad de datos.**
@@ -274,7 +268,6 @@ Reparto de ramas: `git branch -a` lista `main`, `maicolhernandez` y `francismoya
 ```
 
 **Criterios fijados antes.** «Vale la pena»: la fracción para 80 % baja al menos 5 puntos con IC pareado que excluya 0 y el AUC sube al menos 0,03. Estabilidad: AUC mínimo por fold de 0,75 y mediana por segmento de 0,80. Punto A: recall objetivo 0,80, sostenido en test si es al menos 0,75. Calibración: ECE de a lo sumo 0,05. Los intervalos son bootstrap por segmentos.
-
 **Por qué baselines simples.** Un modelo complejo solo se justifica si supera a una regla que se explica en una línea; es como justificar un instrumento nuevo frente a medir a ojo. Los baselines son menos puntos LiDAR, menos puntos de la parte alta (la regla por puntos top), una regla geométrica y un modelo mínimo de 3 variables.
 
 ## 8. Modelos supervisados
@@ -295,11 +288,9 @@ Reparto de ramas: `git branch -a` lista `main`, `maicolhernandez` y `francismoya
 **Por qué dos filas son idénticas.** «Regla geométrica» y «Regla: menos puntos LiDAR» dan las mismas métricas porque el puntaje de la geométrica es `1e6*(azimut_abs_deg > 105) - num_lidar_points`: pone primero las cajas con azimut mayor que 105°, y la población principal solo tiene cajas hasta 100° (máximo en train), así que su orden queda igual al de menos puntos LiDAR. Las dos reglas solo se distinguen en la población de 120° (sensibilidad), donde la geométrica es el mejor baseline simple.
 
 ![Comparación de modelos y baselines en train, fuera de fold, con IC por segmentos (09)](images/09_comparacion_modelos.png)
-
 *Figura: Comparación de modelos y baselines en train, fuera de fold, con IC por segmentos (09). Archivo: `images/09_comparacion_modelos.png`.*
 
 **Por qué estos algoritmos.** La regresión logística es la referencia lineal; el HGB captura interacciones; el Random Forest da robustez. Elegimos hiperparámetros con búsqueda anidada por segmento y no usamos SMOTE (la prevalencia de 20,7 % no es extrema). Detalle en el [informe](docs/informe_tecnico_EP2.md#8-modelos-supervisados).
-
 **De EP1 a EP2.** El README de EP1 (sección 6) proponía Random Forest o XGBoost con SMOTE para `tiene_camara` (15,7 % de positivos). En EP2 el target pasó a `sin_camara`, con una prevalencia de 20,7 % en la población principal, y comparamos regresión logística, HGB (`HistGradientBoostingClassifier`, el boosting de árboles de scikit-learn) y Random Forest. No usamos SMOTE: evaluamos `class_weight` en vez de sobremuestrear (HGB 0,719 sin peso frente a 0,719 balanceado; regresión logística 0,713 frente a 0,711) e `imbalanced-learn` no está instalado en el entorno. XGBoost no se entrenó en EP2: no figura en `requirements.txt` ni en el código de los notebooks 07 a 10; el 06 solo imprime un `scale_pos_weight` de 5,95 para `tiene_camara`. En EP3 sí se entrena y se optimiza (secciones 8.1 y 8.2).
 
 **Hiperparámetros** (valores buscados, tomados del código del notebook 09, y valor elegido, de `hiperparametros_B.json`):
@@ -355,12 +346,18 @@ La distancia y los puntos LiDAR están muy correlacionados (correlación de Spea
 | Isotónica | 0,030 | 0,105 |
 
 ![Curva de confiabilidad de la regresión logística, cruda y calibrada (09)](images/09_calibracion.png)
-
 *Figura: Curva de confiabilidad de la regresión logística, cruda y calibrada (09). Archivo: `images/09_calibracion.png`.*
 
 **Diagnóstico agrupado frente a por fold y por segmento.** El AUC agrupado mezcla las predicciones de cinco modelos (uno por fold) y puede castigar a los modelos más que a las reglas. Por fold, la diferencia de AUC de la regresión logística frente a la regla va de -0,010 a +0,005 (IC por segmentos -0,010 a +0,033); por segmento, la mediana de la diferencia es -0,001 (IC -0,008 a +0,002). Los IC incluyen 0: el modelo no se distingue de la regla.
 
 ### 8.1 Optimización de hiperparámetros (IE9)
+
+> **Por qué las cifras de esta sección no son las de la sección 8.** EP2 evaluó los 33 segmentos de entrenamiento, con folds estratificados por `tiene_camara`, y su regresión logística quedó ajustada (`C` = 0,001). EP3 evalúa los 41 segmentos de desarrollo con `StratifiedGroupKFold` de 5 estratificado por `sin_camara`, y compara la regresión logística por defecto con la optimizada por una búsqueda anidada nueva. Lo que más mueve a la regla (de 0,862 a 0,823) es la población, no el método: la misma regla da 0,862 fuera de fold sobre los 33 segmentos de entrenamiento y 0,684 sobre los 8 de test, que incluyen el segmento con la cámara 3 sin pares. Las dos series no son comparables una a una.
+
+| Serie | Dónde está | Cifras (AUC fuera de fold) |
+|---|---|---|
+| EP2: 33 segmentos de entrenamiento (test de 8 aparte) | secciones [8](#8-modelos-supervisados) y [10](#10-evaluación-final-en-el-test) | regla 0,862 y regresión logística ajustada (0,825) en entrenamiento; regla 0,684 en el test |
+| EP3: 41 segmentos de desarrollo (los 33 más los 8 del test de EP2) | secciones [8.1](#81-optimización-de-hiperparámetros-ie9) a 8.3 y 12.1 | regla 0,823; regresión logística por defecto 0,797 y optimizada 0,775 |
 
 > Optimizar mejora a XGBoost y LightGBM y no mejora a Regresión logística, Random Forest ni a HistGradientBoosting; ni siquiera el XGBoost optimizado supera a la regla de una línea.
 
@@ -408,7 +405,7 @@ Fuente: [`f4_candidatos_metricas.csv`](artefactos_ep3/f4_candidatos_metricas.csv
 
 > La regla se sostiene fuera de fold (AUC 0,823, IC 0,725 a 0,900), y la única debilidad es un fold con un segmento sin pares en una cámara.
 
-**Validación usada.** `GroupKFold` de 5 folds **por segmento**: un segmento son unos 20 segundos de video con casi 200 fotogramas parecidos entre sí, así que una escena repartida entre entrenamiento y prueba haría trampa. Los IC salen de remuestrear segmentos completos (1.000 réplicas) y la búsqueda de hiperparámetros va anidada (8.1). Con 41 segmentos los IC son anchos.
+**Validación usada.** `StratifiedGroupKFold` de 5 folds (estratificado por `sin_camara`, agrupado por segmento, semilla 42): un segmento son unos 20 segundos de video con casi 200 fotogramas parecidos entre sí, así que una escena repartida entre entrenamiento y prueba haría trampa. Los IC salen de remuestrear segmentos completos (1.000 réplicas) y la búsqueda de hiperparámetros va anidada (8.1). Con 41 segmentos los IC son anchos. Las cifras de esta sección no son las de la sección 8 (EP2 evaluó 33 segmentos): ver el recuadro de [8.1](#81-optimización-de-hiperparámetros-ie9).
 
 | AUC por fold | Fold 0 | Fold 1 | Fold 2 | Fold 3 | Fold 4 | Mínimo |
 |---|---|---|---|---|---|---|
@@ -423,7 +420,7 @@ Fuente: [`f5_auc_por_fold.csv`](artefactos_ep3/f5_auc_por_fold.csv). El fold 0 e
 - **Brecha ajuste-validación.** La regla no aprende, así que no tiene brecha real. XGBoost con todos los segmentos de entrenamiento: ajuste 0,917, validación 0,815, brecha 0,102 que no se cierra con más segmentos ([`f5_brecha_XGB.csv`](artefactos_ep3/f5_brecha_XGB.csv)).
 - **Calibración.** Con Platt, el ECE de la regla es 0,044.
 - **Uno frente a dos pasos** (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos): revisar el 29,6 % de las cajas para el 80 % (IC 20,2 a 39,4 %) en vez del 44,6 %; la ganancia sale de 2 celdas cámara por segmento ([`f5_brazoC.csv`](artefactos_ep3/f5_brazoC.csv)).
-- **Test de EP2 y qué cambió.** En EP2 el test de 8 segmentos estuvo sellado. En EP3 los 41 segmentos (33 de entrenamiento y los 8 de test de EP2, 80.571 cajas) son **datos de desarrollo** de la solución v3: ya los miramos varias veces. La única prueba ciega son los segmentos nuevos: la validación externa sellada ([`plan_seleccion_ep3.json`](artefactos_ep3/plan_seleccion_ep3.json)) está preparada y **no se ha ejecutado**. La prueba de la aplicación con segmentos nuevos (sección 16) es una prueba de funcionamiento, no una validación estadística.
+- **Test de EP2 y qué cambió.** En EP2 el test de 8 segmentos estuvo sellado. En EP3 los 41 segmentos (33 de entrenamiento y los 8 de test de EP2, 80.571 cajas) son **datos de desarrollo** de la solución v3: ya los miramos varias veces. La única prueba ciega son los segmentos nuevos: la validación externa sellada ([`plan_seleccion_ep3.json`](artefactos_ep3/plan_seleccion_ep3.json)) está preparada y **no se ha ejecutado**. La prueba de la aplicación con 4 segmentos nuevos reales (sección 16) es una prueba de funcionamiento, no una validación estadística: no estima la frecuencia de los huecos ni reemplaza a la validación externa sellada.
 
 ## 9. Aprendizaje no supervisado
 
@@ -450,13 +447,10 @@ Fuente: [`f5_auc_por_fold.csv`](artefactos_ep3/f5_auc_por_fold.csv). El fold 0 e
 | 1 | 15.944 | 0,136 | 0,096 | 0,171 | a distancia media, densos y sin oclusores |
 
 ![Tasa de sin_camara por cluster con IC 95 % por segmentos (08)](images/08_clusters_tasa.png)
-
 *Figura: Tasa de sin_camara por cluster con IC 95 % por segmentos (08). Archivo: `images/08_clusters_tasa.png`.*
 
 **IsolationForest** marca 686 cajas atípicas (1 %) en 28 segmentos, con tasa de `sin_camara` de 80,3 % frente a 22,6 % en el resto.
-
 **Lectura de negocio.** Usamos k = 4, que es una exploración y no el k elegido (el k elegido es 2): con k = 2 el cluster mayoritario promedia una tasa de 26,1 % y esconde un tramo mucho más alto, que solo aparece al separar más clusters. Con k = 4, el cluster «lejanos, poco densos y ocluidos» reúne 19,8 % de las cajas y tiene una tasa de 62,7 %: es el tramo de la cola de revisión donde cerca de 6 de cada 10 cajas no tienen par. Los clusters ayudan a explicar y comunicar, no a predecir: la probabilidad media del modelo en ese cluster (0,617) ya sigue su tasa.
-
 **Límites.** Los clusters se calcularon con la población de 120°; el análisis con los segmentos de lluvia (post hoc, no pre-declarado) compara cajas con todos los frames contra train con solo los etiquetados y no es una comparación pareja (ver el [informe](docs/informe_tecnico_EP2.md#7-aprendizaje-no-supervisado-notebook-08-sección-d-y-exploración-con-k--3-y-4)).
 
 ## 10. Evaluación final en el test
@@ -471,7 +465,6 @@ Fuente: [`f5_auc_por_fold.csv`](artefactos_ep3/f5_auc_por_fold.csv). El fold 0 e
 Diferencia de Regresión logística menos la regla por puntos top: AUC +0,014 (IC -0,014 a +0,029) y Fracción para 80 % -1,7 puntos (IC -4,2 a +4,1): ambos IC incluyen 0 y «vale la pena» no se cumple.
 
 ![Resultado principal en test: modelo frente a regla, con IC por segmentos de test (10)](images/10_resultado_principal.png)
-
 *Figura: Resultado principal en test: modelo frente a regla, con IC por segmentos de test (10). Archivo: `images/10_resultado_principal.png`.*
 
 **Punto A** (corte fijado con train para un recall de 0,80; sostenido si el recall es al menos 0,75): 0 de 7 métodos lo sostienen.
@@ -482,13 +475,11 @@ Diferencia de Regresión logística menos la regla por puntos top: AUC +0,014 (I
 | Regresión logística | 0,146 | 0,621 (IC 0,413 a 0,958) | 0,406 (IC 0,316 a 0,543) | 35,6 % (IC 25,7 % a 44,9 %) |
 
 ![Puntos de operación A y B de los siete métodos en test (10)](images/10_puntos_de_operacion.png)
-
 *Figura: Puntos de operación A y B de los siete métodos en test (10). Archivo: `images/10_puntos_de_operacion.png`.*
 
 **Influencia.** Son 12 cálculos sobre los 8 segmentos de test: 1 con todos, 2 quitando cada uno de los dos más grandes, 1 quitando ambos y 8 quitando un segmento a la vez (los dos más grandes figuran también entre estos 8). La diferencia de AUC entre modelo y regla va de -0,004 a +0,020 y la de fracción para 80 % de -2,4 a +1,3 puntos; ningún segmento cambia el veredicto.
 
 ![Influencia de cada segmento en la comparación principal (10)](images/10_influencia.png)
-
 *Figura: Influencia de cada segmento en la comparación principal (10). Archivo: `images/10_influencia.png`.*
 
 **Sensibilidad a 120° (secundaria, en el test).** Con la población ampliada (principal más la franja de 100 a 120°) el baseline adecuado es la regla geométrica, que ahí sí se distingue de la de puntos. El HGB y el Random Forest cumplen «vale la pena» frente a la regla por puntos top, pero no frente a la regla geométrica; la regresión logística no lo cumple frente a ninguna de las dos. El criterio «robusto» del plan (vale la pena en la población principal y en la de 120° frente al mejor baseline de cada una) da ninguno. Es una sensibilidad: no cambia el resultado principal.
@@ -530,7 +521,6 @@ Diferencia de Regresión logística menos la regla por puntos top: AUC +0,014 (I
 - **Sin el segmento (post hoc, no pre-declarado).** AUC de la regla 0,931 (IC 0,897 a 0,982), recall del punto A 0,879 (IC 0,858 a 0,967).
 
 ![Tasa de pares por segmento y cámara; X marca los pares con hueco (post hoc, no pre-declarado, 10)](images/10_M_mapa_calor.png)
-
 *Figura: Tasa de pares por segmento y cámara; X marca los pares con hueco (post hoc, no pre-declarado, 10). Archivo: `images/10_M_mapa_calor.png`.*
 
 **Advertencias.** Los criterios del apéndice se escribieron después de ver el segmento, así que no confirman el hallazgo de forma independiente; los dos casos son de San Francisco de día; el hueco puede ser de etiquetado o de los datos de esa cámara y con estos archivos no se distingue; los rangos de azimut por cámara son empíricos.
@@ -572,6 +562,8 @@ Se hace en ese orden porque en una cámara con hueco la regla se equivoca.
 
 > **Lo que NO afirmamos.** Que `sin_camara` mida visibilidad física; que el resultado generalice más allá de 8 segmentos de test; nada sólido sobre ciclistas ni sobre Night y Dawn/Dusk (un segmento cada uno); que el hueco de cámara sea de etiquetado y no de los datos de esa cámara; ni que un modelo supere a la regla, porque con el criterio fijado antes no ocurrió.
 
+> **Lo que tampoco afirmamos en EP3.** La frecuencia ni la causa de los huecos de cámara, ni que la solución generalice más allá de los 41 segmentos de desarrollo y de los 4 segmentos nuevos de la prueba de funcionamiento (sección 16, sin validación estadística).
+
 ### 12.1 Solución elegida y justificación (IE12)
 
 > La solución elegida es la regla «menos puntos top» en dos pasos (auditar cámaras y luego ordenar la cola), porque ninguna alternativa más compleja la supera de forma distinguible.
@@ -597,9 +589,7 @@ Los criterios se fijaron antes de ver resultados ([`plan_v3.md`](artefactos_ep3/
 Fuente: [`f6_tabla_seleccion.csv`](artefactos_ep3/f6_tabla_seleccion.csv) y [`f6_seleccion.json`](artefactos_ep3/f6_seleccion.json). Ningún candidato cumple O4 (el fold 0, ver 8.3) y ninguno cumple O2.
 
 **Qué decidimos y por qué.** Ningún candidato cumple O4 (regla de reserva DEV-2); entre los 11 candidatos que cumplen O1 y O3, el mejor AUC OOF es 0,824; los que quedan a menos de 0,010 son Regla top, E2; el más simple es Regla top. Aplicamos una regla de reserva (DEV-2, post hoc, no pre-declarada): el plan manda elegir entre los que cumplen O1, O3 y O4, pero nadie cumple O4, así que elegimos por simplicidad entre los que cumplen O1 y O3 y declaramos la estabilidad como limitación de todos.
-
 **Por qué es la óptima.** Empata en desempeño con todo lo más complejo, se explica en una línea, no tiene hiperparámetros que se desajusten y es auditable caja por caja. Frente a los objetivos de negocio (en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos): con un presupuesto del 20 %, se encuentran 70,9 de cada 100 cajas sin pareja en dos pasos frente a 61,9 en uno, y para el 80 % se revisa el 29,6 % en vez del 44,6 %; con 20 s por caja (supuesto) son 132 h en vez de 358 h sin orden. El punto de equilibrio es 6.059 cajas por auditoría: no inventamos un costo de auditar.
-
 **Por qué no un modelo más complejo.** Probamos cinco algoritmos, una regresión logística de tres variables y cuatro ensambles (uno de ellos con la regla): ninguno cumple O2 y todos salvo E2 quedan significativamente peores que la regla en AUC. Un modelo más complejo cuesta mantenimiento, explicación y riesgo de sobreajuste con 41 segmentos, sin una mejora medible que lo pague.
 
 ## 13. Ética, sesgos y privacidad
@@ -618,17 +608,45 @@ Fuente: [`f6_tabla_seleccion.csv`](artefactos_ep3/f6_tabla_seleccion.csv) y [`f6
 
 ```
 waymo-evaluacion/
-├── README.md                    este archivo (lo genera scripts/generar_readme.py)
-├── requirements.txt             entorno (versiones de docs/entorno_ep2.txt más kedro, pytest y nbconvert)
-├── conf/                        catálogo y parámetros de Kedro
-├── src/waymo_evaluacion/        pipelines de ingesta_waymo y preprocesamiento
-├── notebooks/                   00 a 05 (EP1), 06 (de EP1, prepara EP2), 07 target, 08 datos y no supervisado, 09 modelos, 09b plan v2, 10 evaluación
-├── scripts/                     generar_informe_tecnico, generar_readme, extracciones del 08 y del 09, diagnóstico post hoc, empaquetar_entrega
-├── tests/                       pruebas de pipelines, del informe y del README
-├── docs/                        informe técnico, plan de evaluación congelado (v1 y v2), log de trabajo, README de EP1
-├── images/                      figuras, con el número del notebook que las genera
-└── data/                        (fuera de git) 01_raw a 08_reporting; 06_models hace de models/
+├── .streamlit/    configuración y tema de la página
+├── app/           la aplicación Lente (Streamlit)
+├── artefactos_ep3/ tablas agregadas, manifests y planes de EP3 (versionables)
+├── conf/          catálogo y parámetros de Kedro
+├── data/          (fuera de git) 01_raw a 09_app_ep3: datos, modelos y tablas; 06_models hace de models/ (EP2 congelado, EP3 en 06_models_ep3)
+├── datos_demo/    (fuera de git) segmentos nuevos reales para la demostración en vivo
+├── docs/          informes, planes y guías; ep3/ (informe técnico, plan v3, estado) y seleccion_segmentos/
+├── images/        figuras con el número del notebook que las genera; app/ (capturas del README) y ep3/
+├── notebooks/     notebooks 00 a 15 (tabla siguiente)
+├── scripts/       scripts de EP2 (informe, README, mediciones) y ep3/ (datos, detector, ajuste, página, demostración, README)
+├── src/           paquete waymo_evaluacion (pipelines de Kedro y ep3/)
+├── tests/         pruebas de EP1, EP2 y del README; ep3/ (página, detector, selección) y pipelines/
+├── Dockerfile, docker-compose.yml, .dockerignore, requirements.txt, requirements_app.txt, requirements_ep3.txt, constraints_ep3.txt, pyproject.toml, .gitignore: imagen de la aplicación, entornos (EP2, aplicación, EP3, versiones fijadas) y reglas de git
+├── README.md, CLAUDE.md, entrega_EP2.zip, entrega_EP3.zip, entrega_EP3.sha256: este archivo (lo genera scripts/generar_readme.py), instrucciones del asistente y (fuera de git) los paquetes entregados
 ```
+
+**Notebooks.** 00 a 05 (EP1), 06 (de EP1, prepara EP2), 07 a 10 (EP2) y 11 a 15 (EP3), más dos «00b» de selección de segmentos que se corren en Colab. La columna «Orden» es el orden recomendado; para reproducir el resultado oficial de EP2 basta el 10 (sección 14) y para EP3 los notebooks 11 a 15 leen lo que dejan `scripts/ep3/`.
+
+| Orden | Notebook | Etapa | Qué hace | Ejecución (según los archivos y los registros) |
+|---|---|---|---|---|
+| 1 | [`00_exploracion_bucket_waymo.ipynb`](notebooks/00_exploracion_bucket_waymo.ipynb) | EP1 | explora el bucket de Waymo v2 con gsutil desde Colab y elige segmentos | Colab; sin salidas guardadas (no se ejecuta aquí) |
+| 2 | [`01_exploracion_csv.ipynb`](notebooks/01_exploracion_csv.ipynb) | EP1 | exploración y calidad del CSV sintético del docente | salidas guardadas (34 de 42 celdas); sin registro de re-ejecución |
+| 3 | [`02_exploracion_waymo.ipynb`](notebooks/02_exploracion_waymo.ipynb) | EP1 | exploración de datos reales de Waymo v2 | salidas guardadas (15 de 16 celdas); sin registro de re-ejecución |
+| 4 | [`03_fuentes_y_colaboracion.ipynb`](notebooks/03_fuentes_y_colaboracion.ipynb) | EP1 | fuentes de datos, licencias y acuerdo de trabajo del equipo (IE1) | salidas guardadas (9 de 10 celdas); sin registro de re-ejecución |
+| 5 | [`04_estructuras_y_almacenamiento.ipynb`](notebooks/04_estructuras_y_almacenamiento.ipynb) | EP1 | listas frente a NumPy, tipos de columna y CSV frente a Parquet (IE2) | salidas guardadas (12 de 12 celdas); sin registro de re-ejecución |
+| 6 | [`05_etica_sesgos_privacidad.ipynb`](notebooks/05_etica_sesgos_privacidad.ipynb) | EP1 | ética, sesgos y privacidad de las fuentes (IE4) | salidas guardadas (12 de 13 celdas); sin registro de re-ejecución |
+| 7 | [`00b_seleccion_segmentos_ep2.ipynb`](notebooks/00b_seleccion_segmentos_ep2.ipynb) | EP2 | mide y selecciona los segmentos de EP2 (ampliación de 4 a 41) | salidas guardadas (23 de 25 celdas, Colab) |
+| 8 | [`06_eda_y_preparacion_modelamiento.ipynb`](notebooks/06_eda_y_preparacion_modelamiento.ipynb) | EP1 a EP2 | EDA ampliado con los 41 segmentos; prepara EP2 | salidas guardadas (23 de 24 celdas); sin registro de re-ejecución |
+| 9 | [`07_decision_target_ep2.ipynb`](notebooks/07_decision_target_ep2.ipynb) | EP2 | por qué EP2 usa `sin_camara` como target | salidas guardadas (61 de 62 celdas); sin registro de re-ejecución |
+| 10 | [`08_analisis_observabilidad_sin_camara.ipynb`](notebooks/08_analisis_observabilidad_sin_camara.ipynb) | EP2 | variables, geometría de cámaras y aprendizaje no supervisado de EP2 | salidas guardadas (30 de 31 celdas); sin registro de re-ejecución |
+| 11 | [`09_modelos_supervisados_sin_camara.ipynb`](notebooks/09_modelos_supervisados_sin_camara.ipynb) | EP2 | baselines y modelos con búsqueda anidada por segmento | reentrenado en copia limpia: un umbral del Random Forest cambió en el último decimal (sección 14) |
+| 12 | [`09b_enmiendas_plan_test_v2.ipynb`](notebooks/09b_enmiendas_plan_test_v2.ipynb) | EP2 | enmiendas al plan de evaluación del test (v2) | salidas guardadas (6 de 6 celdas); sin registro de re-ejecución |
+| 13 | [`10_evaluacion_final_sin_camara.ipynb`](notebooks/10_evaluacion_final_sin_camara.ipynb) | EP2 | evaluación final en el test congelado y hallazgo post hoc | verificado: reproducido en copia limpia con 15 CSV idénticos por sha256 (sección 14) |
+| 14 | [`11_ep3_datos_y_deteccion.ipynb`](notebooks/11_ep3_datos_y_deteccion.ipynb) | EP3 | datos de desarrollo (41 segmentos) y detector de huecos | ejecutado con nbconvert (DEC-70 de `docs/ep3/ESTADO.md`) |
+| 15 | [`12_ep3_tuning_y_ensambles.ipynb`](notebooks/12_ep3_tuning_y_ensambles.ipynb) | EP3 | hiperparámetros y ensambles (IE9 e IE10) | ejecutado con nbconvert (DEC-70) |
+| 16 | [`13_ep3_generalizacion_y_seleccion.ipynb`](notebooks/13_ep3_generalizacion_y_seleccion.ipynb) | EP3 | generalización y selección (IE11 e IE12) | ejecutado con nbconvert (DEC-70) |
+| 17 | [`14_ep3_dos_pasos_y_app.ipynb`](notebooks/14_ep3_dos_pasos_y_app.ipynb) | EP3 | solución en dos pasos y la aplicación | ejecutado con nbconvert (DEC-70); no se puede volver a ejecutar en una copia (lee un lidar_box crudo) |
+| 18 | [`15_ep3_no_supervisado.ipynb`](notebooks/15_ep3_no_supervisado.ipynb) | EP3 | aprendizaje no supervisado (descriptivo, post hoc) | ejecutado con nbconvert (DEC-70) |
+| 19 | [`00b_seleccion_segmentos_ep3.ipynb`](notebooks/00b_seleccion_segmentos_ep3.ipynb) | EP3 | selección sellada de los segmentos nuevos de la validación externa | Colab; sin salidas guardadas: la validación externa no se ha ejecutado |
 
 **El paquete `entrega_EP2.zip`.** Lo arma `scripts/empaquetar_entrega.py` y queda en la raíz del repositorio (carpeta interior `waymo-evaluacion-EP2/`), unos 120 MB. No está en git, porque figura en `.gitignore` (es un archivo grande y `data/` se ignora por la licencia no comercial de Waymo), así que se entrega aparte del repositorio, por el AVA / Moodle del curso MLY1101 (DuoC UC).
 
@@ -646,29 +664,25 @@ python -m venv .venv
 .venv/Scripts/python.exe -X utf8 scripts/generar_readme.py
 ```
 
-Linux y Mac (no los probamos; son los mismos pasos con el ejecutable del entorno):
+Linux y Mac (no los probamos): los mismos pasos con el ejecutable del entorno (`generar_informe_tecnico.py` y `generar_readme.py` se ejecutan igual con `.venv/bin/python`):
 
 ```
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m ipykernel install --prefix .venv --name ep2
 .venv/bin/python scripts/verificar_congelados.py
 .venv/bin/python -m nbconvert --to notebook --execute --inplace --ExecutePreprocessor.kernel_name=ep2 notebooks/10_evaluacion_final_sin_camara.ipynb
-.venv/bin/python scripts/generar_informe_tecnico.py
-.venv/bin/python scripts/generar_readme.py
 ```
 
 `verificar_congelados.py` comprueba los sha256 del plan v2 antes de ejecutar el 10, que hace la misma comprobación. En la verificación en copia limpia, el 10 dio los 15 CSV idénticos por sha256 a los de la primera ejecución; repetirlo es una re-ejecución sobre el test, no una evaluación nueva.
 
-**Reentrenar (opcional; no hace falta para el resultado oficial).** Los notebooks 08 (variables), 09 (modelos) y 09b (plan v2) se pueden volver a ejecutar, pero **sobrescriben** `data/05_model_input` y `data/06_models`, incluidos los modelos y el plan congelados. Hay que hacerlo en una copia (descomprimir el zip en otra carpeta), con los mismos comandos `nbconvert` sobre `notebooks/08_analisis_observabilidad_sin_camara.ipynb`, `notebooks/09_modelos_supervisados_sin_camara.ipynb` y `notebooks/09b_enmiendas_plan_test_v2.ipynb`, en ese orden.
-
-**Advertencia sobre el sha256:** en la verificación en copia limpia, el 09 reentrenó los modelos con archivos idénticos, pero un umbral del Random Forest cambió en el último decimal; el sha256 de `hiperparametros_B.json` dejó de coincidir con el del plan y el 09b y el 10 se detuvieron. Si se reentrena, hay que devolver los archivos congelados antes del 10.
-
-**Desde datos crudos:** descargar los segmentos de Waymo (licencia no comercial) y ejecutar `kedro run`, como se explica en el [README de EP1](docs/README_EP1.md).
+- **Reentrenar (opcional; no hace falta para el resultado oficial).** Los notebooks 08 (variables), 09 (modelos) y 09b (plan v2) se pueden volver a ejecutar, pero **sobrescriben** `data/05_model_input` y `data/06_models`, incluidos los modelos y el plan congelados. Hay que hacerlo en una copia (descomprimir el zip en otra carpeta), con los mismos comandos `nbconvert` sobre `notebooks/08_analisis_observabilidad_sin_camara.ipynb`, `notebooks/09_modelos_supervisados_sin_camara.ipynb` y `notebooks/09b_enmiendas_plan_test_v2.ipynb`, en ese orden.
+- **Advertencia sobre el sha256:** en la verificación en copia limpia, el 09 reentrenó los modelos con archivos idénticos, pero un umbral del Random Forest cambió en el último decimal; el sha256 de `hiperparametros_B.json` dejó de coincidir con el del plan y el 09b y el 10 se detuvieron. Si se reentrena, hay que devolver los archivos congelados antes del 10.
+- **Desde datos crudos:** descargar los segmentos de Waymo (licencia no comercial) y ejecutar `kedro run`, como se explica en el [README de EP1](docs/README_EP1.md).
 
 **Pruebas y cobertura** (`scripts/medir_pruebas.py`): 81 pasadas, 0 falladas, 0 omitidas; cobertura total 92,7 %. Se ejecutan con `.venv/Scripts/python.exe -m pytest -q` (Linux y Mac: `.venv/bin/python -m pytest -q`); las del informe y del README se omiten si faltan los archivos de `data/`. Cubren los nodos de ingesta y preprocesamiento, el informe y este README. **Ignorado por git:** `data/**`, `data/01_raw/waymo_real/`, `data/02_intermediate/*`, `data/03_primary/*`, `data/04_feature/*`, `data/01_raw/waymo/`, `entrega_EP2.zip`.
 
-**Pruebas de EP3.** 398 pruebas recolectadas en `tests/ep3` (`scripts/ep3/contar_pruebas.py`); última corrida (`scripts/ep3/medir_pruebas_ep3.py`): 398 pasadas, 0 falladas, 0 omitidas, cobertura de `src/waymo_evaluacion/ep3` 86,4 %. Comando: `.venv\Scripts\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider`.
+**Remedición de las pruebas de EP2** (2026-11-24 20:35, en una copia temporal del repositorio, `pytest --ignore=tests/ep3`): 81 pasadas, 0 falladas, 0 omitidas. La cobertura de EP2 sigue siendo la medida en EP2, arriba: en la copia el paquete se importa del repositorio real y la medición no sería fiable.
+**Pruebas de EP3.** 415 pruebas recolectadas en `tests/ep3` (`scripts/ep3/contar_pruebas.py`); última corrida (2026-11-24 20:38, `scripts/ep3/medir_pruebas_ep3.py`): 415 pasadas, 0 falladas, 0 omitidas, cobertura de `src/waymo_evaluacion/ep3` 86,5 %. Comando: `.venv\Scripts\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider`.
 
 ## 15. Mapa de la pauta, referencias, equipo y limitaciones
 
@@ -697,7 +711,6 @@ El mapa completo de EP3 y de la Evaluación Final (IE1 a IE12, con sus pesos) es
 - NHTSA, publicaciones 813727 y 813818 (2023), usadas en el 07 solo como contexto: https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813727; https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/813818
 
 **Equipo.** Maicol Hernández (rama `maicolhernandez`) y Francis Moya (rama `francismoya`). **Curso:** MLY1101.
-
 **Limitaciones.** 8 segmentos de test, pocos ciclistas, un segmento concentra el problema, rangos de azimut por cámara empíricos y causa del hueco de cámara no distinguible; más en la [sección 12 del informe](docs/informe_tecnico_EP2.md#12-limitaciones-y-desviaciones-del-plan).
 
 ## 16. Lente: la aplicación y su despliegue
@@ -724,19 +737,15 @@ El mapa completo de EP3 y de la Evaluación Final (IE1 a IE12, con sus pesos) es
 | Ayuda y glosario | Flujo de revisión, glosario y preguntas frecuentes. | quien usa la herramienta por primera vez | Tres pasos, glosario con buscador y preguntas frecuentes |
 
 ![Resumen de Lente: indicadores, alertas de cámara y cola prioritaria](images/app/lente_resumen.png)
-
 *Figura: Resumen de Lente: indicadores, alertas de cámara y cola prioritaria. Archivo: `images/app/lente_resumen.png`.*
 
 ![Auditoría de cámaras: mapa de calor segmento por cámara y celdas marcadas](images/app/lente_auditoria.png)
-
 *Figura: Auditoría de cámaras: mapa de calor segmento por cámara y celdas marcadas. Archivo: `images/app/lente_auditoria.png`.*
 
 ![Cola de revisión: tarjetas, curva de captura y lista de cajas](images/app/lente_cola.png)
-
 *Figura: Cola de revisión: tarjetas, curva de captura y lista de cajas. Archivo: `images/app/lente_cola.png`.*
 
 ![Puntuar datos nuevos con el segmento de desarrollo de ejemplo y su celda marcada](images/app/lente_puntuar_ejemplo.png)
-
 *Figura: Puntuar datos nuevos con el segmento de desarrollo de ejemplo y su celda marcada. Archivo: `images/app/lente_puntuar_ejemplo.png`.*
 
 **Cifras de la app** (calculadas por las mismas funciones que muestra la página; son de desarrollo, en muestra: 41 segmentos, parámetros del detector ajustados con los mismos datos; post hoc, no pre-declarado; sin validación con datos nuevos):
@@ -752,23 +761,37 @@ El mapa completo de EP3 y de la Evaluación Final (IE1 a IE12, con sus pesos) es
 
 **Ejecutarla.** `.venv\Scripts\python.exe app\lanzar.py --server.address localhost --server.port 8501 --browser.gatherUsageStats false` (o `scripts\ep3\arrancar_app.bat`); escucha solo en `localhost`.
 
-**Prueba en vivo con segmentos nuevos.** La demostración sube a «Puntuar datos nuevos» dos archivos de un segmento que la solución congelada nunca vio (archivo 2, `camera_to_lidar_box_association`, primero y archivo 1, `lidar_box`, después). Los archivos viven en `datos_demo/`, que no se versiona ni va en la imagen. Si ningún segmento nuevo trae un hueco real, el caso con hueco es **una falla de cámara simulada sobre un segmento real** (`scripts/crear_demo_hueco.py` borra al azar parte de las parejas de una cámara; el archivo lleva `SIMULADO` en el nombre y se declara así). Es una prueba de funcionamiento, no una validación estadística.
+### Prueba con segmentos nuevos
 
+Se puntuaron en la aplicación 4 segmentos reales **nuevos** (split `validation` del bucket de Waymo v2; los 41 de desarrollo y los candidatos del plan sellado son del split `training`), con sus archivos originales sin modificar. Los resultados salen de las mismas funciones que usa la página y están en [`docs/ep3/prueba_segmentos_nuevos.json`](docs/ep3/prueba_segmentos_nuevos.json), junto con el sha256 de cada archivo de entrada.
+
+| Segmento | ID en la página | Cajas puntuadas | Celdas marcadas | Detalle de la celda marcada |
+|---|---|---|---|---|
+| `10689101165701914459_2072_300_2092_300` | …011657 | 938 | 0 | — |
+| `13356997604177841771_3360_000_3380_000` | …976041 | 7.854 | 0 | — |
+| `16229547658178627464_380_000_400_000` | …476581 | 3.161 | 1 | 5 (lateral der.): 225 cajas en el rango, 197 afectadas, 175 sin pareja (88,8 %), tasa de pares 0,0 % frente a una mediana de referencia de 91,4 % (umbral 22,8 %) |
+| `2551868399007287341_3100_000_3120_000` | …839900 | 5.314 | 0 | — |
+
+- Es una **prueba de funcionamiento**, no una validación estadística. Con 4 segmentos no se estima la frecuencia de los huecos.
+- 1 de 4 segmentos nuevos trae un **posible hueco** de cámara, del mismo tipo que los dos casos de desarrollo (cámara 5 (segmento …534050) y cámara 3 (segmento …998801)). Con estos archivos no se distingue si es un problema de etiquetado o de los datos de esa cámara.
+- Los parámetros del detector son los congelados en v3 ([`detector_params_v3.json`](artefactos_ep3/detector_params_v3.json)); no se reajustaron. La validación externa sellada ([`plan_seleccion_ep3.json`](artefactos_ep3/plan_seleccion_ep3.json)) sigue sin ejecutarse; es independiente de esta prueba.
+**Cómo se hace en vivo.** En «Puntuar datos nuevos» se cargan los dos archivos del segmento (el 1, `lidar_box`, y el 2, `camera_to_lidar_box_association`, en cualquier orden) y se pulsa **«Puntuar segmento»**. Sin el archivo 2 se puntúa igual, pero el paso «Revisar celdas marcadas» sale «omitido» y no se buscan huecos. Los archivos viven en `datos_demo/`, que no se versiona ni va en la imagen.
 **Despliegue en AWS Academy.** Estado: **en preparación** (modo `local`, registrado el 2026-11-24; archivo [`docs/despliegue.json`](docs/despliegue.json), que este README lee). La licencia de Waymo es no comercial y sin redistribución: antes de publicar hay que decidir qué datos viajan (la aplicación usa `cajas_oof.parquet`, derivado por caja con identificadores y marcas de tiempo; [`f36_verificacion_despliegue.json`](docs/ep3/f36_verificacion_despliegue.json)). Guía y textos del modo publicado: [`despliegue.md`](docs/ep3/despliegue.md).
-
 **Fase 6 de CRISP-DM.** La aplicación es el despliegue de la sección [7](#7-metodología-crisp-dm). Informe de la página: [`informe_tecnico_EP3.md`](docs/ep3/informe_tecnico_EP3.md), sección 13.
 
 ## 17. Mejoras incorporadas desde EP1 y EP2
 
 > Cada cambio de EP3 responde a algo que detectamos en EP1 o EP2, y todos tienen su evidencia en el repositorio.
 
-| Qué se detectó (EP1 o EP2) | Qué cambió | Dónde se ve |
+| Qué se detectó o se sugirió | Qué cambió | Dónde se ve |
 |---|---|---|
 | En EP1 el target era `tiene_camara` | En EP2 pasó a `sin_camara`, tras comparar cinco candidatas | Notebook 07 y [sección 2](#2-contexto-valor-de-negocio-objetivos-y-kpis) |
 | EP2 sellaba un test de 8 segmentos con un plan congelado | En EP3 el plan v3 se congeló antes de experimentar y la prueba ciega pasó a ser la validación externa sellada | Sección 8.3; `artefactos_ep3/plan_v3.json` y `plan_seleccion_ep3.json` |
 | En EP2 ningún modelo superó a una regla de una línea | En EP3 la regla es la solución elegida y se justifica con criterios fijados antes | Sección [12.1](#121-solución-elegida-y-justificación-ie12) |
 | En EP2 un segmento concentró el problema (hallazgo post hoc) | La auditoría por cámara pasó a ser el paso 1, con un detector de huecos de parámetros congelados | Sección 11; `artefactos_ep3/detector_params_v3.json` |
+| El docente ofreció tres opciones ante el segmento anómalo: excluirlo, usarlo como filtro de errores o el esquema propuesto por el equipo | El equipo adoptó su esquema: filtro de cámaras aparte con su lista de revisión (paso 1) y priorización sobre los segmentos normales (paso 2) | Secciones 11, 12 y 16; `artefactos_ep3/detector_params_v3.json` |
 | EP2 comparó tres modelos con sus hiperparámetros, sin ensambles | EP3 agrega XGBoost, LightGBM, búsqueda anidada y cuatro ensambles, con el resultado negativo declarado | Secciones 8.1 y 8.2 |
 | En EP2 el resultado vivía en notebooks e informe | Lente: una aplicación con el flujo en dos pasos | Sección 16 |
+| La validación de la solución solo con segmentos de desarrollo | Prueba de funcionamiento con 4 segmentos nuevos reales y validación externa sellada preparada | Secciones 8.3 y 16; `docs/ep3/prueba_segmentos_nuevos.json` |
 
-**Pendiente: completar con la retroalimentación del docente** (EP1 y EP2); esta tabla recoge solo las mejoras que constan en el repositorio y en `docs/log_trabajo_ep2.md`.
+Esta tabla recoge las mejoras documentadas en el repositorio y en `docs/log_trabajo_ep2.md`.

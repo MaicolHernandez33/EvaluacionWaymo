@@ -1,0 +1,14 @@
+RESULTADO DE PYTEST (antes y después de F40)
+
+ANTES (línea base de F41, suite completa en copia temporal): 488 passed (tests/ep3 en el repositorio real: 406 passed + 1 failed conocido, el conteo de pruebas del README, 398 vs 407)
+DESPUÉS (suite completa en copia temporal, 2026-11-24): 496 passed, 68 warnings in 104.66s (0:01:44)
+  = 488 + 8 pruebas nuevas de F40 en tests/ep3/test_readme_f38.py; el fallo conocido quedó resuelto al regenerar el README
+
+tests/ep3 en el repositorio real (medir_pruebas_ep3.py, 2026-11-24 20:38):
+  415 passed, 66 warnings in 97.62s (0:01:37) | cobertura de src/waymo_evaluacion/ep3: 86.5 %
+
+Pruebas de EP2 (sin tests/ep3), en copia temporal:
+  81 passed in 35.26s (fecha 2026-11-24 20:35; sin cobertura publicable, ver nota_cobertura del JSON)
+
+verificar_congelados.py: Plan v2 congelado el 2026-10-18T13:42:13-03:00: coinciden 14 de 14 archivos
+verificar_congelados_v3.py: v3 congelado el 2026-11-14T12:15:26 (candidato Regla top): coinciden 5 de 5 archivos

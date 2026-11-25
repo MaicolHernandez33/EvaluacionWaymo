@@ -9,7 +9,7 @@
 4. **Los notebooks `11` a `15`** (ya ejecutados) en ese orden: datos y detector, IE9/IE10, IE11/IE12, dos pasos y página, no supervisado.
 5. **La página** (`scripts\ep3\arrancar_app.bat`) y, si se va a presentar, `docs/ep3/guion_presentacion.md` y `docs/ep3/preguntas_cruzadas.md`.
 
-Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_congelados.py` (EP2, 14 de 14), `.venv\Scripts\python scripts\ep3\verificar_congelados_v3.py` (5 de 5) y `.venv\Scripts\python scripts\ep3\verificar_no_supervisado.py` (1 de 1). Pruebas de EP3: 407 recolectadas (`pruebas_ep3_conteo.json`).
+Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_congelados.py` (EP2, 14 de 14), `.venv\Scripts\python scripts\ep3\verificar_congelados_v3.py` (5 de 5) y `.venv\Scripts\python scripts\ep3\verificar_no_supervisado.py` (1 de 1). Pruebas de EP3: 415 recolectadas (`pruebas_ep3_conteo.json`).
 
 ## Tabla de archivos
 | Ruta | Para qué sirve | Cuándo se usa | ¿Se puede ejecutar? (tiempo aproximado) |
@@ -76,6 +76,7 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `scripts/ep3/f39_tiempos.py` | F39: tiempos de Puntuar en el navegador real (flujo anterior y flujo nuevo), 3 repeticiones por segmento. | Para el reporte de F39 | con la página corriendo |
 | `scripts/ep3/f3_analisis.py` | F3: tablas de IE9 desde los checkpoints. | Después de `f3_tuning.py` | sí; no medido (minutos o menos) |
 | `scripts/ep3/f3_tuning.py` | F3: búsqueda anidada de hiperparámetros (con checkpoints). | Para repetir IE9 | sí, ~1 h con 6 núcleos; sobrescribe resultados |
+| `scripts/ep3/f40_prueba_segmentos_nuevos.py` | F40: puntúa los 4 segmentos nuevos reales de `datos_demo/candidatos/` con las mismas funciones de la página y escribe `docs/ep3/prueba_segmentos_nuevos.json`. | Prueba de funcionamiento del README | necesita `datos_demo/` (no se versiona) |
 | `scripts/ep3/f4_ensambles.py` | F4: ensambles E1 a E4 y candidatos fuera de fold. | Para repetir IE10 | sí, ~5 min; sobrescribe resultados |
 | `scripts/ep3/f5_generalizacion.py` | F5: métricas de los 11 candidatos, brazos B y C, estabilidad. | Para repetir IE11 | sí; no medido |
 | `scripts/ep3/f5_loso_curva.py` | F5: leave-one-segment-out y curvas de ajuste (`--candidato`). | Para repetir IE11 | sí, ~5 a 8 s por candidato (`f5_loso_resumen_*.json`) |
@@ -138,6 +139,7 @@ Verificaciones rápidas (segundos): `.venv\Scripts\python scripts\verificar_cong
 | `docs/ep3/plan_v3.sha256` | Hash del plan v3. | Idem | no (congelado) |
 | `docs/ep3/plan_v3_desviaciones.md` | Desviaciones del plan (DEV-1, DEV-2). | Para saber qué se cambió y por qué | no (documento) |
 | `docs/ep3/preguntas_cruzadas.md` | Preguntas con respuesta, cifra y fuente. | Para prepararse | se regenera con `generar_docs_ep3.py` (~1 s) |
+| `docs/ep3/prueba_segmentos_nuevos.json` | F40: resultado de la prueba con 4 segmentos nuevos reales (cajas, celdas marcadas, sha256 de los archivos de entrada). No es una validación estadística. | Fuente de la sección 16 del README | lo genera f40_prueba_segmentos_nuevos.py |
 | `docs/ep3/readme_entradas.json` | Datos que completa el equipo para el README (retroalimentación de EP1 y EP2, caso acordado); un campo vacío omite esa parte. | Lo lee `scripts/generar_readme.py` | hoy la retroalimentación está vacía |
 | `docs/ep3/revision/` | Copias de los archivos pequeños para revisar sin abrir el repo (ignorada por git). (32 archivos) | Para revisión externa | no; se regenera con `empaquetar_entrega_ep3.py` |
 | `docs/ep3/verificacion_copia_limpia.md` | Registro de la verificación en copia limpia. | Para ver qué se probó y qué no | no (documento) |

@@ -1,0 +1,86 @@
+{
+ "nota": "Prueba de funcionamiento con 4 segmentos nuevos reales, no una validación estadística. Parámetros del detector y de la regla: los congelados de v3 (no se reajustaron).",
+ "origen": {
+  "bucket": "gs://waymo_open_dataset_v_2_0_1",
+  "split": "validation"
+ },
+ "segmentos": [
+  {
+   "segmento": "10689101165701914459_2072_300_2092_300",
+   "id_abreviado": "…011657",
+   "id_12_digitos": "106891011657",
+   "cajas_puntuadas": 938,
+   "celdas_evaluadas": 5,
+   "celdas_marcadas": 0,
+   "cajas_en_celdas_marcadas": 0,
+   "sin_pareja_en_celdas_marcadas": 0,
+   "porcentaje_sin_pareja_en_celdas": null,
+   "cajas_en_la_cola": 938,
+   "celdas": [],
+   "sha256": {
+    "lidar_box.parquet": "f1eeea9978e27e6ed75c472650cb56009307d8198e8b59bbfa2ce07e31426942",
+    "camera_to_lidar_box_association.parquet": "b26b6eb46fef2eba0ae06bc986ad8f371ad005bf50818d13d1e0168951ce9252"
+   }
+  },
+  {
+   "segmento": "13356997604177841771_3360_000_3380_000",
+   "id_abreviado": "…976041",
+   "id_12_digitos": "133569976041",
+   "cajas_puntuadas": 7854,
+   "celdas_evaluadas": 5,
+   "celdas_marcadas": 0,
+   "cajas_en_celdas_marcadas": 0,
+   "sin_pareja_en_celdas_marcadas": 0,
+   "porcentaje_sin_pareja_en_celdas": null,
+   "cajas_en_la_cola": 7854,
+   "celdas": [],
+   "sha256": {
+    "lidar_box.parquet": "b0b058e19a6cbc0291a325b26de207d4dc9dbf31f67d31cea1c608f089c15ddc",
+    "camera_to_lidar_box_association.parquet": "1d601a10d9a3d539795bb4c3affa9736b8e07e40c5af90d2caab50540f75c547"
+   }
+  },
+  {
+   "segmento": "16229547658178627464_380_000_400_000",
+   "id_abreviado": "…476581",
+   "id_12_digitos": "162295476581",
+   "cajas_puntuadas": 3161,
+   "celdas_evaluadas": 5,
+   "celdas_marcadas": 1,
+   "cajas_en_celdas_marcadas": 197,
+   "sin_pareja_en_celdas_marcadas": 175,
+   "porcentaje_sin_pareja_en_celdas": 0.8883,
+   "cajas_en_la_cola": 2964,
+   "celdas": [
+    {
+     "camara": "5 (lateral der.)",
+     "cajas_en_rango": 225,
+     "cajas_afectadas": 197,
+     "tasa_de_pares": 0.0,
+     "mediana_de_referencia": 0.9135802469135802,
+     "umbral": 0.22839506172839505
+    }
+   ],
+   "sha256": {
+    "lidar_box.parquet": "685856d0a1ca8cde0c1ce9fe9b4d9ff6b7a4919d79ca8d296451c87ff6c0c66f",
+    "camera_to_lidar_box_association.parquet": "9396e8e54fdc6b2e2309da40973e0a130f4b579998d4873d51f1cc9c42e1a1b6"
+   }
+  },
+  {
+   "segmento": "2551868399007287341_3100_000_3120_000",
+   "id_abreviado": "…839900",
+   "id_12_digitos": "255186839900",
+   "cajas_puntuadas": 5314,
+   "celdas_evaluadas": 5,
+   "celdas_marcadas": 0,
+   "cajas_en_celdas_marcadas": 0,
+   "sin_pareja_en_celdas_marcadas": 0,
+   "porcentaje_sin_pareja_en_celdas": null,
+   "cajas_en_la_cola": 5314,
+   "celdas": [],
+   "sha256": {
+    "lidar_box.parquet": "8bb77b237d393b9aac6c33ff0c1c6caadfbcec1750a5d473498bae8427467b82",
+    "camera_to_lidar_box_association.parquet": "63d3a782c6eafa5b2dda1c32c24826ae7a9e7bb0e9c0599c675e99e6531606ce"
+   }
+  }
+ ]
+}

@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 import pandas as pd
@@ -129,7 +130,7 @@ def en_breve(slug):
 - **Problema.** Algunas cajas 3D de peatones y ciclistas no tienen su par 2D de cámara (`sin_camara`: {p(a['prevalencia'])} de las {m(a['cajas'])} cajas de {a['segmentos']} segmentos) y solo se sabe cuáles son revisándolas una por una.
 - **Qué hace Lente.** Flujo en dos pasos: un detector marca las cámaras con hueco (se atienden aparte) y una regla ordena el resto de las cajas por menos puntos del sensor superior; una persona revisa y decide.
 - **Resultado ({rotulo()}).** Para encontrar el 80 % de las cajas sin pareja se revisa el {p(b['Fraccion_80_C'])} de las cajas en dos pasos, en vez del {p(b['Fraccion_80_A'])} en uno; revisando el 20 %, se encuentran {c(b['Captura@20_C'] * 100, 1)} de cada 100 frente a {c(b['Captura@20_A'] * 100, 1)}. Con un supuesto de {a['segundos']} s por caja (supuesto, no medido): {m(a['horas_sin_orden'])} h sin orden, {m(a['horas_un_paso'])} h en un paso y {m(a['horas_dos_pasos'])} h en dos.
-- **Límites.** El recall de la regla es {p(a['recall_peaton'])} en peatones y {p(a['recall_ciclista'])} en ciclistas ({m(a['casos_ciclista'])} casos en {m(a['segmentos_ciclista'])} segmentos); un segmento concentra el {p(a['pos_seg_anomalo'] / a['pos_test'])} de los positivos del test de EP2; los dos pasos se probaron solo en muestra y la validación con segmentos nuevos está sellada y sin ejecutar.
+- **Límites.** El recall de la regla es {p(a['recall_peaton'])} en peatones y {p(a['recall_ciclista'])} en ciclistas ({m(a['casos_ciclista'])} casos en {m(a['segmentos_ciclista'])} segmentos); un segmento concentra el {p(a['pos_seg_anomalo'] / a['pos_test'])} de los positivos del test de EP2; los dos pasos se midieron en muestra; con 4 segmentos nuevos reales solo se probó que la aplicación funciona (1 de 4 trae un posible hueco; no se estima su frecuencia) y la validación externa sellada sigue sin ejecutarse.
 """
 
 
@@ -202,6 +203,8 @@ def sec_81():
     xgb = csv("f6_tabla_seleccion.csv").set_index("candidato").loc["XGB"]
     return f"""### {T81}
 
+{recuadro_cifras()}
+
 > Optimizar mejora a {' y '.join(mejoran)} y no mejora a {', '.join(no[:-1])} ni a {no[-1]}; ni siquiera el XGBoost optimizado supera a la regla de una línea.
 
 **Método.** Búsqueda aleatoria **anidada por segmento**: dentro de cada uno de los 5 folds externos (por segmento), la elección usa solo los segmentos de entrenamiento, con una validación interna `GroupKFold` de 3 y la PR-AUC como criterio de selección; el conjunto de variables cuenta como un hiperparámetro más. Fueron 30 configuraciones y 1 repetición, una desviación del plan (DEV-1, [`plan_v3_desviaciones.md`](artefactos_ep3/plan_v3_desviaciones.md)). «Mejora» exige subir la PR-AUC al menos 0,010 con un IC pareado por segmentos que excluya 0. Es como afinar un instrumento: ayuda si estaba desafinado y no si ya sonaba bien.
@@ -270,7 +273,7 @@ def sec_83():
 
 > La regla se sostiene fuera de fold (AUC {c(loso['AUC'])}, IC {ic(*loso['AUC_ic'])}), y la única debilidad es un fold con un segmento sin pares en una cámara.
 
-**Validación usada.** `GroupKFold` de {nf} folds **por segmento**: un segmento son unos 20 segundos de video con casi 200 fotogramas parecidos entre sí, así que una escena repartida entre entrenamiento y prueba haría trampa. Los IC salen de remuestrear segmentos completos (1.000 réplicas) y la búsqueda de hiperparámetros va anidada (8.1). Con 41 segmentos los IC son anchos.
+**Validación usada.** `StratifiedGroupKFold` de {nf} folds (estratificado por `sin_camara`, agrupado por segmento, semilla 42): un segmento son unos 20 segundos de video con casi 200 fotogramas parecidos entre sí, así que una escena repartida entre entrenamiento y prueba haría trampa. Los IC salen de remuestrear segmentos completos (1.000 réplicas) y la búsqueda de hiperparámetros va anidada (8.1). Con 41 segmentos los IC son anchos. Las cifras de esta sección no son las de la sección 8 (EP2 evaluó 33 segmentos): ver el recuadro de [8.1](#{ancla_81()}).
 
 {tabla(filas, ['AUC por fold'] + [f'Fold {i}' for i in range(nf)] + ['Mínimo'])}
 
@@ -280,7 +283,7 @@ Fuente: [`f5_auc_por_fold.csv`](artefactos_ep3/f5_auc_por_fold.csv). El fold 0 e
 - **Brecha ajuste-validación.** La regla no aprende, así que no tiene brecha real. XGBoost con todos los segmentos de entrenamiento: ajuste {c(bre['AUC_ajuste'].mean())}, validación {c(bre['AUC_validacion'].mean())}, brecha {c(bre['brecha_AUC'].mean())} que no se cierra con más segmentos ([`f5_brecha_XGB.csv`](artefactos_ep3/f5_brecha_XGB.csv)).
 - **Calibración.** Con Platt, el ECE de la regla es {c(sel['ECE_cal'])}.
 - **Uno frente a dos pasos** ({rotulo()}): revisar el {p(bc['Fraccion_80_C'])} de las cajas para el 80 % (IC {ic(bc['Fraccion_80_C_lo'] * 100, bc['Fraccion_80_C_hi'] * 100, 1)} %) en vez del {p(bc['Fraccion_80_A'])}; la ganancia sale de {int(bc['celdas_auditadas'])} celdas cámara por segmento ([`f5_brazoC.csv`](artefactos_ep3/f5_brazoC.csv)).
-- **Test de EP2 y qué cambió.** En EP2 el test de 8 segmentos estuvo sellado. En EP3 los 41 segmentos (33 de entrenamiento y los 8 de test de EP2, {m(cifras_app()['cajas'])} cajas) son **datos de desarrollo** de la solución v3: ya los miramos varias veces. La única prueba ciega son los segmentos nuevos: la validación externa sellada ([`plan_seleccion_ep3.json`](artefactos_ep3/plan_seleccion_ep3.json)) está preparada y **no se ha ejecutado**. La prueba de la aplicación con segmentos nuevos (sección 16) es una prueba de funcionamiento, no una validación estadística."""
+- **Test de EP2 y qué cambió.** En EP2 el test de 8 segmentos estuvo sellado. En EP3 los 41 segmentos (33 de entrenamiento y los 8 de test de EP2, {m(cifras_app()['cajas'])} cajas) son **datos de desarrollo** de la solución v3: ya los miramos varias veces. La única prueba ciega son los segmentos nuevos: la validación externa sellada ([`plan_seleccion_ep3.json`](artefactos_ep3/plan_seleccion_ep3.json)) está preparada y **no se ha ejecutado**. La prueba de la aplicación con 4 segmentos nuevos reales (sección 16) es una prueba de funcionamiento, no una validación estadística: no estima la frecuencia de los huecos ni reemplaza a la validación externa sellada."""
 
 
 # ------------------------------------------------------------------------------------------------------------ 12.1
@@ -367,7 +370,7 @@ def sec_16(fig, slug):
 
 **Ejecutarla.** `.venv\\Scripts\\python.exe app\\lanzar.py --server.address localhost --server.port 8501 --browser.gatherUsageStats false` (o `scripts\\ep3\\arrancar_app.bat`); escucha solo en `localhost`.
 
-**Prueba en vivo con segmentos nuevos.** La demostración sube a «Puntuar datos nuevos» dos archivos de un segmento que la solución congelada nunca vio (archivo 2, `camera_to_lidar_box_association`, primero y archivo 1, `lidar_box`, después). Los archivos viven en `datos_demo/`, que no se versiona ni va en la imagen. Si ningún segmento nuevo trae un hueco real, el caso con hueco es **una falla de cámara simulada sobre un segmento real** (`scripts/crear_demo_hueco.py` borra al azar parte de las parejas de una cámara; el archivo lleva `SIMULADO` en el nombre y se declara así). Es una prueba de funcionamiento, no una validación estadística.
+{sec_prueba_nuevos()}
 
 **Despliegue en AWS Academy.** Estado: **{d['estado']}** (modo `{d['modo']}`, registrado el {d['fecha']}; archivo [`docs/despliegue.json`](docs/despliegue.json), que este README lee).{url_txt} La licencia de Waymo es no comercial y sin redistribución: antes de publicar hay que decidir qué datos viajan (la aplicación usa `cajas_oof.parquet`, derivado por caja con identificadores y marcas de tiempo; [`f36_verificacion_despliegue.json`](docs/ep3/f36_verificacion_despliegue.json)). Guía y textos del modo publicado: [`despliegue.md`](docs/ep3/despliegue.md).
 
@@ -382,16 +385,19 @@ def sec_17():
          ("En EP2 un segmento concentró el problema (hallazgo post hoc)", "La auditoría por cámara pasó a ser el paso 1, con un detector de huecos de parámetros congelados", "Sección 11; `artefactos_ep3/detector_params_v3.json`"),
          ("EP2 comparó tres modelos con sus hiperparámetros, sin ensambles", "EP3 agrega XGBoost, LightGBM, búsqueda anidada y cuatro ensambles, con el resultado negativo declarado", "Secciones 8.1 y 8.2"),
          ("En EP2 el resultado vivía en notebooks e informe", "Lente: una aplicación con el flujo en dos pasos", "Sección 16")]
-    pendientes = []
-    for k, nombre in (("retroalimentacion_ep1", "EP1"), ("retroalimentacion_ep2", "EP2")):
-        if not e.get(k):
-            pendientes.append(nombre)
-    aviso = ("\n\n**Pendiente: completar con la retroalimentación del docente** (" + " y ".join(pendientes) + "); esta tabla recoge solo las mejoras que constan en el repositorio y en `docs/log_trabajo_ep2.md`." if pendientes else "")
+    recibidas = [(k, e[k]) for k in ("retroalimentacion_ep1", "retroalimentacion_ep2") if e.get(k)]
+    extra = "".join(f"\n\n<details>\n<summary>Retroalimentación recibida sobre {k[-3:].upper()}</summary>\n\n{txt}\n\n</details>" for k, txt in recibidas)
+    opciones = e.get("opciones_docente", "")
+    if opciones:
+        t.insert(4, ("El docente ofreció tres opciones ante el segmento anómalo: excluirlo, usarlo como filtro de errores o el esquema propuesto por el equipo", "El equipo adoptó su esquema: filtro de cámaras aparte con su lista de revisión (paso 1) y priorización sobre los segmentos normales (paso 2)",
+                     "Secciones 11, 12 y 16; `artefactos_ep3/detector_params_v3.json`"))
+    t.append(("La validación de la solución solo con segmentos de desarrollo", "Prueba de funcionamiento con 4 segmentos nuevos reales y validación externa sellada preparada", "Secciones 8.3 y 16; `docs/ep3/prueba_segmentos_nuevos.json`"))
+    aviso = "\n\nEsta tabla recoge las mejoras documentadas en el repositorio y en `docs/log_trabajo_ep2.md`." + extra
     return f"""## 17. Mejoras incorporadas desde EP1 y EP2
 
 > Cada cambio de EP3 responde a algo que detectamos en EP1 o EP2, y todos tienen su evidencia en el repositorio.
 
-{tabla(t, ['Qué se detectó (EP1 o EP2)', 'Qué cambió', 'Dónde se ve'])}{aviso}"""
+{tabla(t, ['Qué se detectó o se sugirió', 'Qué cambió', 'Dónde se ve'])}{aviso}"""
 
 
 # ------------------------------------------------------------------------------------------------------------ notas y bloques sueltos
@@ -447,8 +453,162 @@ def parrafo_etica_app():
 def parrafo_pruebas_ep3():
     conteo = jsn(RAIZ / "data/08_reporting_ep3/pruebas_ep3_conteo.json")
     res = RAIZ / "data/08_reporting_ep3/pruebas_ep3_resultado.json"
-    base = f"**Pruebas de EP3.** {m(conteo['recolectadas_ep3'])} pruebas recolectadas en `tests/ep3` (`scripts/ep3/contar_pruebas.py`)"
+    ep2 = RAIZ / "data/08_reporting_ep3/pruebas_ep2_remedicion.json"
+    previo = ""
+    if ep2.exists():
+        q = jsn(ep2)
+        previo = (f"**Remedición de las pruebas de EP2** ({q['fecha']}, en una copia temporal del repositorio, `pytest --ignore=tests/ep3`): {q['pasadas']} pasadas, {q['falladas']} falladas, "
+                  f"{q['omitidas']} omitidas. La cobertura de EP2 sigue siendo la medida en EP2, arriba: en la copia el paquete se importa del repositorio real y la medición no sería fiable.\n\n")
+    base = previo + f"**Pruebas de EP3.** {m(conteo['recolectadas_ep3'])} pruebas recolectadas en `tests/ep3` (`scripts/ep3/contar_pruebas.py`)"
     if res.exists():
         r = jsn(res)
-        return base + f"; última corrida (`scripts/ep3/medir_pruebas_ep3.py`): {r['pasadas']} pasadas, {r['falladas']} falladas, {r['omitidas']} omitidas, cobertura de `src/waymo_evaluacion/ep3` {c(r['cobertura_total_pct'], 1)} %. Comando: `.venv\\Scripts\\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider`."
+        return base + f"; última corrida ({r['fecha']}, `scripts/ep3/medir_pruebas_ep3.py`): {r['pasadas']} pasadas, {r['falladas']} falladas, {r['omitidas']} omitidas, cobertura de `src/waymo_evaluacion/ep3` {c(r['cobertura_total_pct'], 1)} %. Comando: `.venv\\Scripts\\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider`."
     return base + ". Comando: `.venv\\Scripts\\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider`."
+
+
+# ------------------------------------------------------------------------------------------------------------ F40: prueba con segmentos nuevos, cifras EP2 frente a EP3, árbol y notebooks
+def ancla_81() -> str:
+    t_ = unicodedata.normalize("NFC", T81.lower())
+    return re.sub(r"\s", "-", re.sub(r"[^\w\s-]", "", t_).strip())
+
+
+def prueba_nuevos() -> dict:
+    ruta = RAIZ / "docs/ep3/prueba_segmentos_nuevos.json"
+    if not ruta.exists():
+        sys.exit("ERROR (readme_f38): falta docs/ep3/prueba_segmentos_nuevos.json (scripts/ep3/f40_prueba_segmentos_nuevos.py)")
+    return jsn(ruta)
+
+
+def sec_prueba_nuevos() -> str:
+    d = prueba_nuevos()
+    filas = []
+    for s in d["segmentos"]:
+        if s["celdas"]:
+            z = s["celdas"][0]
+            detalle = (f"{z['camara']}: {m(z['cajas_en_rango'])} cajas en el rango, {m(z['cajas_afectadas'])} afectadas, {m(s['sin_pareja_en_celdas_marcadas'])} sin pareja ({p(s['porcentaje_sin_pareja_en_celdas'])}), "
+                       f"tasa de pares {p(z['tasa_de_pares'])} frente a una mediana de referencia de {p(z['mediana_de_referencia'])} (umbral {p(z['umbral'])})")
+        else:
+            detalle = "—"
+        filas.append((f"`{s['segmento']}`", s["id_abreviado"], m(s["cajas_puntuadas"]), s["celdas_marcadas"], detalle))
+    la = csv("lista_A_huecos.csv")
+    dev = " y ".join(f"cámara {str(r['camara'])[0]} (segmento …{str(r['segmento'])[-6:]})" for _, r in la.iterrows())
+    n_marc = sum(1 for s in d["segmentos"] if s["celdas_marcadas"])
+    origen = d["origen"].get("split") or "validation"
+    return f"""### Prueba con segmentos nuevos
+
+Se puntuaron en la aplicación 4 segmentos reales **nuevos** (split `{origen}` del bucket de Waymo v2; los 41 de desarrollo y los candidatos del plan sellado son del split `training`), con sus archivos originales sin modificar. Los resultados salen de las mismas funciones que usa la página y están en [`docs/ep3/prueba_segmentos_nuevos.json`](docs/ep3/prueba_segmentos_nuevos.json), junto con el sha256 de cada archivo de entrada.
+
+{tabla(filas, ['Segmento', 'ID en la página', 'Cajas puntuadas', 'Celdas marcadas', 'Detalle de la celda marcada'])}
+
+- Es una **prueba de funcionamiento**, no una validación estadística. Con {len(d['segmentos'])} segmentos no se estima la frecuencia de los huecos.
+- {n_marc} de {len(d['segmentos'])} segmentos nuevos trae un **posible hueco** de cámara, del mismo tipo que los dos casos de desarrollo ({dev}). Con estos archivos no se distingue si es un problema de etiquetado o de los datos de esa cámara.
+- Los parámetros del detector son los congelados en v3 ([`detector_params_v3.json`](artefactos_ep3/detector_params_v3.json)); no se reajustaron. La validación externa sellada ([`plan_seleccion_ep3.json`](artefactos_ep3/plan_seleccion_ep3.json)) sigue sin ejecutarse; es independiente de esta prueba.
+
+**Cómo se hace en vivo.** En «Puntuar datos nuevos» se cargan los dos archivos del segmento (el 1, `lidar_box`, y el 2, `camera_to_lidar_box_association`, en cualquier orden) y se pulsa **«Puntuar segmento»**. Sin el archivo 2 se puntúa igual, pero el paso «Revisar celdas marcadas» sale «omitido» y no se buscan huecos. Los archivos viven en `datos_demo/`, que no se versiona ni va en la imagen."""
+
+
+def recuadro_cifras() -> str:
+    from sklearn.metrics import roc_auc_score
+    import pandas as pd
+
+    cajas = pd.read_parquet(RAIZ / "data/09_app_ep3/cajas_oof.parquet", columns=["grupo", "sin_camara", "score"])
+    auc = {g: roc_auc_score(x["sin_camara"], x["score"]) for g, x in (("train", cajas[cajas["grupo"] == "train"]), ("test", cajas[cajas["grupo"] == "test"]), ("todo", cajas))}
+    c9 = pd.read_csv(RAIZ / "data/08_reporting/09_comparacion_modelos.csv").set_index("modelo")
+    r10 = pd.read_csv(RAIZ / "data/08_reporting/10_resultado_principal.csv").set_index("metodo")
+    primero = lambda s: str(s).split()[0]                                                                 # noqa: E731  ("0.862 (0.814 a 0.906)" -> "0.862")
+    ep2_regla, ep2_lr, ep2_test = float(primero(c9.loc["Regla: menos puntos top", "AUC"])), float(primero(c9.loc["Regresion logistica", "AUC"])), float(primero(r10.loc["Regla: menos puntos top", "AUC"]))
+    d = csv("f3_defecto_vs_optimizado.csv").set_index("modelo")
+    hip = jsn(RAIZ / "data/06_models/hiperparametros_B.json")["final"]["LR"]["cfg"]["C"]
+    filas = [("EP2: 33 segmentos de entrenamiento (test de 8 aparte)", "secciones [8](#8-modelos-supervisados) y [10](#10-evaluación-final-en-el-test)",
+              f"regla {c(ep2_regla)} y regresión logística ajustada ({c(ep2_lr)}) en entrenamiento; regla {c(ep2_test)} en el test"),
+             ("EP3: 41 segmentos de desarrollo (los 33 más los 8 del test de EP2)", f"secciones [8.1](#{ancla_81()}) a 8.3 y 12.1", f"regla {c(auc['todo'])}; regresión logística por defecto {c(d.loc['LR', 'AUC_def'])} y optimizada {c(d.loc['LR', 'AUC_opt'])}")]
+    return (f"> **Por qué las cifras de esta sección no son las de la sección 8.** EP2 evaluó los 33 segmentos de entrenamiento, con folds estratificados por `tiene_camara`, y su regresión logística quedó ajustada (`C` = {c(hip, 3)}). "
+            f"EP3 evalúa los 41 segmentos de desarrollo con `StratifiedGroupKFold` de 5 estratificado por `sin_camara`, y compara la regresión logística por defecto con la optimizada por una búsqueda anidada nueva. "
+            f"Lo que más mueve a la regla (de {c(ep2_regla)} a {c(auc['todo'])}) es la población, no el método: la misma regla da {c(auc['train'])} fuera de fold sobre los 33 segmentos de entrenamiento y {c(auc['test'])} sobre los 8 de test, "
+            f"que incluyen el segmento con la cámara 3 sin pares. Las dos series no son comparables una a una.\n\n" + tabla(filas, ["Serie", "Dónde está", "Cifras (AUC fuera de fold)"]))
+
+
+def actualizacion_alcance() -> str:
+    return ("> **Actualización de EP3 sobre el alcance.** El «alcance» de arriba es el de EP2. En EP3 el paso 1 (detector de huecos) se midió con los 41 segmentos de desarrollo y se probó en la aplicación con 4 segmentos nuevos reales: "
+            "1 de 4 trae un posible hueco (sección [16](#16-lente-la-aplicación-y-su-despliegue)). Esa prueba de funcionamiento no valida el paso 1 estadísticamente; la validación externa sellada sigue sin ejecutarse.")
+
+
+DIRS_RAIZ = {".streamlit/": "configuración y tema de la página", "app/": "la aplicación Lente (Streamlit)", "artefactos_ep3/": "tablas agregadas, manifests y planes de EP3 (versionables)",
+             "conf/": "catálogo y parámetros de Kedro", "data/": "(fuera de git) 01_raw a 09_app_ep3: datos, modelos y tablas; 06_models hace de models/ (EP2 congelado, EP3 en 06_models_ep3)",
+             "datos_demo/": "(fuera de git) segmentos nuevos reales para la demostración en vivo", "docs/": "informes, planes y guías; ep3/ (informe técnico, plan v3, estado) y seleccion_segmentos/",
+             "images/": "figuras con el número del notebook que las genera; app/ (capturas del README) y ep3/", "notebooks/": "notebooks 00 a 15 (tabla siguiente)",
+             "scripts/": "scripts de EP2 (informe, README, mediciones) y ep3/ (datos, detector, ajuste, página, demostración, README)", "src/": "paquete waymo_evaluacion (pipelines de Kedro y ep3/)",
+             "tests/": "pruebas de EP1, EP2 y del README; ep3/ (página, detector, selección) y pipelines/"}
+GRUPOS_ARCHIVOS = [(["Dockerfile", "docker-compose.yml", ".dockerignore", "requirements.txt", "requirements_app.txt", "requirements_ep3.txt", "constraints_ep3.txt", "pyproject.toml", ".gitignore"], "imagen de la aplicación, entornos (EP2, aplicación, EP3, versiones fijadas) y reglas de git"),
+                   (["README.md", "CLAUDE.md", "entrega_EP2.zip", "entrega_EP3.zip", "entrega_EP3.sha256"], "este archivo (lo genera scripts/generar_readme.py), instrucciones del asistente y (fuera de git) los paquetes entregados")]
+
+
+def arbol_repo() -> str:
+    """Árbol de la raíz generado del sistema de archivos: si aparece una carpeta o un archivo sin descripción, el generador falla en vez de omitirlo."""
+    ocultos = {".git", ".venv", "__pycache__", ".pytest_cache", ".ipynb_checkpoints", ".viz", ".mypy_cache", "node_modules"}
+    reales = [p for p in RAIZ.iterdir() if p.name not in ocultos and not p.name.startswith(".coverage") and p.name != "info.log"]      # restos de ejecutar pytest (cobertura y registro de Kedro), no del proyecto
+    claves = {p.name + ("/" if p.is_dir() else "") for p in reales}
+    agrupados = {a for g, _ in GRUPOS_ARCHIVOS for a in g}
+    sin_desc = sorted(claves - set(DIRS_RAIZ) - agrupados)
+    if sin_desc:
+        sys.exit(f"ERROR (readme_f38): sin descripción en el árbol de la sección 14: {sin_desc}")
+    lineas = ["```", "waymo-evaluacion/"]
+    for d in sorted(k for k in DIRS_RAIZ if k in claves):
+        lineas.append(f"├── {d:<14} {DIRS_RAIZ[d]}")
+    for g, desc in GRUPOS_ARCHIVOS:
+        presentes = [a for a in g if a in claves]
+        if presentes:
+            lineas.append(f"├── {', '.join(presentes)}: {desc}")
+    lineas.append("```")
+    return "\n".join(lineas)
+
+
+NOTEBOOKS = {
+    "00_exploracion_bucket_waymo": ("EP1", "explora el bucket de Waymo v2 con gsutil desde Colab y elige segmentos", "Colab; sin salidas guardadas (no se ejecuta aquí)"),
+    "00b_seleccion_segmentos_ep2": ("EP2", "mide y selecciona los segmentos de EP2 (ampliación de 4 a 41)", "salidas guardadas (Colab)"),
+    "00b_seleccion_segmentos_ep3": ("EP3", "selección sellada de los segmentos nuevos de la validación externa", "Colab; sin salidas guardadas: la validación externa no se ha ejecutado"),
+    "01_exploracion_csv": ("EP1", "exploración y calidad del CSV sintético del docente", "salidas guardadas"),
+    "02_exploracion_waymo": ("EP1", "exploración de datos reales de Waymo v2", "salidas guardadas"),
+    "03_fuentes_y_colaboracion": ("EP1", "fuentes de datos, licencias y acuerdo de trabajo del equipo (IE1)", "salidas guardadas"),
+    "04_estructuras_y_almacenamiento": ("EP1", "listas frente a NumPy, tipos de columna y CSV frente a Parquet (IE2)", "salidas guardadas"),
+    "05_etica_sesgos_privacidad": ("EP1", "ética, sesgos y privacidad de las fuentes (IE4)", "salidas guardadas"),
+    "06_eda_y_preparacion_modelamiento": ("EP1 a EP2", "EDA ampliado con los 41 segmentos; prepara EP2", "salidas guardadas"),
+    "07_decision_target_ep2": ("EP2", "por qué EP2 usa `sin_camara` como target", "salidas guardadas"),
+    "08_analisis_observabilidad_sin_camara": ("EP2", "variables, geometría de cámaras y aprendizaje no supervisado de EP2", "salidas guardadas"),
+    "09_modelos_supervisados_sin_camara": ("EP2", "baselines y modelos con búsqueda anidada por segmento", "reentrenado en copia limpia: un umbral del Random Forest cambió en el último decimal (sección 14)"),
+    "09b_enmiendas_plan_test_v2": ("EP2", "enmiendas al plan de evaluación del test (v2)", "salidas guardadas"),
+    "10_evaluacion_final_sin_camara": ("EP2", "evaluación final en el test congelado y hallazgo post hoc", "verificado: reproducido en copia limpia con 15 CSV idénticos por sha256 (sección 14)"),
+    "11_ep3_datos_y_deteccion": ("EP3", "datos de desarrollo (41 segmentos) y detector de huecos", "ejecutado con nbconvert (DEC-70 de `docs/ep3/ESTADO.md`)"),
+    "12_ep3_tuning_y_ensambles": ("EP3", "hiperparámetros y ensambles (IE9 e IE10)", "ejecutado con nbconvert (DEC-70)"),
+    "13_ep3_generalizacion_y_seleccion": ("EP3", "generalización y selección (IE11 e IE12)", "ejecutado con nbconvert (DEC-70)"),
+    "14_ep3_dos_pasos_y_app": ("EP3", "solución en dos pasos y la aplicación", "ejecutado con nbconvert (DEC-70); no se puede volver a ejecutar en una copia (lee un lidar_box crudo)"),
+    "15_ep3_no_supervisado": ("EP3", "aprendizaje no supervisado (descriptivo, post hoc)", "ejecutado con nbconvert (DEC-70)"),
+}
+ORDEN_NB = ["00_exploracion_bucket_waymo", "01_exploracion_csv", "02_exploracion_waymo", "03_fuentes_y_colaboracion", "04_estructuras_y_almacenamiento", "05_etica_sesgos_privacidad", "00b_seleccion_segmentos_ep2",
+            "06_eda_y_preparacion_modelamiento", "07_decision_target_ep2", "08_analisis_observabilidad_sin_camara", "09_modelos_supervisados_sin_camara", "09b_enmiendas_plan_test_v2", "10_evaluacion_final_sin_camara",
+            "11_ep3_datos_y_deteccion", "12_ep3_tuning_y_ensambles", "13_ep3_generalizacion_y_seleccion", "14_ep3_dos_pasos_y_app", "15_ep3_no_supervisado", "00b_seleccion_segmentos_ep3"]
+
+
+def tabla_notebooks(puente_06: str) -> str:
+    """Tabla de notebooks generada de los archivos reales de ``notebooks/`` (número, etapa, propósito, orden y qué consta sobre su ejecución)."""
+    reales = sorted(p.stem for p in (RAIZ / "notebooks").glob("*.ipynb"))
+    if set(reales) != set(NOTEBOOKS) or set(ORDEN_NB) != set(NOTEBOOKS):
+        sys.exit(f"ERROR (readme_f38): los notebooks de notebooks/ no coinciden con la tabla: sobran {sorted(set(reales) - set(NOTEBOOKS))}, faltan {sorted(set(NOTEBOOKS) - set(reales))}")
+    filas = []
+    for stem in ORDEN_NB:
+        d = jsn(RAIZ / "notebooks" / f"{stem}.ipynb")
+        cod = [x for x in d["cells"] if x["cell_type"] == "code"]
+        con = sum(1 for x in cod if x.get("outputs"))
+        etapa, prop, ver = NOTEBOOKS[stem]
+        if ver == "salidas guardadas":
+            ver = f"salidas guardadas ({con} de {len(cod)} celdas); sin registro de re-ejecución"
+        elif ver == "salidas guardadas (Colab)":
+            ver = f"salidas guardadas ({con} de {len(cod)} celdas, Colab)"
+        filas.append((ORDEN_NB.index(stem) + 1, f"[`{stem}.ipynb`](notebooks/{stem}.ipynb)", etapa, prop, ver))
+    return (f"**Notebooks.** 00 a 05 (EP1), 06 ({puente_06}), 07 a 10 (EP2) y 11 a 15 (EP3), más dos «00b» de selección de segmentos que se corren en Colab. La columna «Orden» es el orden recomendado; para reproducir el resultado oficial de EP2 basta el 10 "
+            f"(sección 14) y para EP3 los notebooks 11 a 15 leen lo que dejan `scripts/ep3/`.\n\n" + tabla(filas, ["Orden", "Notebook", "Etapa", "Qué hace", "Ejecución (según los archivos y los registros)"]))
+
+
+def nota_kpi(slug) -> str:
+    return (f"> **Cómo leer estos KPI en EP3.** Las metas de esta tabla son las de EP2, que evaluó 33 segmentos de entrenamiento. Las cifras de EP3 (41 segmentos, otra validación) están en la sección [8.1](#{ancla_81()}) "
+            "y en las secciones 8.3 y 12; no son comparables una a una con las de la sección 8 (ver el recuadro de 8.1).")
