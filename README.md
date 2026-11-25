@@ -25,7 +25,7 @@
 | Ejecutar la aplicación (Lente) | `.venv\Scripts\python.exe app\lanzar.py --server.address localhost --server.port 8501 --browser.gatherUsageStats false` (o `scripts\ep3\arrancar_app.bat`) |
 | Reproducir el resultado oficial de EP2 | `.venv\Scripts\python.exe -X utf8 scripts\verificar_congelados.py` y luego el notebook 10 con el kernel `ep2` (comandos completos en la sección 14) |
 | Correr las pruebas | `.venv\Scripts\python.exe -m pytest tests/ep3 -q --no-cov -p no:cacheprovider` (EP3); `pytest -q` corre además las de EP2 y regenera README e informe de EP2 |
-| Aplicación desplegada | Despliegue en AWS Academy: en preparación |
+| Aplicación desplegada | Despliegue en AWS Academy |
 
 [Informe técnico de EP3](docs/ep3/informe_tecnico_EP3.md) · [Informe de EP2](docs/informe_tecnico_EP2.md) · [Plan de evaluación congelado](docs/plan_evaluacion_test.md) · [Log de trabajo](docs/log_trabajo_ep2.md) · [README de EP1](docs/README_EP1.md)
 
